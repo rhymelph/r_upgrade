@@ -45,7 +45,6 @@ public class RUpgradePlugin implements MethodCallHandler,EventChannel.StreamHand
 
     @Override
     public void onListen(Object o, EventChannel.EventSink eventSink) {
-        int id= (int) o;
         IntentFilter filter=new IntentFilter();
         filter.addAction(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
         filter.addAction(UpgradeManager.DOWNLOAD_STATUS);

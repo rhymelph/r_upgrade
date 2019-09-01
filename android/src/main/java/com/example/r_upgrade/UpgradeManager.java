@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
 
+import com.example.r_upgrade.common.ResultMap;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -18,10 +19,15 @@ import io.flutter.plugin.common.EventChannel;
 
 public class UpgradeManager extends ContextWrapper {
     private static final String TAG = "UpgradeManager";
+    //广播的action
     public static final String DOWNLOAD_STATUS = "com.example.r_upgrade.DOWNLOAD_STATUS";
-    private long id;
+    //速度
+    private double lastProgress = 0;
+    //最后更新的时间
+    private long lastTime = 0;
 
     private Timer timer;
+
 
     public UpgradeManager(Context base) {
         super(base);
@@ -45,7 +51,7 @@ public class UpgradeManager extends ContextWrapper {
         request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, apkName == null ? "upgradePackage.apk" : apkName);
 
         request.setTitle(apkName == null ? "upgradePackage.apk" : apkName);
-        id = manager.enqueue(request);
+        final long id = manager.enqueue(request);
         if (timer != null) {
             timer.cancel();
         }
@@ -55,7 +61,7 @@ public class UpgradeManager extends ContextWrapper {
             public void run() {
                 queryTask(id);
             }
-        }, 500);
+        }, 0, 500);
         Log.d(TAG, "upgrade: " + id);
         return id;
     }
@@ -73,40 +79,84 @@ public class UpgradeManager extends ContextWrapper {
         DownloadManager.Query query = new DownloadManager.Query();
         Cursor cursor = manager.query(query.setFilterById(id));
         if (cursor != null && cursor.moveToFirst()) {
-            //下载的文件到本地的目录
-            String address = cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI));
             //已经下载的字节数
-            int bytes_downloaded = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR));
-            //总需下载的字节数
-            int bytes_total = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES));
-//            //Notification 标题
-//            String title =cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_TITLE));
-//            //描述
-//            String description =cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_DESCRIPTION));
-//            //下载对应id
-            long ids = cursor.getLong(cursor.getColumnIndex(DownloadManager.COLUMN_ID));
-//            //下载文件名称
-//            String filename = cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_FILENAME));
-//            //下载文件的URL链接
-//            String url =cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_URI));
-            Intent intent = new Intent();
-            intent.setAction(DOWNLOAD_STATUS);
-            intent.putExtra("bytes_downloaded", bytes_downloaded);
-            intent.putExtra("bytes_total", bytes_total);
-            intent.putExtra("address", address);
-            intent.putExtra("id", ids);
-            sendBroadcast(intent);
+            int progress = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR));
+
+            if (lastProgress == 0) {
+                lastProgress = progress;
+                lastTime = System.currentTimeMillis();
+            } else if (progress - lastProgress != 0) {
+                //下载的文件到本地的目录
+                String address = cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI));
+                //总需下载的字节数
+                int total = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES));
+                //下载速度
+                double speed = ((progress - lastProgress) * 1000 / (System.currentTimeMillis() - lastTime)) / 1024;
+                //下载文件的URL链接
+                String url = cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_URI));
+
+
+                //计划完成时间
+                double planTime = (total - progress) / (speed * 1024);
+
+                lastProgress = progress;
+                lastTime = System.currentTimeMillis();
+
+                //当前进度
+                double percent = progress * 100 / total;
+
+                int status = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS));
+                switch (status) {
+                    case DownloadManager.STATUS_PAUSED:
+                        Log.d(TAG, "queryTask: 下载被暂停");
+                        break;
+                    case DownloadManager.STATUS_PENDING:
+                        Log.d(TAG, "queryTask: 下载延迟==========>总大小:" + total);
+                        break;
+                    case DownloadManager.STATUS_RUNNING:
+                        Log.d(TAG, "queryTask: 下载中\n" +
+                                "url: " +
+                                url +
+                                "\n============>" +
+                                String.format("%.2f", percent) +
+                                "% , " +
+                                String.format("%.2f", speed) +
+                                "kb/s , " +
+                                "预计：" +
+                                String.format("%.0f", planTime) +
+                                "s");
+                        break;
+                    case DownloadManager.STATUS_SUCCESSFUL:
+                        Log.d(TAG, "queryTask: 下载成功");
+                        installApk(manager.getUriForDownloadedFile(id));
+                        break;
+                    case DownloadManager.STATUS_FAILED:
+                        Log.d(TAG, "queryTask: 下载失败");
+                        break;
+                }
+                Intent intent = new Intent();
+                intent.setAction(DOWNLOAD_STATUS);
+                intent.putExtra("progress", progress);
+                intent.putExtra("percent", percent);
+                intent.putExtra("total", total);
+                intent.putExtra("speed", speed);
+                intent.putExtra("planTime", planTime);
+                intent.putExtra("address", address);
+                intent.putExtra("id", id);
+                sendBroadcast(intent);
+            }
+        }
+        if (cursor != null) {
+            cursor.close();
         }
     }
 
     //安装apk
-    public boolean installApk(long id) {
-        DownloadManager manager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+    public boolean installApk(Uri uri) {
         Intent install = new Intent(Intent.ACTION_VIEW);
-        Uri downloadFileUri = manager.getUriForDownloadedFile(id);
-        if (downloadFileUri != null) {
-            Log.d(TAG, downloadFileUri.toString());
-            install.setDataAndType(downloadFileUri, "application/vnd.android.package-archive");
+        if (uri != null) {
+            Log.d(TAG, uri.toString());
+            install.setDataAndType(uri, "application/vnd.android.package-archive");
             install.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(install);
             return true;
@@ -115,22 +165,36 @@ public class UpgradeManager extends ContextWrapper {
         }
     }
 
-    public BroadcastReceiver createBroadcastReceiver(EventChannel.EventSink eventSink) {
+    public BroadcastReceiver createBroadcastReceiver(final EventChannel.EventSink eventSink) {
         return new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 if (intent != null && intent.getAction() != null && intent.getAction().equals(DownloadManager.ACTION_DOWNLOAD_COMPLETE)) {
                     timer.cancel();
                     timer = null;
-                    installApk(id);
+                    long id = intent.getLongExtra("extra_download_id", 0);
+                    queryTask(id);
                 } else if (intent != null && intent.getAction() != null && intent.getAction().equals(UpgradeManager.DOWNLOAD_STATUS)) {
-                    int bytes_downloaded = intent.getIntExtra("bytes_downloaded", 0);
-                    int bytes_total = intent.getIntExtra("bytes_total", 0);
+
+                    int progress = intent.getIntExtra("progress", 0);
+                    int total = intent.getIntExtra("total", 0);
+                    double percent = intent.getDoubleExtra("percent", 0);
+
+                    double speed = intent.getDoubleExtra("speed", 0);
+
+                    double planTime = intent.getDoubleExtra("planTime", 0);
+
                     String address = intent.getStringExtra("address");
-                    long ids = intent.getLongExtra("id", 0);
-                    Log.d(TAG, "onReceive: bytes_downloaded: bytes_downloaded：" + bytes_downloaded +
-                            "\n bytes_total: " + bytes_total +
-                            "\n address" + address);
+                    long id = intent.getLongExtra("id", 0);
+                    eventSink.success(ResultMap.getInstance()
+                            .pubClear("progress", progress)
+                            .put("id", id)
+                            .put("percent", percent)
+                            .put("planTime", planTime)
+                            .put("speed", speed)
+                            .put("total", total)
+                            .put("address", address)
+                            .getMap());
                 }
             }
         };

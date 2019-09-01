@@ -26,23 +26,65 @@ class _MyAppState extends State<MyApp> {
         body: ListView(
           children: <Widget>[
             Container(
-              height: 200,
-              alignment: Alignment.center,
-              child: Text('${id != null ? '正在下载id为=$id' : ''}'),
-            ),
+                height: 200,
+                alignment: Alignment.center,
+                padding: EdgeInsets.all(8),
+                child: StreamBuilder(
+                  stream: RUpgrade.addListener(),
+                  builder: (BuildContext context,
+                      AsyncSnapshot<DownloadInfo> snapshot) {
+                    if (snapshot.hasData) {
+                      return Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              Text('正在下载'),
+                              Text(
+                                  '${snapshot.data.planTime.toStringAsFixed(0)}s后完成'),
+                            ],
+                          ),
+                          SizedBox(
+                            height: 30,
+                          ),
+                          Row(
+                            children: <Widget>[
+                              Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: LinearProgressIndicator(
+                                    value: snapshot.data.percent == 0
+                                        ? null
+                                        : snapshot.data.percent / 100,
+                                  ),
+                                ),
+                              ),
+                              Text('${snapshot.data.percent}%'),
+                            ],
+                          ),
+                          SizedBox(
+                            height: 30,
+                          ),
+                          Text('${snapshot.data.speed.toStringAsFixed(2)}kb/s')
+                        ],
+                      );
+                    } else {
+                      return Text('等待下载');
+                    }
+                  },
+                )),
             ListTile(
-              title: Text('开始更新'),
+              title: Center(child: Text('开始更新')),
               onTap: () async {
                 id = await RUpgrade.upgrade(
-                    'https://raw.githubusercontent.com/rhymelph/flutter_douban/master/apk/app1.3.apk',
+                    'https://raw.githubusercontent.com/rhymelph/flutter_douban/master/apk/app1.4.apk',
                     apkName: '豆瓣.apk');
-                RUpgrade.addListener(id).listen((data){
-
-                });
+                setState(() {});
               },
             ),
             ListTile(
-              title: Text('取消更新'),
+              title: Center(child: Text('取消更新')),
               onTap: () async {
                 bool cancel = await RUpgrade.cancel(id);
                 print('cancel');
