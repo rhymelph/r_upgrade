@@ -78,7 +78,7 @@ class _MyAppState extends State<MyApp> {
               title: Center(child: Text('开始更新')),
               onTap: () async {
                 id = await RUpgrade.upgrade(
-                    'https://raw.githubusercontent.com/rhymelph/flutter_douban/master/apk/app1.4.apk',
+                    'https://raw.githubusercontent.com/rhymelph/r_upgrade/master/apk/app-release.apk',
                     apkName: '豆瓣.apk');
                 setState(() {});
               },

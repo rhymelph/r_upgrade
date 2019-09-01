@@ -75,6 +75,16 @@ class DownloadInfo {
       );
 }
 
+class DownloadStatus {
+  final int _value;
+
+  int get value => _value;
+
+  const DownloadStatus._internal(this._value);
+
+  static DownloadStatus from(int value) => DownloadStatus._internal(value);
+}
+
 class NotificationVisibility {
   final int _value;
 

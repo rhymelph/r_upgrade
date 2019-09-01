@@ -11,6 +11,7 @@ import android.os.Environment;
 import android.util.Log;
 
 import com.example.r_upgrade.common.ResultMap;
+
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -82,38 +83,38 @@ public class UpgradeManager extends ContextWrapper {
             //已经下载的字节数
             int progress = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR));
 
-            if (lastProgress == 0) {
-                lastProgress = progress;
-                lastTime = System.currentTimeMillis();
-            } else if (progress - lastProgress != 0) {
-                //下载的文件到本地的目录
-                String address = cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI));
-                //总需下载的字节数
-                int total = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES));
-                //下载速度
-                double speed = ((progress - lastProgress) * 1000 / (System.currentTimeMillis() - lastTime)) / 1024;
-                //下载文件的URL链接
-                String url = cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_URI));
+            //下载的文件到本地的目录
+            String address = cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI));
+            //总需下载的字节数
+            int total = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES));
+            //下载速度
+            double speed = ((progress - lastProgress) * 1000 / (System.currentTimeMillis() - lastTime)) / 1024;
+            //下载文件的URL链接
+            String url = cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_URI));
 
 
-                //计划完成时间
-                double planTime = (total - progress) / (speed * 1024);
+            //计划完成时间
+            double planTime = (total - progress) / (speed * 1024);
 
-                lastProgress = progress;
-                lastTime = System.currentTimeMillis();
+            lastProgress = progress;
+            lastTime = System.currentTimeMillis();
 
-                //当前进度
-                double percent = progress * 100 / total;
+            //当前进度
+            double percent = progress * 100 / total;
 
-                int status = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS));
-                switch (status) {
-                    case DownloadManager.STATUS_PAUSED:
-                        Log.d(TAG, "queryTask: 下载被暂停");
-                        break;
-                    case DownloadManager.STATUS_PENDING:
-                        Log.d(TAG, "queryTask: 下载延迟==========>总大小:" + total);
-                        break;
-                    case DownloadManager.STATUS_RUNNING:
+            int status = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS));
+            switch (status) {
+                case DownloadManager.STATUS_PAUSED:
+                    Log.d(TAG, "queryTask: 下载被暂停");
+                    break;
+                case DownloadManager.STATUS_PENDING:
+                    Log.d(TAG, "queryTask: 下载延迟==========>总大小:" + total);
+                    break;
+                case DownloadManager.STATUS_RUNNING:
+                    if (lastProgress == 0) {
+                        lastProgress = progress;
+                        lastTime = System.currentTimeMillis();
+                    } else if (progress - lastProgress != 0) {
                         Log.d(TAG, "queryTask: 下载中\n" +
                                 "url: " +
                                 url +
@@ -126,25 +127,26 @@ public class UpgradeManager extends ContextWrapper {
                                 String.format("%.0f", planTime) +
                                 "s");
                         break;
-                    case DownloadManager.STATUS_SUCCESSFUL:
-                        Log.d(TAG, "queryTask: 下载成功");
-                        installApk(manager.getUriForDownloadedFile(id));
-                        break;
-                    case DownloadManager.STATUS_FAILED:
-                        Log.d(TAG, "queryTask: 下载失败");
-                        break;
-                }
-                Intent intent = new Intent();
-                intent.setAction(DOWNLOAD_STATUS);
-                intent.putExtra("progress", progress);
-                intent.putExtra("percent", percent);
-                intent.putExtra("total", total);
-                intent.putExtra("speed", speed);
-                intent.putExtra("planTime", planTime);
-                intent.putExtra("address", address);
-                intent.putExtra("id", id);
-                sendBroadcast(intent);
+
+                    }
+                case DownloadManager.STATUS_SUCCESSFUL:
+                    Log.d(TAG, "queryTask: 下载成功");
+                    installApk(manager.getUriForDownloadedFile(id));
+                    break;
+                case DownloadManager.STATUS_FAILED:
+                    Log.d(TAG, "queryTask: 下载失败");
+                    break;
             }
+            Intent intent = new Intent();
+            intent.setAction(DOWNLOAD_STATUS);
+            intent.putExtra("progress", progress);
+            intent.putExtra("percent", percent);
+            intent.putExtra("total", total);
+            intent.putExtra("speed", speed);
+            intent.putExtra("planTime", planTime);
+            intent.putExtra("address", address);
+            intent.putExtra("id", id);
+            sendBroadcast(intent);
         }
         if (cursor != null) {
             cursor.close();
@@ -158,6 +160,7 @@ public class UpgradeManager extends ContextWrapper {
             Log.d(TAG, uri.toString());
             install.setDataAndType(uri, "application/vnd.android.package-archive");
             install.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            install.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             startActivity(install);
             return true;
         } else {
