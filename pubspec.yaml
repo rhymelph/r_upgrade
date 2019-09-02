@@ -1,8 +1,8 @@
 name: r_upgrade
-description: A new Flutter project.
+description: Android apk upgrade plugin.
 version: 0.0.1
-author:
-homepage:
+author: rhyme_lph<rhymelph@gmail.com>
+homepage: https://github.com/rhymelph/r_upgrade
 
 environment:
   sdk: ">=2.1.0 <3.0.0"

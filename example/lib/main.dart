@@ -30,7 +30,7 @@ class _MyAppState extends State<MyApp> {
                 alignment: Alignment.center,
                 padding: EdgeInsets.all(8),
                 child: StreamBuilder(
-                  stream: RUpgrade.addListener(),
+                  stream: RUpgrade.stream,
                   builder: (BuildContext context,
                       AsyncSnapshot<DownloadInfo> snapshot) {
                     if (snapshot.hasData) {
@@ -87,7 +87,7 @@ class _MyAppState extends State<MyApp> {
             ListTile(
               title: Center(child: Text('取消更新')),
               onTap: () async {
-                bool cancel = await RUpgrade.cancel(id);
+                bool isSuccess = await RUpgrade.cancel(id);
                 print('cancel');
               },
             ),
@@ -112,4 +112,5 @@ class _MyAppState extends State<MyApp> {
       return "未知";
     }
   }
+
 }

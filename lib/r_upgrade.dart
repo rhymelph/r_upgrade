@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
@@ -7,22 +6,26 @@ class RUpgrade {
   static const MethodChannel _channel = const MethodChannel('r_upgrade');
   static const EventChannel _eChannel = const EventChannel('r_upgrade/e');
 
-  //添加监听
-  static Stream<DownloadInfo> addListener() => _eChannel
+  ///
+  /// Download info stream . this will listen your upgrade progress and more info.
+  ///
+  static Stream<DownloadInfo> get stream => _eChannel
       .receiveBroadcastStream()
       .map((map) => DownloadInfo.formMap(map));
 
-  /// 立即升级
-  /// [url] 请求地址
-  /// [header] 请求头
-  /// [apkName] 在通知栏显示的头
+  ///
+  /// You can use this method upgrade your android application.If your application is ios. Oh,so sorry...
+  ///
+  /// * [url] download url.
+  /// * [header] download  request header.
+  /// * [apkName] download  filename and notification title name.
+  /// * [notificationVisibility] download running notification visibility mode.
   static Future<int> upgrade(
-    String url, //请求url
-    {
-    Map<String, String> header, //请求头
-    @required String apkName, // apk名 xxx.apk
+    String url, {
+    Map<String, String> header,
+    @required String apkName,
     NotificationVisibility notificationVisibility =
-        NotificationVisibility.VISIBILITY_VISIBLE_NOTIFY_COMPLETED, // 显示通知栏方式
+        NotificationVisibility.VISIBILITY_VISIBLE_NOTIFY_COMPLETED,
   }) {
     return _channel.invokeMethod('upgrade', {
       'url': url,
@@ -32,14 +35,17 @@ class RUpgrade {
     });
   }
 
-  //取消升级
+  ///
+  /// Cancel by the [id] download task .
   static Future<bool> cancel(int id) {
     return _channel.invokeMethod('cancel', {
       'id': id,
     });
   }
 
-  //安装应用
+  ///
+  /// Install your apk by [path].
+  ///
   static Future<void> install(String path) async {
     return await _channel.invokeMethod("install", {
       'path': path,
@@ -47,6 +53,18 @@ class RUpgrade {
   }
 }
 
+///
+/// A model class is download info
+///
+/// * [total] download total bytes
+/// * [status] download status . you can watch [DownloadStatus]
+/// * [progress] download progress bytes
+/// * [planTime] download plan time /s
+/// * [address] download file address
+/// * [percent] download percent 0-100
+/// * [id] download id
+/// * [speed] download speed kb/s
+///
 class DownloadInfo {
   final int total;
   final String address;
@@ -56,6 +74,7 @@ class DownloadInfo {
   final int id;
   final double speed;
   final DownloadStatus status;
+
   DownloadInfo(
       {this.total,
       this.address,
@@ -63,7 +82,7 @@ class DownloadInfo {
       this.progress,
       this.percent,
       this.id,
-        this.status,
+      this.status,
       this.speed});
 
   factory DownloadInfo.formMap(dynamic map) => DownloadInfo(
@@ -80,9 +99,17 @@ class DownloadInfo {
   String toString() {
     return 'DownloadInfo{total: $total, address: $address, planTime: $planTime, progress: $progress, percent: $percent, id: $id, speed: $speed, status: $status}';
   }
-
 }
 
+///
+/// A model class is download status
+///
+/// * [STATUS_PAUSED] download paused
+/// * [STATUS_PENDING] download pending
+/// * [STATUS_RUNNING] download running
+/// * [STATUS_SUCCESSFUL] download successful
+/// * [STATUS_FAILED] download failed
+///
 class DownloadStatus {
   final int _value;
 
@@ -103,10 +130,16 @@ class DownloadStatus {
   operator ==(status) => status._value == this._value;
 
   toString() => 'DownloadStatus($_value)';
-
-
 }
 
+///
+/// A model class is Notification Visibility
+///
+/// * [VISIBILITY_VISIBLE] This download is visible but only shows in the notifications
+/// * [VISIBILITY_VISIBLE_NOTIFY_COMPLETED] This download is visible and shows in the notifications while
+/// * [VISIBILITY_HIDDEN] This download doesn't show in the UI or in the notifications.
+/// * [VISIBILITY_VISIBLE_NOTIFY_ONLY_COMPLETION] This download shows in the notifications after completion ONLY.
+///
 class NotificationVisibility {
   final int _value;
 
@@ -137,9 +170,6 @@ class NotificationVisibility {
 
   ///
   /// This download shows in the notifications after completion ONLY.
-  /// It is usuable only with
-  /// {@link DownloadManager#addCompletedDownload(String, String,
-  /// boolean, String, String, long, boolean)}.
   ///
   static const VISIBILITY_VISIBLE_NOTIFY_ONLY_COMPLETION =
       const NotificationVisibility._internal(3);
