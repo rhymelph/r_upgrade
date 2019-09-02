@@ -3,6 +3,7 @@ package com.example.r_upgrade;
 import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
 import android.content.IntentFilter;
+import android.net.Uri;
 
 import java.util.Map;
 
@@ -16,9 +17,10 @@ import io.flutter.plugin.common.PluginRegistry.Registrar;
 /**
  * RUpgradePlugin
  */
-public class RUpgradePlugin implements MethodCallHandler,EventChannel.StreamHandler {
+public class RUpgradePlugin implements MethodCallHandler, EventChannel.StreamHandler {
     private static UpgradeManager manager;
     private BroadcastReceiver downloadReceiver;
+
     /**
      * Plugin registration.
      */
@@ -26,7 +28,7 @@ public class RUpgradePlugin implements MethodCallHandler,EventChannel.StreamHand
         final MethodChannel channel = new MethodChannel(registrar.messenger(), "r_upgrade");
         manager = new UpgradeManager(registrar.context());
         channel.setMethodCallHandler(new RUpgradePlugin());
-        final EventChannel eventChannel=new EventChannel(registrar.messenger(),"r_upgrade/e");
+        final EventChannel eventChannel = new EventChannel(registrar.messenger(), "r_upgrade/e");
         eventChannel.setStreamHandler(new RUpgradePlugin());
     }
 
@@ -38,6 +40,8 @@ public class RUpgradePlugin implements MethodCallHandler,EventChannel.StreamHand
                     (String) call.argument("apkName"), (Integer) call.argument("notificationVisibility")));
         } else if (call.method.equals("cancel")) {
             result.success(manager.cancel((Integer) call.argument("id")));
+        } else if (call.method.equals("install")) {
+            result.success(manager.installApk(Uri.parse((String) call.argument("path"))));
         } else {
             result.notImplemented();
         }
@@ -45,11 +49,11 @@ public class RUpgradePlugin implements MethodCallHandler,EventChannel.StreamHand
 
     @Override
     public void onListen(Object o, EventChannel.EventSink eventSink) {
-        IntentFilter filter=new IntentFilter();
+        IntentFilter filter = new IntentFilter();
         filter.addAction(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
         filter.addAction(UpgradeManager.DOWNLOAD_STATUS);
-        downloadReceiver=manager.createBroadcastReceiver(eventSink);
-        manager.registerReceiver(downloadReceiver,filter);
+        downloadReceiver = manager.createBroadcastReceiver(eventSink);
+        manager.registerReceiver(downloadReceiver, filter);
     }
 
     @Override

@@ -97,21 +97,19 @@ class _MyAppState extends State<MyApp> {
     );
   }
 
-
-  String getStatus(DownloadStatus status){
-    switch(status){
-      case DownloadStatus.STATUS_FAILED:
-        return "下载失败";
-      case DownloadStatus.STATUS_PAUSED:
-        return "下载暂停";
-      case DownloadStatus.STATUS_PENDING:
-        return "获取资源中";
-      case DownloadStatus.STATUS_RUNNING:
-        return "下载中";
-      case DownloadStatus.STATUS_SUCCESSFUL:
-        return "下载成功";
-      default:
-        return "未知";
+  String getStatus(DownloadStatus status) {
+    if (status == DownloadStatus.STATUS_FAILED) {
+      return "下载失败";
+    } else if (status == DownloadStatus.STATUS_PAUSED) {
+      return "下载暂停";
+    } else if (status == DownloadStatus.STATUS_PENDING) {
+      return "获取资源中";
+    } else if (status == DownloadStatus.STATUS_RUNNING) {
+      return "下载中";
+    } else if (status == DownloadStatus.STATUS_SUCCESSFUL) {
+      return "下载成功";
+    } else {
+      return "未知";
     }
   }
 }
