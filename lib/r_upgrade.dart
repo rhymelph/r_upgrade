@@ -44,11 +44,11 @@ class RUpgrade {
   }
 
   ///
-  /// Install your apk by [path].
+  /// Install your apk by [id].
   ///
-  static Future<void> install(String path) async {
+  static Future<bool> install(int id) async {
     return await _channel.invokeMethod("install", {
-      'path': path,
+      'id': id,
     });
   }
 }

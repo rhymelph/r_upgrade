@@ -86,23 +86,23 @@ public class UpgradeManager extends ContextWrapper {
                 case DownloadManager.STATUS_PAUSED:
 //                    Log.d(TAG, "queryTask: 下载被暂停");
                     intent.setAction(DOWNLOAD_STATUS);
-                    intent.putExtra("status",DownloadStatus.STATUS_PAUSED.getValue());
+                    intent.putExtra("status", DownloadStatus.STATUS_PAUSED.getValue());
                     intent.putExtra("id", id);
                     sendBroadcast(intent);
                     break;
                 case DownloadManager.STATUS_PENDING:
 //                    Log.d(TAG, "queryTask: 下载延迟==========>总大小:");
                     intent.setAction(DOWNLOAD_STATUS);
-                    intent.putExtra("status",DownloadStatus.STATUS_PENDING.getValue());
+                    intent.putExtra("status", DownloadStatus.STATUS_PENDING.getValue());
                     intent.putExtra("id", id);
                     sendBroadcast(intent);
                     break;
                 case DownloadManager.STATUS_RUNNING:
                     //已经下载的字节数
                     int progress = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR));
-                    if(lastProgress==0){
-                        lastProgress=progress;
-                        lastTime=System.currentTimeMillis();
+                    if (lastProgress == 0) {
+                        lastProgress = progress;
+                        lastTime = System.currentTimeMillis();
                     }
                     //下载的文件到本地的目录
                     String address = cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI));
@@ -132,7 +132,7 @@ public class UpgradeManager extends ContextWrapper {
 //                                "s");
                         intent.setAction(DOWNLOAD_STATUS);
                         intent.putExtra("progress", progress);
-                        intent.putExtra("status",DownloadStatus.STATUS_RUNNING.getValue());
+                        intent.putExtra("status", DownloadStatus.STATUS_RUNNING.getValue());
                         intent.putExtra("percent", percent);
                         intent.putExtra("total", total);
                         intent.putExtra("speed", speed);
@@ -148,7 +148,7 @@ public class UpgradeManager extends ContextWrapper {
 //                    Log.d(TAG, "queryTask: 下载成功");
                     installApk(manager.getUriForDownloadedFile(id));
                     intent.setAction(DOWNLOAD_STATUS);
-                    intent.putExtra("status",DownloadStatus.STATUS_SUCCESSFUL.getValue());
+                    intent.putExtra("status", DownloadStatus.STATUS_SUCCESSFUL.getValue());
                     intent.putExtra("id", id);
                     sendBroadcast(intent);
 
@@ -156,7 +156,7 @@ public class UpgradeManager extends ContextWrapper {
                 case DownloadManager.STATUS_FAILED:
 //                    Log.d(TAG, "queryTask: 下载失败");
                     intent.setAction(DOWNLOAD_STATUS);
-                    intent.putExtra("status",DownloadStatus.STATUS_FAILED.getValue());
+                    intent.putExtra("status", DownloadStatus.STATUS_FAILED.getValue());
                     intent.putExtra("id", id);
                     sendBroadcast(intent);
                     break;
@@ -182,6 +182,11 @@ public class UpgradeManager extends ContextWrapper {
         }
     }
 
+    public boolean installApkById(int id) {
+        DownloadManager manager = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+        return installApk(manager.getUriForDownloadedFile(id));
+    }
+
     public BroadcastReceiver createBroadcastReceiver(final EventChannel.EventSink eventSink) {
         return new BroadcastReceiver() {
             @Override
@@ -201,7 +206,7 @@ public class UpgradeManager extends ContextWrapper {
 
                     double planTime = intent.getDoubleExtra("planTime", 0);
 
-                    int status= intent.getIntExtra("status",1);
+                    int status = intent.getIntExtra("status", 1);
 
                     String address = intent.getStringExtra("address");
                     long id = intent.getLongExtra("id", 0);
@@ -210,7 +215,7 @@ public class UpgradeManager extends ContextWrapper {
                             .put("id", id)
                             .put("percent", percent)
                             .put("planTime", planTime)
-                            .put("status",status)
+                            .put("status", status)
                             .put("speed", speed)
                             .put("total", total)
                             .put("address", address)

@@ -91,6 +91,12 @@ class _MyAppState extends State<MyApp> {
                 print('cancel');
               },
             ),
+            ListTile(
+              title: Center(child: Text('安装apk')),
+              onTap: () async {
+                bool isSuccess = await RUpgrade.install(id);
+              },
+            ),
           ],
         ),
       ),

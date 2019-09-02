@@ -19,7 +19,7 @@ RUpgrade.stream.listen((info){
 - just upgrade your android application
 ```dart
     void upgrade() async {
-      id = await RUpgrade.upgrade(
+      int id = await RUpgrade.upgrade(
                  'https://raw.githubusercontent.com/rhymelph/r_upgrade/master/apk/app-release.apk',
                  apkName: 'app-release.apk');
     }
@@ -28,5 +28,11 @@ RUpgrade.stream.listen((info){
 ```dart
     void cancel() async {
       bool isSuccess=await RUpgrade.cancel(id);
+    }
+```
+- you can use this id to install apk
+```dart
+    void install() async {
+      bool isSuccess=await RUpgrade.install(id);
     }
 ```
