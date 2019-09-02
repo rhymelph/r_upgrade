@@ -48,25 +48,26 @@ class _MyAppState extends State<MyApp> {
                           SizedBox(
                             height: 30,
                           ),
-                          Row(
-                            children: <Widget>[
-                              Expanded(
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: LinearProgressIndicator(
-                                    value: snapshot.data.percent == 0
-                                        ? null
-                                        : snapshot.data.percent / 100,
-                                  ),
-                                ),
-                              ),
-                              Text('${snapshot.data.percent}%'),
-                            ],
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: LinearProgressIndicator(
+                              value: snapshot.data.percent == 0
+                                  ? null
+                                  : snapshot.data.percent / 100,
+                            ),
                           ),
                           SizedBox(
                             height: 30,
                           ),
-                          Text('${snapshot.data.speed.toStringAsFixed(2)}kb/s')
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              Text('${snapshot.data.percent}%'),
+                              Text(
+                                  '${snapshot.data.speed.toStringAsFixed(2)}kb/s'),
+                            ],
+                          ),
+                          Text('${getStatus(snapshot.data.status)}'),
                         ],
                       );
                     } else {
@@ -79,7 +80,7 @@ class _MyAppState extends State<MyApp> {
               onTap: () async {
                 id = await RUpgrade.upgrade(
                     'https://raw.githubusercontent.com/rhymelph/r_upgrade/master/apk/app-release.apk',
-                    apkName: '豆瓣.apk');
+                    apkName: 'app-release.apk');
                 setState(() {});
               },
             ),
@@ -94,5 +95,23 @@ class _MyAppState extends State<MyApp> {
         ),
       ),
     );
+  }
+
+
+  String getStatus(DownloadStatus status){
+    switch(status){
+      case DownloadStatus.STATUS_FAILED:
+        return "下载失败";
+      case DownloadStatus.STATUS_PAUSED:
+        return "下载暂停";
+      case DownloadStatus.STATUS_PENDING:
+        return "获取资源中";
+      case DownloadStatus.STATUS_RUNNING:
+        return "下载中";
+      case DownloadStatus.STATUS_SUCCESSFUL:
+        return "下载成功";
+      default:
+        return "未知";
+    }
   }
 }

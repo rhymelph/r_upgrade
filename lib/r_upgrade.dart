@@ -55,7 +55,7 @@ class DownloadInfo {
   final double percent;
   final int id;
   final double speed;
-
+  final DownloadStatus status;
   DownloadInfo(
       {this.total,
       this.address,
@@ -63,6 +63,7 @@ class DownloadInfo {
       this.progress,
       this.percent,
       this.id,
+        this.status,
       this.speed});
 
   factory DownloadInfo.formMap(dynamic map) => DownloadInfo(
@@ -71,8 +72,15 @@ class DownloadInfo {
         planTime: map['planTime'],
         percent: map['percent'],
         id: map['id'],
+        status: DownloadStatus._internal(map['status']),
         speed: map['speed'],
       );
+
+  @override
+  String toString() {
+    return 'DownloadInfo{total: $total, address: $address, planTime: $planTime, progress: $progress, percent: $percent, id: $id, speed: $speed, status: $status}';
+  }
+
 }
 
 class DownloadStatus {
@@ -83,6 +91,20 @@ class DownloadStatus {
   const DownloadStatus._internal(this._value);
 
   static DownloadStatus from(int value) => DownloadStatus._internal(value);
+
+  static const STATUS_PAUSED = const DownloadStatus._internal(0);
+  static const STATUS_PENDING = const DownloadStatus._internal(1);
+  static const STATUS_RUNNING = const DownloadStatus._internal(2);
+  static const STATUS_SUCCESSFUL = const DownloadStatus._internal(3);
+  static const STATUS_FAILED = const DownloadStatus._internal(4);
+
+  get hashCode => _value;
+
+  operator ==(status) => status._value == this._value;
+
+  toString() => 'DownloadStatus($_value)';
+
+
 }
 
 class NotificationVisibility {
