@@ -1,4 +1,5 @@
 # r_upgrade
+[![pub package](https://img.shields.io/pub/v/r_upgrade.svg)](https://pub.dartlang.org/packages/r_upgrade)
 
 Android apk upgrade plugin.
 

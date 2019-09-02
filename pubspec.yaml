@@ -1,6 +1,6 @@
 name: r_upgrade
-description: Android apk upgrade plugin.
-version: 0.0.1
+description: A plugin for upgrade and install application ,Support Android.
+version: 0.0.2
 author: rhyme_lph<rhymelph@gmail.com>
 homepage: https://github.com/rhymelph/r_upgrade
 
