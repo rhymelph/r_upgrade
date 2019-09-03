@@ -1,7 +1,7 @@
 # r_upgrade
 [![pub package](https://img.shields.io/pub/v/r_upgrade.svg)](https://pub.dartlang.org/packages/r_upgrade)
 
-Android apk upgrade plugin.
+Android and IOS upgrade plugin.
 
 ## Getting Started
 - use plugin:
@@ -34,5 +34,11 @@ RUpgrade.stream.listen((info){
 ```dart
     void install() async {
       bool isSuccess=await RUpgrade.install(id);
+    }
+```
+- your application is ios.You can use this.
+```dart
+    void iosUpgrade(String url)async{
+      RUpgrade.appStore
     }
 ```

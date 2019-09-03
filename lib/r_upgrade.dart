@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
@@ -9,9 +10,12 @@ class RUpgrade {
   ///
   /// Download info stream . this will listen your upgrade progress and more info.
   ///
-  static Stream<DownloadInfo> get stream => _eChannel
-      .receiveBroadcastStream()
-      .map((map) => DownloadInfo.formMap(map));
+  static Stream<DownloadInfo> get stream {
+    assert(Platform.isAndroid, 'This method only support android application');
+    return _eChannel
+        .receiveBroadcastStream()
+        .map((map) => DownloadInfo.formMap(map));
+  }
 
   ///
   /// You can use this method upgrade your android application.If your application is ios. Oh,so sorry...
@@ -27,6 +31,7 @@ class RUpgrade {
     NotificationVisibility notificationVisibility =
         NotificationVisibility.VISIBILITY_VISIBLE_NOTIFY_COMPLETED,
   }) {
+    assert(Platform.isAndroid, 'This method only support android application');
     return _channel.invokeMethod('upgrade', {
       'url': url,
       "header": header,
@@ -35,9 +40,18 @@ class RUpgrade {
     });
   }
 
+  /// if your application is ios ,
+  static Future<void> upgradeFromAppStore(String url) async {
+    assert(Platform.isIOS, 'This method only support ios application');
+    await _channel.invokeMethod("upgradeFromAppStore", {
+      'url': url,
+    });
+  }
+
   ///
   /// Cancel by the [id] download task .
   static Future<bool> cancel(int id) {
+    assert(Platform.isAndroid, 'This method only support android application');
     return _channel.invokeMethod('cancel', {
       'id': id,
     });
@@ -47,6 +61,7 @@ class RUpgrade {
   /// Install your apk by [id].
   ///
   static Future<bool> install(int id) async {
+    assert(Platform.isAndroid, 'This method only support android application');
     return await _channel.invokeMethod("install", {
       'id': id,
     });
