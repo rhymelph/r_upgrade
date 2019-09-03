@@ -1,7 +1,7 @@
 # r_upgrade
 [![pub package](https://img.shields.io/pub/v/r_upgrade.svg)](https://pub.dartlang.org/packages/r_upgrade)
 
-🆙Android和IOS的升级应用插件==Flutter应用升级插件
+Android和IOS的升级应用插件==Flutter应用升级插件
 
 ## 开始吧
 - 使用插件:
