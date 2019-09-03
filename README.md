@@ -39,6 +39,14 @@ RUpgrade.stream.listen((info){
 - your application is ios.You can use this.
 ```dart
     void iosUpgrade(String url)async{
-      RUpgrade.appStore
+      RUpgrade.appStore(url);
     }
+```
+
+> if your application is **Android**,make sure your application had this permission and request dynamic permission.
+
+```xml
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 ```
