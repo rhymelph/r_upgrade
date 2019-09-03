@@ -3,7 +3,7 @@
 
 Android and IOS upgrade plugin.
 
-## [中文点此](README_CM.md)
+## [中文点此](README_CN.md)
 ## Getting Started
 - use plugin:
 add this code in `pubspec.yaml`
