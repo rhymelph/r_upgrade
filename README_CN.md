@@ -65,7 +65,7 @@ info 里面包含的信息如下:
       bool isSuccess=await RUpgrade.install(id);
     }
 ```
-- 如果你的应用为IOS，使用次方法跳转到appStore进行下载更新
+- 如果你的应用为IOS，使用此方法跳转到appStore进行下载更新
 ```dart
     void iosUpgrade(String url)async{
       RUpgrade.appStore(url);
