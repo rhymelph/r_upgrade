@@ -1,7 +1,7 @@
 # r_upgrade
 [![pub package](https://img.shields.io/pub/v/r_upgrade.svg)](https://pub.dartlang.org/packages/r_upgrade)
 
-🆙Android和IOS的升级应用插件==Flutter应用升级插件
+Android和IOS的升级应用插件==Flutter应用升级插件
 
 ## 开始吧
 - 使用插件:
@@ -43,7 +43,7 @@ info 里面包含的信息如下:
 
 `id` 当前下载任务的id
 
-`speed` 当前下载进度kb/s
+`speed` 当前下载速度kb/s
 
 -  立即升级你的应用
 ```dart
@@ -65,7 +65,7 @@ info 里面包含的信息如下:
       bool isSuccess=await RUpgrade.install(id);
     }
 ```
-- 如果你的应用为IOS，使用次方法跳转到appStore进行下载更新
+- 如果你的应用为IOS，使用此方法跳转到appStore进行下载更新
 ```dart
     void iosUpgrade(String url)async{
       RUpgrade.appStore(url);
