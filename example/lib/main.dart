@@ -11,6 +11,8 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   int id;
 
+  GlobalKey<ScaffoldState> _state=GlobalKey();
+
   @override
   void initState() {
     super.initState();
@@ -20,6 +22,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
+        key: _state,
         appBar: AppBar(
           title: const Text('Plugin example app'),
         ),
@@ -29,7 +32,7 @@ class _MyAppState extends State<MyApp> {
                 height: 200,
                 alignment: Alignment.center,
                 padding: EdgeInsets.all(8),
-                child: StreamBuilder(
+                child: id!=null?StreamBuilder(
                   stream: RUpgrade.stream,
                   builder: (BuildContext context,
                       AsyncSnapshot<DownloadInfo> snapshot) {
@@ -74,7 +77,7 @@ class _MyAppState extends State<MyApp> {
                       return Text('等待下载');
                     }
                   },
-                )),
+                ):Text('等待下载')),
             ListTile(
               title: Center(child: Text('开始更新')),
               onTap: () async {
@@ -88,6 +91,11 @@ class _MyAppState extends State<MyApp> {
               title: Center(child: Text('取消更新')),
               onTap: () async {
                 bool isSuccess = await RUpgrade.cancel(id);
+                if(isSuccess){
+                  _state.currentState.showSnackBar(SnackBar(content: Text('取消成功')));
+                  id=null;
+                  setState(() {});
+                }
                 print('cancel');
               },
             ),
@@ -95,6 +103,9 @@ class _MyAppState extends State<MyApp> {
               title: Center(child: Text('安装apk')),
               onTap: () async {
                 bool isSuccess = await RUpgrade.install(id);
+                if(isSuccess){
+                  _state.currentState.showSnackBar(SnackBar(content: Text('请求成功')));
+                }
               },
             ),
           ],

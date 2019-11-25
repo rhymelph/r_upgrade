@@ -118,7 +118,7 @@ public class UpgradeManager extends ContextWrapper {
 
                     //当前进度
                     double percent = progress * 100 / total;
-                    if (progress - lastProgress != 0) {
+                    if (progress - lastProgress > 0) {
 //                        Log.d(TAG, "queryTask: 下载中\n" +
 //                                "url: " +
 //                                url +
@@ -151,7 +151,7 @@ public class UpgradeManager extends ContextWrapper {
                     intent.putExtra("status", DownloadStatus.STATUS_SUCCESSFUL.getValue());
                     intent.putExtra("id", id);
                     sendBroadcast(intent);
-
+                    lastProgress=0;
                     break;
                 case DownloadManager.STATUS_FAILED:
 //                    Log.d(TAG, "queryTask: 下载失败");
@@ -159,6 +159,7 @@ public class UpgradeManager extends ContextWrapper {
                     intent.putExtra("status", DownloadStatus.STATUS_FAILED.getValue());
                     intent.putExtra("id", id);
                     sendBroadcast(intent);
+                    lastProgress=0;
                     break;
             }
         }
