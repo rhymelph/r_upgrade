@@ -12,6 +12,7 @@ import android.util.Log;
 
 import com.example.r_upgrade.common.ResultMap;
 
+import java.math.BigDecimal;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -109,20 +110,25 @@ public class UpgradeManager extends ContextWrapper {
                     //总需下载的字节数
                     int total = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES));
                     //下载速度
-                    double speed = ((progress - lastProgress) * 1000 / (System.currentTimeMillis() - lastTime)) / 1024;
+                    double speed = ((progress - lastProgress) * 1000f / (System.currentTimeMillis() - lastTime)) / 1024;
                     //下载文件的URL链接
                     String url = cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_URI));
 
                     //计划完成时间
-                    double planTime = (total - progress) / (speed * 1024);
-
+                    double planTime = (total - progress) / (speed * 1024f);
                     //当前进度
-                    double percent = progress * 100 / total;
+                    double percent=new BigDecimal((progress*1.0f / total)*100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
                     if (progress - lastProgress > 0) {
 //                        Log.d(TAG, "queryTask: 下载中\n" +
 //                                "url: " +
 //                                url +
 //                                "\n============>" +
+//                                "total:" +
+//                                total +
+//                                "，" +
+//                                "progress:" +
+//                                progress +
+//                                "，" +
 //                                String.format("%.2f", percent) +
 //                                "% , " +
 //                                String.format("%.2f", speed) +
@@ -151,7 +157,7 @@ public class UpgradeManager extends ContextWrapper {
                     intent.putExtra("status", DownloadStatus.STATUS_SUCCESSFUL.getValue());
                     intent.putExtra("id", id);
                     sendBroadcast(intent);
-                    lastProgress=0;
+                    lastProgress = 0;
                     break;
                 case DownloadManager.STATUS_FAILED:
 //                    Log.d(TAG, "queryTask: 下载失败");
@@ -159,7 +165,7 @@ public class UpgradeManager extends ContextWrapper {
                     intent.putExtra("status", DownloadStatus.STATUS_FAILED.getValue());
                     intent.putExtra("id", id);
                     sendBroadcast(intent);
-                    lastProgress=0;
+                    lastProgress = 0;
                     break;
             }
         }

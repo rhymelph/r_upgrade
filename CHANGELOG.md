@@ -1,3 +1,5 @@
+## 0.1.3
+* fix progress will decrement.
 ## 0.1.2
 * fix progress is null and speed is negative issus.
 ## 0.1.1
