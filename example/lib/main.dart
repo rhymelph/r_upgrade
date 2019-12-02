@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:r_upgrade/r_upgrade.dart';
 
 void main() => runApp(MyApp());
@@ -81,6 +84,8 @@ class _MyAppState extends State<MyApp> {
             ListTile(
               title: Center(child: Text('开始更新')),
               onTap: () async {
+                if(!await canReadStorage()) return;
+
                 id = await RUpgrade.upgrade(
                     'https://raw.githubusercontent.com/rhymelph/r_upgrade/master/apk/app-release.apk',
                     apkName: 'app-release.apk');
@@ -130,4 +135,21 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
+  Future<bool> canReadStorage() async {
+    if(Platform.isIOS) return true;
+    var status = await PermissionHandler()
+        .checkPermissionStatus(PermissionGroup.storage);
+    if (status != PermissionStatus.granted) {
+      var future = await PermissionHandler()
+          .requestPermissions([PermissionGroup.storage]);
+      for (final item in future.entries) {
+        if (item.value != PermissionStatus.granted) {
+          return false;
+        }
+      }
+    } else {
+      return true;
+    }
+    return true;
+  }
 }
