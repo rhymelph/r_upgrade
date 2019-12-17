@@ -1,3 +1,5 @@
+## 0.1.6
+* fix file provider merge error and add can select auto apk install.
 ## 0.1.5
 * add license.
 ## 0.1.4

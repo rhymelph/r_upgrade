@@ -28,19 +28,22 @@ class RUpgrade {
   /// * [header] download  request header.
   /// * [apkName] download  filename and notification title name.
   /// * [notificationVisibility] download running notification visibility mode.
+  /// * [isAutoRequestInstall] download completed will install apk.
   static Future<int> upgrade(
     String url, {
     Map<String, String> header,
     @required String apkName,
     NotificationVisibility notificationVisibility =
         NotificationVisibility.VISIBILITY_VISIBLE_NOTIFY_COMPLETED,
+    bool isAutoRequestInstall = true,
   }) {
     assert(Platform.isAndroid, 'This method only support android application');
     return _channel.invokeMethod('upgrade', {
       'url': url,
       "header": header,
       "apkName": apkName,
-      "notificationVisibility": notificationVisibility.value
+      "notificationVisibility": notificationVisibility.value,
+      "isAutoRequestInstall": isAutoRequestInstall,
     });
   }
 

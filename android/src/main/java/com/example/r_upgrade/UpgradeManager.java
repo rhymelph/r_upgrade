@@ -30,12 +30,16 @@ public class UpgradeManager extends ContextWrapper {
 
     private Timer timer;
 
+    private boolean isAutoRequestInstall;
+
 
     public UpgradeManager(Context base) {
         super(base);
     }
 
-    public long upgrade(String url, Map<String, String> header, String apkName, Integer notificationVisibility) {
+    public long upgrade(String url, Map<String, String> header, String apkName, Integer notificationVisibility, Boolean isAutoRequestInstall) {
+        this.isAutoRequestInstall = Boolean.TRUE==isAutoRequestInstall;
+
         DownloadManager manager = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
         DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
         if (header != null) {
@@ -117,7 +121,7 @@ public class UpgradeManager extends ContextWrapper {
                     //计划完成时间
                     double planTime = (total - progress) / (speed * 1024f);
                     //当前进度
-                    double percent=new BigDecimal((progress*1.0f / total)*100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+                    double percent = new BigDecimal((progress * 1.0f / total) * 100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
                     if (progress - lastProgress > 0) {
 //                        Log.d(TAG, "queryTask: 下载中\n" +
 //                                "url: " +
@@ -152,7 +156,9 @@ public class UpgradeManager extends ContextWrapper {
                     break;
                 case DownloadManager.STATUS_SUCCESSFUL:
 //                    Log.d(TAG, "queryTask: 下载成功");
-                    installApk(manager.getUriForDownloadedFile(id));
+                    if (isAutoRequestInstall) {
+                        installApk(manager.getUriForDownloadedFile(id));
+                    }
                     intent.setAction(DOWNLOAD_STATUS);
                     intent.putExtra("status", DownloadStatus.STATUS_SUCCESSFUL.getValue());
                     intent.putExtra("id", id);

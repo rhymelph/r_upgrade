@@ -37,7 +37,9 @@ public class RUpgradePlugin implements MethodCallHandler, EventChannel.StreamHan
         if (call.method.equals("upgrade")) {
             result.success(manager.upgrade((String) call.argument("url"),
                     (Map<String, String>) call.argument("header"),
-                    (String) call.argument("apkName"), (Integer) call.argument("notificationVisibility")));
+                    (String) call.argument("apkName"),
+                    (Integer) call.argument("notificationVisibility"),
+                    (Boolean) call.argument("isAutoRequestInstall")));
         } else if (call.method.equals("cancel")) {
             result.success(manager.cancel((Integer) call.argument("id")));
         } else if (call.method.equals("install")) {

@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:r_upgrade/r_upgrade.dart';
 
@@ -13,13 +14,92 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   int id;
+  bool isAutoRequestInstall = true;
 
-  GlobalKey<ScaffoldState> _state=GlobalKey();
+  GlobalKey<ScaffoldState> _state = GlobalKey();
 
   @override
   void initState() {
     super.initState();
   }
+
+  Widget _buildMultiPlatformWidget() {
+    if (Platform.isAndroid) {
+      return _buildAndroidPlatformWidget();
+    } else if (Platform.isIOS) {
+      return _buildIOSPlatformWidget();
+    } else {
+      return Container(
+        child: Text('Sorry, your platform is not support'),
+      );
+    }
+  }
+
+  Widget _buildIOSPlatformWidget() => ListView(
+        children: <Widget>[
+          ListTile(
+            title: Text('Go to app store'),
+            onTap: () async {
+              RUpgrade.upgradeFromAppStore(
+                'https://raw.githubusercontent.com/rhymelph/r_upgrade/master/apk/app-release.apk',
+              );
+            },
+          ),
+        ],
+      );
+
+  Widget _buildAndroidPlatformWidget() => ListView(
+        children: <Widget>[
+          _buildDownloadWindow(),
+          ListTile(
+            title: Text('开始更新'),
+            onTap: () async {
+              if (!await canReadStorage()) return;
+
+              id = await RUpgrade.upgrade(
+                  'https://qugendan-1257080242.cos.ap-hongkong.myqcloud.com/android/qugendan1.2.1.apk',
+                  apkName: 'app-release.apk',
+                  isAutoRequestInstall: isAutoRequestInstall);
+              setState(() {});
+            },
+          ),
+          Divider(),
+          CheckboxListTile(
+            value: isAutoRequestInstall,
+            onChanged: (bool value) {
+              setState(() {
+                isAutoRequestInstall = value;
+              });
+            },
+            title: Text('下载完进行安装'),
+          ),
+          Divider(),
+          ListTile(
+            title: Text('取消更新'),
+            onTap: () async {
+              bool isSuccess = await RUpgrade.cancel(id);
+              if (isSuccess) {
+                _state.currentState
+                    .showSnackBar(SnackBar(content: Text('取消成功')));
+                id = null;
+                setState(() {});
+              }
+              print('cancel');
+            },
+          ),
+          Divider(),
+          ListTile(
+            title: Text('安装apk'),
+            onTap: () async {
+              bool isSuccess = await RUpgrade.install(id);
+              if (isSuccess) {
+                _state.currentState
+                    .showSnackBar(SnackBar(content: Text('请求成功')));
+              }
+            },
+          ),
+        ],
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -29,95 +109,64 @@ class _MyAppState extends State<MyApp> {
         appBar: AppBar(
           title: const Text('Plugin example app'),
         ),
-        body: ListView(
-          children: <Widget>[
-            Container(
-                height: 200,
-                alignment: Alignment.center,
-                padding: EdgeInsets.all(8),
-                child: id!=null?StreamBuilder(
-                  stream: RUpgrade.stream,
-                  builder: (BuildContext context,
-                      AsyncSnapshot<DownloadInfo> snapshot) {
-                    if (snapshot.hasData) {
-                      return Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: <Widget>[
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              Text('正在下载'),
-                              Text(
-                                  '${snapshot.data.planTime.toStringAsFixed(0)}s后完成'),
-                            ],
-                          ),
-                          SizedBox(
-                            height: 30,
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: LinearProgressIndicator(
-                              value: snapshot.data.percent == 0
-                                  ? null
-                                  : snapshot.data.percent / 100,
-                            ),
-                          ),
-                          SizedBox(
-                            height: 30,
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              Text('${snapshot.data.percent}%'),
-                              Text(
-                                  '${snapshot.data.speed.toStringAsFixed(2)}kb/s'),
-                            ],
-                          ),
-                          Text('${getStatus(snapshot.data.status)}'),
-                        ],
-                      );
-                    } else {
-                      return Text('等待下载');
-                    }
-                  },
-                ):Text('等待下载')),
-            ListTile(
-              title: Center(child: Text('开始更新')),
-              onTap: () async {
-                if(!await canReadStorage()) return;
-
-                id = await RUpgrade.upgrade(
-                    'https://raw.githubusercontent.com/rhymelph/r_upgrade/master/apk/app-release.apk',
-                    apkName: 'app-release.apk');
-                setState(() {});
-              },
-            ),
-            ListTile(
-              title: Center(child: Text('取消更新')),
-              onTap: () async {
-                bool isSuccess = await RUpgrade.cancel(id);
-                if(isSuccess){
-                  _state.currentState.showSnackBar(SnackBar(content: Text('取消成功')));
-                  id=null;
-                  setState(() {});
-                }
-                print('cancel');
-              },
-            ),
-            ListTile(
-              title: Center(child: Text('安装apk')),
-              onTap: () async {
-                bool isSuccess = await RUpgrade.install(id);
-                if(isSuccess){
-                  _state.currentState.showSnackBar(SnackBar(content: Text('请求成功')));
-                }
-              },
-            ),
-          ],
-        ),
+        body: _buildMultiPlatformWidget(),
       ),
     );
   }
+
+  Widget _buildDownloadWindow() => Container(
+        height: 250,
+        alignment: Alignment.center,
+        padding: EdgeInsets.symmetric(horizontal: 16),
+        decoration: BoxDecoration(
+          color: Colors.grey[200],
+        ),
+        child: id != null
+            ? StreamBuilder(
+                stream: RUpgrade.stream,
+                builder: (BuildContext context,
+                    AsyncSnapshot<DownloadInfo> snapshot) {
+                  if (snapshot.hasData) {
+                    return Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        SizedBox(
+                          height: 150,
+                          width: 150,
+                          child: CircleDownloadWidget(
+                            progress: snapshot.data.percent / 100,
+                            child: Center(
+                              child: Text(
+                                snapshot.data.status ==
+                                        DownloadStatus.STATUS_RUNNING
+                                    ? getSpeech(snapshot.data.speed)
+                                    : getStatus(snapshot.data.status),
+                                style: TextStyle(
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 30,
+                        ),
+                        Text('${snapshot.data.planTime.toStringAsFixed(0)}s后完成'),
+                      ],
+                    );
+                  } else {
+                    return SizedBox(
+                      width: 60,
+                      height: 60,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                      ),
+                    );
+                  }
+                },
+              )
+            : Text('等待下载'),
+      );
 
   String getStatus(DownloadStatus status) {
     if (status == DownloadStatus.STATUS_FAILED) {
@@ -136,7 +185,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<bool> canReadStorage() async {
-    if(Platform.isIOS) return true;
+    if (Platform.isIOS) return true;
     var status = await PermissionHandler()
         .checkPermissionStatus(PermissionGroup.storage);
     if (status != PermissionStatus.granted) {
@@ -150,6 +199,73 @@ class _MyAppState extends State<MyApp> {
     } else {
       return true;
     }
+    return true;
+  }
+
+
+  String getSpeech(double speech){
+    String unit = 'kb/s';
+    String result = speech.toStringAsFixed(2);
+    if(speech > 1024*1024){
+      unit ='gb/s';
+      result = (speech / (1024*1024)).toStringAsFixed(2);
+    }else if(speech>1024){
+       unit = 'mb/s';
+       result= (speech/1024).toStringAsFixed(2);
+
+    }
+    return '$result$unit';
+  }
+}
+
+class CircleDownloadWidget extends StatelessWidget {
+  final double progress;
+  final Widget child;
+
+  const CircleDownloadWidget({Key key, this.progress, this.child})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return RepaintBoundary(
+      child: CustomPaint(
+        painter: CircleDownloadCustomPainter(
+          Colors.grey[400],
+          Theme.of(context).primaryColor,
+          progress,
+        ),
+        child: child,
+      ),
+    );
+  }
+}
+
+class CircleDownloadCustomPainter extends CustomPainter {
+  final Color backgroundColor;
+  final Color color;
+  final double progress;
+
+  Paint mPaint;
+
+  CircleDownloadCustomPainter(this.backgroundColor, this.color, this.progress);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (mPaint == null) mPaint = Paint();
+    double width = size.width;
+    double height = size.height;
+
+    Rect progressRect =
+        Rect.fromLTRB(0, height * (1 - progress), width, height);
+    Rect widgetRect = Rect.fromLTWH(0, 0, width, height);
+    canvas.clipPath(Path()..addOval(widgetRect));
+
+    canvas.drawRect(widgetRect, mPaint..color = backgroundColor);
+    canvas.drawRect(progressRect, mPaint..color = color);
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) {
     return true;
   }
 }

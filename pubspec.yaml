@@ -1,6 +1,6 @@
 name: r_upgrade
 description: A plugin for upgrade and install application ,Support Android and IOS.
-version: 0.1.5
+version: 0.1.6
 author: rhyme_lph<rhymelph@gmail.com>
 homepage: https://github.com/rhymelph/r_upgrade
 
