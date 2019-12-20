@@ -17,7 +17,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   int id;
-  bool isAutoRequestInstall = true;
+  bool isAutoRequestInstall = false;
 
   bool isClickHotUpgrade;
 
@@ -69,8 +69,8 @@ class _MyAppState extends State<MyApp> {
               if (!await canReadStorage()) return;
 
               id = await RUpgrade.upgrade(
-                  'https://raw.githubusercontent.com/rhymelph/r_upgrade/master/apk/app-release.zip',
-                  apkName: 'patch.zip',
+                  'https://raw.githubusercontent.com/rhymelph/r_upgrade/master/apk/app-release.apk',
+                  apkName: 'app_release.apk',
                   isAutoRequestInstall: isAutoRequestInstall);
               setState(() {});
             },
@@ -153,6 +153,7 @@ class _MyAppState extends State<MyApp> {
                 _state.currentState
                     .showSnackBar(SnackBar(content: Text('取消成功')));
                 id = null;
+                isClickHotUpgrade=null;
                 setState(() {});
               }
               print('cancel');
@@ -168,12 +169,25 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       home: Scaffold(
         key: _state,
+        backgroundColor: version!=1?Colors.black:Theme.of(context).primaryColor,
         appBar: AppBar(
-          title: const Text('upgrade version = $version'),
+          title:  Text(_getAppBarText()),
         ),
         body: _buildMultiPlatformWidget(),
       ),
     );
+  }
+
+  String _getAppBarText(){
+    switch(version){
+      case 1:
+        return 'Normal version = $version';
+      case 2:
+        return 'hot upgrade version = $version';
+      case 3:
+        return 'all upgrade version = $version';
+    }
+    return 'unknow version  = $version';
   }
 
   Widget _buildDownloadWindow() => Container(
@@ -232,6 +246,8 @@ class _MyAppState extends State<MyApp> {
 
   String getStatus(DownloadStatus status) {
     if (status == DownloadStatus.STATUS_FAILED) {
+      id = null;
+      isClickHotUpgrade=null;
       return "下载失败";
     } else if (status == DownloadStatus.STATUS_PAUSED) {
       return "下载暂停";
@@ -242,6 +258,8 @@ class _MyAppState extends State<MyApp> {
     } else if (status == DownloadStatus.STATUS_SUCCESSFUL) {
       return "下载成功";
     } else {
+      id = null;
+      isClickHotUpgrade=null;
       return "未知";
     }
   }
