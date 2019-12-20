@@ -6,7 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:r_upgrade/r_upgrade.dart';
 
-const version = 2;
+const version = 1;
 
 void main() => runApp(MyApp());
 
