@@ -6,7 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:r_upgrade/r_upgrade.dart';
 
-const version = 1;
+const version = 2;
 
 void main() => runApp(MyApp());
 
@@ -169,8 +169,8 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       home: Scaffold(
         key: _state,
-        backgroundColor: version!=1?Colors.black:Theme.of(context).primaryColor,
         appBar: AppBar(
+          backgroundColor: version!=1?Colors.black:Theme.of(context).primaryColor,
           title:  Text(_getAppBarText()),
         ),
         body: _buildMultiPlatformWidget(),
