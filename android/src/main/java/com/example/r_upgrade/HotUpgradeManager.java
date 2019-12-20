@@ -101,6 +101,7 @@ public class HotUpgradeManager extends ContextWrapper {
 
             deleteFlutterAssets();
             unZipFile(zipFile.getPath(),getFlutterAssets().getPath()+File.separator+FLUTTER_ASSETS,true);
+            return true;
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {

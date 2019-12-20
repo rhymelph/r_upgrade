@@ -44,6 +44,40 @@ RUpgrade.stream.listen((info){
     }
 ```
 
+- you can use this id to hot upgrade,but download file is zip. include three file [isolate_snapshot_data]、[kernel_blob.bin]、[vm_snapshot_data].Your can use `flutter build bundle` generate.
+```
+ flutter build bundle
+```
+
+generate file path form ./build/flutter_assets and packaged into zip.
+
+```
+|- AssetManifest.json
+|- FontManifest.json
+|- fonts
+    |- ...
+|- isolate_snapshot_data *
+|- kernel-blob.bin       *
+|- LICENSE
+|- packages
+    |- ...
+|- vm_snapshot_data      *
+```
+download complete you can use download `id` to hot upgrade
+```dart
+           bool isSuccess = await RUpgrade.hotUpgrade(id);
+           if (isSuccess) {
+              _state.currentState
+                    .showSnackBar(SnackBar(content: Text('热更新成功，3s后退出应用，请重新进入')));
+                Future.delayed(Duration(seconds: 3)).then((_){
+                  SystemNavigator.pop(animated: true);
+                });
+           }else{
+              _state.currentState
+                    .showSnackBar(SnackBar(content: Text('热更新失败，请等待更新包下载完成')));
+              }
+```
+
 > if your application is **Android**,make sure your application had this permission and request dynamic permission.
 
 ```xml
@@ -51,3 +85,5 @@ RUpgrade.stream.listen((info){
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 ```
+
+> At present, the hot update is still in the testing stage, only supporting the change of the flutter code, not supporting the resource file, etc. the author of the plug-in is not responsible for all the consequences caused by the hot update, and the user is responsible for it.

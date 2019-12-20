@@ -2,8 +2,11 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:r_upgrade/r_upgrade.dart';
+
+const version = 1;
 
 void main() => runApp(MyApp());
 
@@ -15,6 +18,8 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   int id;
   bool isAutoRequestInstall = true;
+
+  bool isClickHotUpgrade;
 
   GlobalKey<ScaffoldState> _state = GlobalKey();
 
@@ -52,18 +57,39 @@ class _MyAppState extends State<MyApp> {
         children: <Widget>[
           _buildDownloadWindow(),
           ListTile(
-            title: Text('开始更新'),
+            title: Text('开始全量更新'),
             onTap: () async {
+              if(isClickHotUpgrade != null){
+                _state.currentState
+                    .showSnackBar(SnackBar(content: Text('已开始下载')));
+                return;
+              }
+              isClickHotUpgrade = false;
+
               if (!await canReadStorage()) return;
 
               id = await RUpgrade.upgrade(
-                  'https://qugendan-1257080242.cos.ap-hongkong.myqcloud.com/android/qugendan1.2.1.apk',
-                  apkName: 'app-release.apk',
+                  'https://raw.githubusercontent.com/rhymelph/r_upgrade/master/apk/app-release.zip',
+                  apkName: 'patch.zip',
                   isAutoRequestInstall: isAutoRequestInstall);
               setState(() {});
             },
           ),
-          Divider(),
+          ListTile(
+            title: Text('安装apk'),
+            onTap: () async {
+              if(isClickHotUpgrade = true){
+                _state.currentState
+                    .showSnackBar(SnackBar(content: Text('请进行热更新')));
+                return;
+              }
+              bool isSuccess = await RUpgrade.install(id);
+              if (isSuccess) {
+                _state.currentState
+                    .showSnackBar(SnackBar(content: Text('请求成功')));
+              }
+            },
+          ),
           CheckboxListTile(
             value: isAutoRequestInstall,
             onChanged: (bool value) {
@@ -72,6 +98,51 @@ class _MyAppState extends State<MyApp> {
               });
             },
             title: Text('下载完进行安装'),
+          ),
+          Divider(),
+          ListTile(
+            title: Text('开始热更新'),
+            onTap: () async {
+              if(isClickHotUpgrade != null){
+                _state.currentState
+                    .showSnackBar(SnackBar(content: Text('已开始下载')));
+                return;
+              }
+              isClickHotUpgrade = true;
+
+              if (!await canReadStorage()) return;
+              id = await RUpgrade.upgrade(
+                  'https://raw.githubusercontent.com/rhymelph/r_upgrade/master/apk/patch.zip',
+                  apkName: 'patch.zip',
+                  isAutoRequestInstall: isAutoRequestInstall);
+              setState(() {});
+            },
+          ),
+          ListTile(
+            title: Text('进行热更新'),
+            onTap: () async {
+              if(isClickHotUpgrade == false){
+                _state.currentState
+                    .showSnackBar(SnackBar(content: Text('请进行安装应用')));
+                return;
+              }
+              if( id == null){
+                _state.currentState
+                    .showSnackBar(SnackBar(content: Text('请点击开始热更新')));
+                return;
+              }
+              bool isSuccess = await RUpgrade.hotUpgrade(id);
+              if (isSuccess) {
+                _state.currentState
+                    .showSnackBar(SnackBar(content: Text('热更新成功，3s后退出应用，请重新进入')));
+                Future.delayed(Duration(seconds: 3)).then((_){
+                  SystemNavigator.pop(animated: true);
+                });
+              }else{
+                _state.currentState
+                    .showSnackBar(SnackBar(content: Text('热更新失败，请等待更新包下载完成')));
+              }
+            },
           ),
           Divider(),
           ListTile(
@@ -88,27 +159,7 @@ class _MyAppState extends State<MyApp> {
             },
           ),
           Divider(),
-          ListTile(
-            title: Text('安装apk'),
-            onTap: () async {
-              bool isSuccess = await RUpgrade.install(id);
-              if (isSuccess) {
-                _state.currentState
-                    .showSnackBar(SnackBar(content: Text('请求成功')));
-              }
-            },
-          ),
-          Divider(),
-          ListTile(
-            title: Text('热更新'),
-            onTap: () async {
-              bool isSuccess = await RUpgrade.hotUpgrade(id??0);
-              if (isSuccess) {
-                _state.currentState
-                    .showSnackBar(SnackBar(content: Text('请求成功')));
-              }
-            },
-          ),
+
         ],
       );
 
@@ -118,7 +169,7 @@ class _MyAppState extends State<MyApp> {
       home: Scaffold(
         key: _state,
         appBar: AppBar(
-          title: const Text('Hot upgrade app'),
+          title: const Text('upgrade version = $version'),
         ),
         body: _buildMultiPlatformWidget(),
       ),
