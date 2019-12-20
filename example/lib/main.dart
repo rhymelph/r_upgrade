@@ -46,7 +46,7 @@ class _MyAppState extends State<MyApp> {
             title: Text('Go to app store'),
             onTap: () async {
               RUpgrade.upgradeFromAppStore(
-                'https://raw.githubusercontent.com/rhymelph/r_upgrade/master/apk/app-release.apk',
+                'https://mydata-1252536312.cos.ap-guangzhou.myqcloud.com/r_upgrade.apk',
               );
             },
           ),
@@ -69,8 +69,8 @@ class _MyAppState extends State<MyApp> {
               if (!await canReadStorage()) return;
 
               id = await RUpgrade.upgrade(
-                  'https://raw.githubusercontent.com/rhymelph/r_upgrade/master/apk/app-release.apk',
-                  apkName: 'app_release.apk',
+                  'https://mydata-1252536312.cos.ap-guangzhou.myqcloud.com/r_upgrade.apk',
+                  apkName: 'r_upgrade.apk',
                   isAutoRequestInstall: isAutoRequestInstall);
               setState(() {});
             },
@@ -112,8 +112,8 @@ class _MyAppState extends State<MyApp> {
 
               if (!await canReadStorage()) return;
               id = await RUpgrade.upgrade(
-                  'https://raw.githubusercontent.com/rhymelph/r_upgrade/master/apk/patch.zip',
-                  apkName: 'patch.zip',
+                  'https://mydata-1252536312.cos.ap-guangzhou.myqcloud.com/r_upgrade.zip',
+                  apkName: 'r_upgrade.zip',
                   isAutoRequestInstall: isAutoRequestInstall);
               setState(() {});
             },
