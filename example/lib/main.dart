@@ -78,7 +78,7 @@ class _MyAppState extends State<MyApp> {
           ListTile(
             title: Text('安装apk'),
             onTap: () async {
-              if(isClickHotUpgrade = true){
+              if(isClickHotUpgrade == true){
                 _state.currentState
                     .showSnackBar(SnackBar(content: Text('请进行热更新')));
                 return;
