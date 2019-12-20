@@ -4,6 +4,7 @@ import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
 import android.content.IntentFilter;
 import android.net.Uri;
+import android.telecom.Call;
 
 import java.util.Map;
 
@@ -19,6 +20,8 @@ import io.flutter.plugin.common.PluginRegistry.Registrar;
  */
 public class RUpgradePlugin implements MethodCallHandler, EventChannel.StreamHandler {
     private static UpgradeManager manager;
+    private static  HotUpgradeManager hotManager;
+
     private BroadcastReceiver downloadReceiver;
 
     /**
@@ -27,6 +30,7 @@ public class RUpgradePlugin implements MethodCallHandler, EventChannel.StreamHan
     public static void registerWith(Registrar registrar) {
         final MethodChannel channel = new MethodChannel(registrar.messenger(), "r_upgrade");
         manager = new UpgradeManager(registrar.context());
+        hotManager = new HotUpgradeManager(registrar.context(),registrar);
         channel.setMethodCallHandler(new RUpgradePlugin());
         final EventChannel eventChannel = new EventChannel(registrar.messenger(), "r_upgrade/e");
         eventChannel.setStreamHandler(new RUpgradePlugin());
@@ -44,7 +48,9 @@ public class RUpgradePlugin implements MethodCallHandler, EventChannel.StreamHan
             result.success(manager.cancel((Integer) call.argument("id")));
         } else if (call.method.equals("install")) {
             result.success(manager.installApkById((int) call.argument("id")));
-        } else {
+        } else if(call.method.equals("hotUpgrade")){
+            result.success(hotManager.hotUpgrade((int)call.argument("id")));
+        }else {
             result.notImplemented();
         }
     }

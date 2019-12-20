@@ -73,6 +73,16 @@ class RUpgrade {
       'id': id,
     });
   }
+
+  ///
+  /// hot upgrade your apk by [id].
+  ///
+  static Future<bool> hotUpgrade(int id) async {
+    assert(Platform.isAndroid, 'This method only support android application');
+    return await _channel.invokeMethod("hotUpgrade", {
+      'id': id,
+    });
+  }
 }
 
 ///

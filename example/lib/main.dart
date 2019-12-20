@@ -98,6 +98,17 @@ class _MyAppState extends State<MyApp> {
               }
             },
           ),
+          Divider(),
+          ListTile(
+            title: Text('热更新'),
+            onTap: () async {
+              bool isSuccess = await RUpgrade.hotUpgrade(id??0);
+              if (isSuccess) {
+                _state.currentState
+                    .showSnackBar(SnackBar(content: Text('请求成功')));
+              }
+            },
+          ),
         ],
       );
 
@@ -107,7 +118,7 @@ class _MyAppState extends State<MyApp> {
       home: Scaffold(
         key: _state,
         appBar: AppBar(
-          title: const Text('Plugin example app'),
+          title: const Text('Hot upgrade app'),
         ),
         body: _buildMultiPlatformWidget(),
       ),
