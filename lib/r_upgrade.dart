@@ -4,19 +4,18 @@
 
 import 'dart:async';
 import 'dart:io';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 class RUpgrade {
-  static const MethodChannel _channel = const MethodChannel('r_upgrade');
-  static const EventChannel _eChannel = const EventChannel('r_upgrade/e');
+  static const MethodChannel _methodChannel = const MethodChannel('com.rhyme/r_upgrade_method');
+  static const EventChannel _eventChannel = const EventChannel('com.rhyme/r_upgrade_event');
 
   ///
   /// Download info stream . this will listen your upgrade progress and more info.
   ///
   static Stream<DownloadInfo> get stream {
     assert(Platform.isAndroid, 'This method only support android application');
-    return _eChannel
+    return _eventChannel
         .receiveBroadcastStream()
         .map((map) => DownloadInfo.formMap(map));
   }
@@ -31,14 +30,13 @@ class RUpgrade {
   /// * [isAutoRequestInstall] download completed will install apk.
   static Future<int> upgrade(
     String url, {
-    Map<String, String> header,
-    @required String apkName,
+    Map<String, String> header, String apkName,
     NotificationVisibility notificationVisibility =
         NotificationVisibility.VISIBILITY_VISIBLE_NOTIFY_COMPLETED,
     bool isAutoRequestInstall = true,
   }) {
     assert(Platform.isAndroid, 'This method only support android application');
-    return _channel.invokeMethod('upgrade', {
+    return _methodChannel.invokeMethod('upgrade', {
       'url': url,
       "header": header,
       "apkName": apkName,
@@ -50,7 +48,7 @@ class RUpgrade {
   /// if your application is ios ,
   static Future<void> upgradeFromAppStore(String url) async {
     assert(Platform.isIOS, 'This method only support ios application');
-    await _channel.invokeMethod("upgradeFromAppStore", {
+    await _methodChannel.invokeMethod("upgradeFromAppStore", {
       'url': url,
     });
   }
@@ -59,7 +57,7 @@ class RUpgrade {
   /// Cancel by the [id] download task .
   static Future<bool> cancel(int id) {
     assert(Platform.isAndroid, 'This method only support android application');
-    return _channel.invokeMethod('cancel', {
+    return _methodChannel.invokeMethod('cancel', {
       'id': id,
     });
   }
@@ -69,7 +67,7 @@ class RUpgrade {
   ///
   static Future<bool> install(int id) async {
     assert(Platform.isAndroid, 'This method only support android application');
-    return await _channel.invokeMethod("install", {
+    return await _methodChannel.invokeMethod("install", {
       'id': id,
     });
   }
@@ -79,7 +77,7 @@ class RUpgrade {
   ///
   static Future<bool> hotUpgrade(int id) async {
     assert(Platform.isAndroid, 'This method only support android application');
-    return await _channel.invokeMethod("hotUpgrade", {
+    return await _methodChannel.invokeMethod("hotUpgrade", {
       'id': id,
     });
   }

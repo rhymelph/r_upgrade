@@ -1,4 +1,4 @@
-package com.example.r_upgrade;
+package com.example.r_upgrade.common;
 
 import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
@@ -9,8 +9,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
-
-import com.example.r_upgrade.common.ResultMap;
 
 import java.math.BigDecimal;
 import java.util.Map;
@@ -31,14 +29,21 @@ public class UpgradeManager extends ContextWrapper {
     private Timer timer;
 
     private boolean isAutoRequestInstall;
+    public static UpgradeManager upgradeManager;
 
+    public static void init(Context context) {
+        upgradeManager = new UpgradeManager(context);
+    }
+    public static void dispose(){
+        upgradeManager = null;
+    }
 
     public UpgradeManager(Context base) {
         super(base);
     }
 
     public long upgrade(String url, Map<String, String> header, String apkName, Integer notificationVisibility, Boolean isAutoRequestInstall) {
-        this.isAutoRequestInstall = Boolean.TRUE==isAutoRequestInstall;
+        this.isAutoRequestInstall = Boolean.TRUE == isAutoRequestInstall;
 
         DownloadManager manager = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
         DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));

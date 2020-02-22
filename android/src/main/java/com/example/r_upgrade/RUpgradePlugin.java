@@ -1,71 +1,63 @@
 package com.example.r_upgrade;
 
-import android.app.DownloadManager;
-import android.content.BroadcastReceiver;
-import android.content.IntentFilter;
-import android.net.Uri;
-import android.telecom.Call;
+import androidx.annotation.NonNull;
 
-import java.util.Map;
+import com.example.r_upgrade.common.HotUpgradeManager;
+import com.example.r_upgrade.common.UpgradeManager;
+import com.example.r_upgrade.event.RUpgradeEventStreamHandler;
+import com.example.r_upgrade.method.RUpgradeMethodCallHandler;
 
+import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.plugin.common.EventChannel;
-import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
-import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
-import io.flutter.plugin.common.MethodChannel.Result;
 import io.flutter.plugin.common.PluginRegistry.Registrar;
 
 /**
  * RUpgradePlugin
  */
-public class RUpgradePlugin implements MethodCallHandler, EventChannel.StreamHandler {
-    private static UpgradeManager manager;
-    private static  HotUpgradeManager hotManager;
+public class RUpgradePlugin implements FlutterPlugin {
+    private static final String PLUGIN_METHOD_NAME = "com.rhyme/r_upgrade_method";
+    private static final String PLUGIN_EVENT_NAME = "com.rhyme/r_upgrade_event";
 
-    private BroadcastReceiver downloadReceiver;
+    private MethodChannel _channel;
+    private EventChannel _eventChannel;
 
     /**
      * Plugin registration.
      */
     public static void registerWith(Registrar registrar) {
-        final MethodChannel channel = new MethodChannel(registrar.messenger(), "r_upgrade");
-        manager = new UpgradeManager(registrar.context());
-        hotManager = new HotUpgradeManager(registrar.context(),registrar);
-        channel.setMethodCallHandler(new RUpgradePlugin());
-        final EventChannel eventChannel = new EventChannel(registrar.messenger(), "r_upgrade/e");
-        eventChannel.setStreamHandler(new RUpgradePlugin());
+        UpgradeManager.init(registrar.context());
+        HotUpgradeManager.init(registrar.context());
+
+        final MethodChannel channel = new MethodChannel(registrar.messenger(), PLUGIN_METHOD_NAME);
+        channel.setMethodCallHandler(new RUpgradeMethodCallHandler());
+
+        final EventChannel eventChannel = new EventChannel(registrar.messenger(), PLUGIN_EVENT_NAME);
+        eventChannel.setStreamHandler(new RUpgradeEventStreamHandler());
+    }
+
+
+    @Override
+    public void onAttachedToEngine(@NonNull FlutterPluginBinding binding) {
+        UpgradeManager.init(binding.getApplicationContext());
+        HotUpgradeManager.init(binding.getApplicationContext());
+
+        _channel = new MethodChannel(binding.getBinaryMessenger(), PLUGIN_METHOD_NAME);
+        _channel.setMethodCallHandler(new RUpgradeMethodCallHandler());
+
+        _eventChannel = new EventChannel(binding.getBinaryMessenger(), PLUGIN_EVENT_NAME);
+        _eventChannel.setStreamHandler(new RUpgradeEventStreamHandler());
     }
 
     @Override
-    public void onMethodCall(MethodCall call, Result result) {
-        if (call.method.equals("upgrade")) {
-            result.success(manager.upgrade((String) call.argument("url"),
-                    (Map<String, String>) call.argument("header"),
-                    (String) call.argument("apkName"),
-                    (Integer) call.argument("notificationVisibility"),
-                    (Boolean) call.argument("isAutoRequestInstall")));
-        } else if (call.method.equals("cancel")) {
-            result.success(manager.cancel((Integer) call.argument("id")));
-        } else if (call.method.equals("install")) {
-            result.success(manager.installApkById((int) call.argument("id")));
-        } else if(call.method.equals("hotUpgrade")){
-            result.success(hotManager.hotUpgrade((int)call.argument("id")));
-        }else {
-            result.notImplemented();
-        }
+    public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
+        UpgradeManager.dispose();
+        HotUpgradeManager.dispose();
+        _channel.setMethodCallHandler(null);
+        _channel = null;
+        _eventChannel.setStreamHandler(null);
+        _eventChannel = null;
     }
 
-    @Override
-    public void onListen(Object o, EventChannel.EventSink eventSink) {
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
-        filter.addAction(UpgradeManager.DOWNLOAD_STATUS);
-        downloadReceiver = manager.createBroadcastReceiver(eventSink);
-        manager.registerReceiver(downloadReceiver, filter);
-    }
 
-    @Override
-    public void onCancel(Object o) {
-        manager.unregisterReceiver(downloadReceiver);
-    }
 }

@@ -1,4 +1,4 @@
-package com.example.r_upgrade;
+package com.example.r_upgrade.common;
 
 public enum DownloadStatus {
     STATUS_PAUSED(0),

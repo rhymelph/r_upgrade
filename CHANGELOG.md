@@ -1,3 +1,5 @@
+## 0.1.8
+* adapter FlutterPlugin .
 ## 0.1.7
 * add hot upgrade.
 ## 0.1.6

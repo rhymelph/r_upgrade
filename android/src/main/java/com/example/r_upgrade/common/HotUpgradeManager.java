@@ -1,11 +1,10 @@
-package com.example.r_upgrade;
+package com.example.r_upgrade.common;
 
 import android.app.DownloadManager;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
-import android.util.Log;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -19,19 +18,23 @@ import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import io.flutter.embedding.engine.FlutterEngine;
-import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.plugin.common.PluginRegistry;
 
 public class HotUpgradeManager extends ContextWrapper {
-    final PluginRegistry.Registrar _register;
     private static final String TAG = "HotUpgradeManager";
     private static final String FLUTTER_ASSETS="flutter_assets";
     private static final String APP_FLUTTER = "app_flutter";
+    public static  HotUpgradeManager hotManager;
 
-    public HotUpgradeManager(Context base, PluginRegistry.Registrar registrar) {
-        super(base);
-        this._register = registrar;
+    public static void init(Context context){
+        hotManager = new HotUpgradeManager(context);
+    }
+    public static void dispose(){
+        hotManager = null;
+
+    }
+    public HotUpgradeManager(Context context) {
+        super(context);
     }
 
     private File getFlutterAssets() {
