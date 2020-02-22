@@ -59,7 +59,7 @@ class _MyAppState extends State<MyApp> {
           ListTile(
             title: Text('开始全量更新'),
             onTap: () async {
-              if(isClickHotUpgrade != null){
+              if (isClickHotUpgrade != null) {
                 _state.currentState
                     .showSnackBar(SnackBar(content: Text('已开始下载')));
                 return;
@@ -78,7 +78,7 @@ class _MyAppState extends State<MyApp> {
           ListTile(
             title: Text('安装apk'),
             onTap: () async {
-              if(isClickHotUpgrade == true){
+              if (isClickHotUpgrade == true) {
                 _state.currentState
                     .showSnackBar(SnackBar(content: Text('请进行热更新')));
                 return;
@@ -103,7 +103,7 @@ class _MyAppState extends State<MyApp> {
           ListTile(
             title: Text('开始热更新'),
             onTap: () async {
-              if(isClickHotUpgrade != null){
+              if (isClickHotUpgrade != null) {
                 _state.currentState
                     .showSnackBar(SnackBar(content: Text('已开始下载')));
                 return;
@@ -121,24 +121,24 @@ class _MyAppState extends State<MyApp> {
           ListTile(
             title: Text('进行热更新'),
             onTap: () async {
-              if(isClickHotUpgrade == false){
+              if (isClickHotUpgrade == false) {
                 _state.currentState
                     .showSnackBar(SnackBar(content: Text('请进行安装应用')));
                 return;
               }
-              if( id == null){
+              if (id == null) {
                 _state.currentState
                     .showSnackBar(SnackBar(content: Text('请点击开始热更新')));
                 return;
               }
               bool isSuccess = await RUpgrade.hotUpgrade(id);
               if (isSuccess) {
-                _state.currentState
-                    .showSnackBar(SnackBar(content: Text('热更新成功，3s后退出应用，请重新进入')));
-                Future.delayed(Duration(seconds: 3)).then((_){
+                _state.currentState.showSnackBar(
+                    SnackBar(content: Text('热更新成功，3s后退出应用，请重新进入')));
+                Future.delayed(Duration(seconds: 3)).then((_) {
                   SystemNavigator.pop(animated: true);
                 });
-              }else{
+              } else {
                 _state.currentState
                     .showSnackBar(SnackBar(content: Text('热更新失败，请等待更新包下载完成')));
               }
@@ -153,14 +153,13 @@ class _MyAppState extends State<MyApp> {
                 _state.currentState
                     .showSnackBar(SnackBar(content: Text('取消成功')));
                 id = null;
-                isClickHotUpgrade=null;
+                isClickHotUpgrade = null;
                 setState(() {});
               }
               print('cancel');
             },
           ),
           Divider(),
-
         ],
       );
 
@@ -170,16 +169,17 @@ class _MyAppState extends State<MyApp> {
       home: Scaffold(
         key: _state,
         appBar: AppBar(
-          backgroundColor: version!=1?Colors.black:Theme.of(context).primaryColor,
-          title:  Text(_getAppBarText()),
+          backgroundColor:
+              version != 1 ? Colors.black : Theme.of(context).primaryColor,
+          title: Text(_getAppBarText()),
         ),
         body: _buildMultiPlatformWidget(),
       ),
     );
   }
 
-  String _getAppBarText(){
-    switch(version){
+  String _getAppBarText() {
+    switch (version) {
       case 1:
         return 'Normal version = $version';
       case 2:
@@ -227,7 +227,8 @@ class _MyAppState extends State<MyApp> {
                         SizedBox(
                           height: 30,
                         ),
-                        Text('${snapshot.data.planTime.toStringAsFixed(0)}s后完成'),
+                        Text(
+                            '${snapshot.data.planTime.toStringAsFixed(0)}s后完成'),
                       ],
                     );
                   } else {
@@ -247,7 +248,7 @@ class _MyAppState extends State<MyApp> {
   String getStatus(DownloadStatus status) {
     if (status == DownloadStatus.STATUS_FAILED) {
       id = null;
-      isClickHotUpgrade=null;
+      isClickHotUpgrade = null;
       return "下载失败";
     } else if (status == DownloadStatus.STATUS_PAUSED) {
       return "下载暂停";
@@ -259,7 +260,7 @@ class _MyAppState extends State<MyApp> {
       return "下载成功";
     } else {
       id = null;
-      isClickHotUpgrade=null;
+      isClickHotUpgrade = null;
       return "未知";
     }
   }
@@ -282,17 +283,15 @@ class _MyAppState extends State<MyApp> {
     return true;
   }
 
-
-  String getSpeech(double speech){
+  String getSpeech(double speech) {
     String unit = 'kb/s';
     String result = speech.toStringAsFixed(2);
-    if(speech > 1024*1024){
-      unit ='gb/s';
-      result = (speech / (1024*1024)).toStringAsFixed(2);
-    }else if(speech>1024){
-       unit = 'mb/s';
-       result= (speech/1024).toStringAsFixed(2);
-
+    if (speech > 1024 * 1024) {
+      unit = 'gb/s';
+      result = (speech / (1024 * 1024)).toStringAsFixed(2);
+    } else if (speech > 1024) {
+      unit = 'mb/s';
+      result = (speech / 1024).toStringAsFixed(2);
     }
     return '$result$unit';
   }

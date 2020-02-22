@@ -7,8 +7,10 @@ import 'dart:io';
 import 'package:flutter/services.dart';
 
 class RUpgrade {
-  static const MethodChannel _methodChannel = const MethodChannel('com.rhyme/r_upgrade_method');
-  static const EventChannel _eventChannel = const EventChannel('com.rhyme/r_upgrade_event');
+  static const MethodChannel _methodChannel =
+      const MethodChannel('com.rhyme/r_upgrade_method');
+  static const EventChannel _eventChannel =
+      const EventChannel('com.rhyme/r_upgrade_event');
 
   ///
   /// Download info stream . this will listen your upgrade progress and more info.
@@ -30,7 +32,8 @@ class RUpgrade {
   /// * [isAutoRequestInstall] download completed will install apk.
   static Future<int> upgrade(
     String url, {
-    Map<String, String> header, String apkName,
+    Map<String, String> header,
+    String apkName,
     NotificationVisibility notificationVisibility =
         NotificationVisibility.VISIBILITY_VISIBLE_NOTIFY_COMPLETED,
     bool isAutoRequestInstall = true,
