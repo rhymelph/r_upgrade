@@ -32,6 +32,8 @@ info 里包含的信息如下:
 | (double) speed | 当前下载的速度kb/s |
 | (DownloadStatus) status | 当前下载状态 <br> `STATUS_PAUSED` 下载已暂停 <br> `STATUS_PENDING`等待下载 <br> `STATUS_RUNNING`下载中 <br> `STATUS_SUCCESSFUL`下载成功 <br> `STATUS_FAILED`下载失败 <br> `STATUS_CANCEL`下载取消|
 
+注意： 部分http下载链接可能返回 `max_length = -1`，请自行判断
+
 ### 3.立即升级你的应用
 目前分为两部分
 `useDownloadManager`:
