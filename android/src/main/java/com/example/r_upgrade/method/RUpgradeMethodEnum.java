@@ -16,7 +16,8 @@ public enum RUpgradeMethodEnum implements IRUpgradeMethodHandler {
                     (Map<String, String>) call.argument("header"),
                     (String) call.argument("apkName"),
                     (Integer) call.argument("notificationVisibility"),
-                    (Boolean) call.argument("isAutoRequestInstall")));
+                    (Boolean) call.argument("isAutoRequestInstall"),
+                    (Boolean) call.argument("useDownloadManager")));
         }
     },
     cancel {
@@ -37,9 +38,35 @@ public enum RUpgradeMethodEnum implements IRUpgradeMethodHandler {
     hotUpgrade {
         @Override
         public void handler(MethodCall call, MethodChannel.Result result) {
-            result.success(hotManager.hotUpgrade((int)call.argument("id")));
+            result.success(hotManager.hotUpgrade((int) call.argument("id")));
 
         }
-    }
+    },
+    pause {
+        @Override
+        public void handler(MethodCall call, MethodChannel.Result result) {
+            result.success(upgradeManager.pause((Integer) call.argument("id")));
+        }
+    },
+    upgradeWithId{
+        @Override
+        public void handler(MethodCall call, MethodChannel.Result result) {
+            result.success(upgradeManager.upgradeWithId((Integer) call.argument("id")));
+        }
+    },
+    getDownloadStatus{
+        @Override
+        public void handler(MethodCall call, MethodChannel.Result result) {
+            result.success(upgradeManager.getDownloadStatus((Integer) call.argument("id")));
+
+        }
+    },
+    getLastUpgradedId {
+        @Override
+        public void handler(MethodCall call, MethodChannel.Result result) {
+            result.success(upgradeManager.getLastUpgradedId());
+        }
+    },
+
 
 }

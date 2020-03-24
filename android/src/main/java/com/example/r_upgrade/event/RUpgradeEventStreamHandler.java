@@ -16,6 +16,7 @@ public class RUpgradeEventStreamHandler implements EventChannel.StreamHandler {
         IntentFilter filter = new IntentFilter();
         filter.addAction(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
         filter.addAction(UpgradeManager.DOWNLOAD_STATUS);
+        filter.addAction(UpgradeManager.DOWNLOAD_INSTALL);
         downloadReceiver = UpgradeManager.upgradeManager.createBroadcastReceiver(eventSink);
         UpgradeManager.upgradeManager.registerReceiver(downloadReceiver, filter);
     }
