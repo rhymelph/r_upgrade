@@ -56,7 +56,7 @@ public class UpgradeManager extends ContextWrapper {
 
     private boolean isUseDownloadManager;
 
-    private Integer notificationVisibility;
+    private Integer notificationVisibility = 0;
 
     public static UpgradeManager upgradeManager;
 
