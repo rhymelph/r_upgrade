@@ -4,46 +4,125 @@
 Android and IOS upgrade plugin.
 
 ## [中文点此](README_CN.md)
+
 ## Getting Started
-- use plugin:
+
+### 1. Use Plugin:
 add this code in `pubspec.yaml`
 ```yaml
 dependencies:
   r_upgrade: last version
 ```
-- add listener
+
+### 2. Add Upgrade Download Listener
 ```dart
-RUpgrade.stream.listen((info){
+RUpgrade.stream.listen((DownloadInfo info){
   ///...
 });
 ```
-- just upgrade your android application
+info:
+
+| param | desc |
+| - | - |
+| (int) id | download id |
+| (int) max_length<br> ( total Deprecated ) | download max bytes length (bytes) |
+| (int) current_length <br> ( progress Deprecated ) | download current bytes length (bytes) |
+| (double) percent | download percent 0-100 |
+| (double) planTime | download plan time /s (X.toStringAsFixed(0)) |
+| (String) path <br> ( address Deprecated ) | download file path |
+| (double) speed | download speed kb/s |
+| (DownloadStatus) status | download status <br> `STATUS_PAUSED` <br> `STATUS_PENDING` <br> `STATUS_RUNNING` <br> `STATUS_SUCCESSFUL` <br> `STATUS_FAILED` <br> `STATUS_CANCEL`|
+
+### 3. Upgrade your application
+This upgrade have two part.
+`useDownloadManager`:
+- `true`: Use system `DownloadManager`to download
+    - advantage：Simple, use system.
+    - Inferiority：can not use http download , can not click the notification pause downloading, can not pause and continue download by network status etc...
+- `false`: Use `Service` download（default use）
+    - advantage：Power, support http/https download, support auto pause and continue download by network status etc..
+    - Inferiority：No bugs found yet. If you find a bug, you are welcome to issue
 ```dart
+    // [isAutoRequestInstall] downloaded finish will auto request install apk.
+    // [apkName] apk name (such as `release.apk`)
+    // [notificationVisibility] notification visibility.
+    // [useDownloadManager] look up at
     void upgrade() async {
       int id = await RUpgrade.upgrade(
                  'https://raw.githubusercontent.com/rhymelph/r_upgrade/master/apk/app-release.apk',
-                 apkName: 'app-release.apk');
+                 apkName: 'app-release.apk',isAutoRequestInstall: true);
     }
 ```
-- you can use this id to cancel download
+### 4. Cancel Download
+`useDownloadManager`:
+- `false`: use `upgrade`or `getLastUpgradedId` method will return .
+- `true` : use `upgrade` method will return .
 ```dart
     void cancel() async {
       bool isSuccess=await RUpgrade.cancel(id);
     }
 ```
-- you can use this id to install apk
+
+### 5. Install Apk
+`useDownloadManager`:
+- `false`: use `upgrade`or `getLastUpgradedId` method will return .
+- `true` : use `upgrade` method will return .
 ```dart
     void install() async {
       bool isSuccess=await RUpgrade.install(id);
     }
 ```
-- your application is ios.You can use this.
+
+### 6. Pause Download(`Service`)
+`useDownloadManager`:
+- `false`: use `upgrade`or `getLastUpgradedId` method will return .
+```dart
+    void pause() async {
+      bool isSuccess=await RUpgrade.pause(id);
+    }
+```
+
+### 7. Continue Download(`Service`)
+`useDownloadManager`:
+- `false`: use `upgrade`or `getLastUpgradedId` method will return .
+```dart
+    void pause() async {
+      bool isSuccess=await RUpgrade.upgradeWithId(id);
+      /// return true.
+      /// * if download status is [STATUS_PAUSED] or [STATUS_FAILED] or [STATUS_CANCEL], will restart running.
+      /// * if download status is [STATUS_RUNNING] or [STATUS_PENDING], nothing happened.
+      /// * if download status is [STATUS_SUCCESSFUL] , will install apk.
+      ///
+      /// return false.
+      /// * if not found the id , will return [false].
+    }
+```
+
+### 8. Get the last upgrade id(`Service`)
+this method will find id by your application version name and version code.
+```dart
+    void getLastUpgradeId() async {
+     int id = await RUpgrade.getLastUpgradedId();
+    }
+```
+
+### 9. Get the download status from id(`Service`)
+`useDownloadManager`:
+- `false`: use `upgrade`or `getLastUpgradedId` method will return .
+```dart
+    void getDownloadStatus()async{
+    DownloadStatus status = await RUpgrade.getDownloadStatus(id);
+   }
+```
+
+### 10.your application is ios.You can use this.
 ```dart
     void iosUpgrade(String url)async{
       RUpgrade.appStore(url);
     }
 ```
 
+### 11. Hot Upgrade
 - you can use this id to hot upgrade,but download file is zip. include three file [isolate_snapshot_data]、[kernel_blob.bin]、[vm_snapshot_data].Your can use `flutter build bundle` generate.
 ```
  flutter build bundle

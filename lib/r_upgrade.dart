@@ -112,7 +112,7 @@ class RUpgrade {
   /// * if download status is [STATUS_RUNNING] or [STATUS_PENDING], nothing happened.
   /// * if download status is [STATUS_SUCCESSFUL] , will install apk.
   ///
-  /// if not found the id , will return [false].
+  /// * if not found the id , will return [false].
   static Future<bool> upgradeWithId(int id)async{
     assert(Platform.isAndroid, 'This method only support android application');
     return await _methodChannel.invokeMethod("upgradeWithId",{
@@ -149,7 +149,7 @@ class RUpgrade {
 /// * [currentLength] download current bytes length
 /// * [status] download status . you can watch [DownloadStatus]
 /// * [planTime] download plan time /s
-/// * [path] download file address
+/// * [path] download file path
 /// * [percent] download percent 0-100
 /// * [id] download id
 /// * [speed] download speed kb/s

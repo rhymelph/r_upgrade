@@ -24,24 +24,28 @@ info 里包含的信息如下:
 | 字段 | 含义 |
 | - | - |
 | (int) id | 当前下载任务的id |
-| (int) max_length(total已弃用) | 所需下载的总大小 (bytes) |
-| (int) current_length(progress已弃用) | 当前已下载的大小 (bytes) |
+| (int) max_length<br> ( total已弃用 ) | 所需下载的总大小 (bytes) |
+| (int) current_length <br> ( progress已弃用 ) | 当前已下载的大小 (bytes) |
 | (double) percent | 当前下载进度(0-100) |
 | (double) planTime | 计划下载完成所需时间/秒 (需要.toStringAsFixed(0)) |
-| (String) path(address已弃用) | 当前下载的文件路径 |
+| (String) path <br> ( address已弃用 ) | 当前下载的文件路径 |
 | (double) speed | 当前下载的速度kb/s |
-| (DownloadStatus) status | 当前下载状态 \n`STATUS_PAUSED` 下载已暂停 \n `STATUS_PENDING`等待下载 \n `STATUS_RUNNING`下载中 \n `STATUS_SUCCESSFUL`下载成功 \n `STATUS_FAILED`下载失败 \n `STATUS_CANCEL`下载取消|
+| (DownloadStatus) status | 当前下载状态 <br> `STATUS_PAUSED` 下载已暂停 <br> `STATUS_PENDING`等待下载 <br> `STATUS_RUNNING`下载中 <br> `STATUS_SUCCESSFUL`下载成功 <br> `STATUS_FAILED`下载失败 <br> `STATUS_CANCEL`下载取消|
 
 ### 3.立即升级你的应用
 目前分为两部分
 `useDownloadManager`:
 - `true`: 调用系统的`DownloadManager`进行下载
-- `false`: 调用`Service`进行下载
+    - 优势：接入简单，无需担心操作，下载全由系统管理
+    - 劣势：无法使用http方式进行下载，无法在下载过程中点击通知栏进行暂停，无法根据有无网络进行暂停和继续下载，适配机型问题等
+- `false`: 调用`Service`进行下载（默认使用）
+    - 优势：功能较全，支持http/https下载，支持网络断开后自动暂停下载，连接上后继续下载，支持断点续传，支持查询最后一次下载等
+    - 劣势：暂无发现，如果发现bug欢迎提issue.
 ```dart
     // [isAutoRequestInstall] 下载完成后自动弹出安装
     // [apkName] 安装包的名字（需要包含.apk）
     // [notificationVisibility] 通知栏显示方式
-    // [useDownloadManager] 是否使用DownloadManager，默认不使用（DownloadManager不支持https下载，下载手动暂停，断点续传等，不建议使用）
+    // [useDownloadManager] 是否使用DownloadManager，默认不使用（DownloadManager不支持http下载，下载手动暂停，断点续传等，不建议使用）
     void upgrade() async {
       int id = await RUpgrade.upgrade(
                  'https://raw.githubusercontent.com/rhymelph/r_upgrade/master/apk/app-release.apk',
@@ -50,8 +54,8 @@ info 里包含的信息如下:
 ```
 ### 4. 取消下载
 `useDownloadManager`:
-- `false`: id由调用[upgrade]或调用[getLastUpgradedId]后返回
-- `true` : id由调用[upgrade]后返回
+- `false`: id由调用`upgrade`或调用`getLastUpgradedId`后返回
+- `true` : id由调用`upgrade`后返回
 ```dart
     void cancel() async {
       bool isSuccess=await RUpgrade.cancel(id);
@@ -60,8 +64,8 @@ info 里包含的信息如下:
 
 ### 5. 安装应用
 `useDownloadManager`:
-- `false`: id由调用[upgrade]或调用[getLastUpgradedId]后返回
-- `true` : id由调用[upgrade]后返回
+- `false`: id由调用`upgrade`或调用`getLastUpgradedId`后返回
+- `true` : id由调用`upgrade`后返回
 ```dart
     void install() async {
       bool isSuccess=await RUpgrade.install(id);
@@ -70,7 +74,7 @@ info 里包含的信息如下:
 
 ### 6. 暂停下载(`Service`)
 `useDownloadManager`:
-- `false`: id由调用[upgrade]或调用[getLastUpgradedId]后返回
+- `false`: id由调用`upgrade`或调用`getLastUpgradedId`后返回
 ```dart
     void pause() async {
       bool isSuccess=await RUpgrade.pause(id);
@@ -79,7 +83,7 @@ info 里包含的信息如下:
 
 ### 7. 继续下载(`Service`)
 `useDownloadManager`:
-- `false`: id由调用[upgrade]或调用[getLastUpgradedId]后返回
+- `false`: id由调用`upgrade`或调用`getLastUpgradedId`后返回
 ```dart
     void pause() async {
       bool isSuccess=await RUpgrade.upgradeWithId(id);
@@ -101,7 +105,7 @@ info 里包含的信息如下:
 
 ### 9. 获取ID对应的下载状态(`Service`)
 `useDownloadManager`:
-- `false`: id由调用[upgrade]或调用[getLastUpgradedId]后返回
+- `false`: id由调用`upgrade`或调用`getLastUpgradedId`后返回
 ```dart
     void getDownloadStatus()async{
     DownloadStatus status = await RUpgrade.getDownloadStatus(id);

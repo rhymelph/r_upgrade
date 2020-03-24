@@ -56,6 +56,8 @@ public class UpgradeManager extends ContextWrapper {
 
     private boolean isUseDownloadManager;
 
+    private Integer notificationVisibility;
+
     public static UpgradeManager upgradeManager;
 
     public static void init(Context context) {
@@ -74,6 +76,7 @@ public class UpgradeManager extends ContextWrapper {
     public long upgrade(String url, Map<String, String> header, String apkName, Integer notificationVisibility, Boolean isAutoRequestInstall, Boolean useDownloadManager) {
         this.isAutoRequestInstall = Boolean.TRUE == isAutoRequestInstall;
         this.isUseDownloadManager = Boolean.TRUE == useDownloadManager;
+        this.notificationVisibility = notificationVisibility;
 
         long id = 0;
 
@@ -92,7 +95,7 @@ public class UpgradeManager extends ContextWrapper {
             }
             request.setMimeType("application/vnd.android.package-archive");
 
-            request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, apkName == null ? "upgradePackage.apk" : apkName);
+            request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, apkName == null ? "release.apk" : apkName);
 
             request.setTitle(apkName == null ? "upgradePackage.apk" : apkName);
             id = manager.enqueue(request);
@@ -312,7 +315,13 @@ public class UpgradeManager extends ContextWrapper {
                     long id = intent.getLongExtra(PARAMS_ID, 0L);
 
                     if (!isUseDownloadManager) {
-                        UpgradeNotification.createNotification(context, (int) id, apkName, current_length, max_length, String.format(Locale.CHINA, "%.0f  seconds left", planTime), status);
+                        if((status==DownloadStatus.STATUS_RUNNING.getValue() || status == DownloadStatus.STATUS_SUCCESSFUL.getValue())&&notificationVisibility== 1){
+                            UpgradeNotification.createNotification(context, (int) id, apkName, current_length, max_length, String.format(Locale.CHINA, "%.0f  seconds left", planTime), status);
+                        }else if(notificationVisibility == 0){
+                            UpgradeNotification.createNotification(context, (int) id, apkName, current_length, max_length, String.format(Locale.CHINA, "%.0f  seconds left", planTime), status);
+                        }else if(status == DownloadStatus.STATUS_SUCCESSFUL.getValue()&& notificationVisibility == 3){
+                            UpgradeNotification.createNotification(context, (int) id, apkName, current_length, max_length, String.format(Locale.CHINA, "%.0f  seconds left", planTime), status);
+                        }
                         if (isAutoRequestInstall && status == DownloadStatus.STATUS_SUCCESSFUL.getValue()) {
                             File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), apkName);
                             Uri uri = RUpgradeFileProvider.getUriForFile(context, context.getApplicationInfo().packageName + ".fileProvider", file);
