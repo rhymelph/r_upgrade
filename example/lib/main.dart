@@ -207,8 +207,8 @@ class _MyAppState extends State<MyApp> {
             title: Text(
               '历史相关',
               style: Theme.of(context).textTheme.title.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+                    fontWeight: FontWeight.w600,
+                  ),
             ),
           ),
           ListTile(
