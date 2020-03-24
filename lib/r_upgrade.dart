@@ -37,7 +37,7 @@ class RUpgrade {
     Map<String, String> header,
     String apkName,
     NotificationVisibility notificationVisibility =
-        NotificationVisibility.VISIBILITY_VISIBLE_NOTIFY_COMPLETED,
+        NotificationVisibility.VISIBILITY_VISIBLE,
     bool isAutoRequestInstall = true,
     bool useDownloadManager = false,
   }) {

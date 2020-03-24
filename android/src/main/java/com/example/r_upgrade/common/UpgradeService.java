@@ -295,23 +295,23 @@ public class UpgradeService extends Service {
                 intent.putExtra(PARAMS_APK_NAME, apkName);
                 upgradeService.sendBroadcast(intent);
                 sqLite.update(id, currentLength, maxLength, DownloadStatus.STATUS_RUNNING.getValue());
-                Log.d(TAG, "handlerDownloadRunning: running queryTask: 下载中\n" +
-                        "url: " +
-                        url +
-                        "\n============>" +
-                        "total:" +
-                        maxLength +
-                        "，" +
-                        "progress:" +
-                        currentLength +
-                        "，" +
-                        String.format("%.2f", percent) +
-                        "% , " +
-                        String.format("%.2f", speed) +
-                        "kb/s , " +
-                        "预计：" +
-                        String.format("%.0f", planTime) +
-                        "s");
+//                Log.d(TAG, "handlerDownloadRunning: running queryTask: 下载中\n" +
+//                        "url: " +
+//                        url +
+//                        "\n============>" +
+//                        "total:" +
+//                        maxLength +
+//                        "，" +
+//                        "progress:" +
+//                        currentLength +
+//                        "，" +
+//                        String.format("%.2f", percent) +
+//                        "% , " +
+//                        String.format("%.2f", speed) +
+//                        "kb/s , " +
+//                        "预计：" +
+//                        String.format("%.0f", planTime) +
+//                        "s");
                 lastCurrentLength = currentLength;
                 lastTime = System.currentTimeMillis();
             }
