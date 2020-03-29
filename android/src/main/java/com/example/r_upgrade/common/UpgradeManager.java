@@ -2,6 +2,7 @@ package com.example.r_upgrade.common;
 
 import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
+import android.content.ContentProvider;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
@@ -9,6 +10,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -27,7 +29,6 @@ import java.util.TimerTask;
 
 import io.flutter.plugin.common.EventChannel;
 
-import static com.example.r_upgrade.common.UpgradeService.DOWNLOAD_ID;
 
 public class UpgradeManager extends ContextWrapper {
     private static final String TAG = "UpgradeManager";
@@ -118,7 +119,7 @@ public class UpgradeManager extends ContextWrapper {
             Intent intent = new Intent(this, UpgradeService.class);
             Bundle bundle = new Bundle();
             bundle.putBoolean(UpgradeService.DOWNLOAD_RESTART, false);
-            bundle.putInt(DOWNLOAD_ID, (int) id);
+            bundle.putInt(UpgradeService.DOWNLOAD_ID, (int) id);
             bundle.putString(UpgradeService.DOWNLOAD_URL, url);
             bundle.putString(UpgradeService.DOWNLOAD_APK_NAME, apkName);
             bundle.putSerializable(UpgradeService.DOWNLOAD_Header, (Serializable) header);
@@ -232,7 +233,7 @@ public class UpgradeManager extends ContextWrapper {
                 case DownloadManager.STATUS_SUCCESSFUL:
 //                    Log.d(TAG, "queryTask: 下载成功");
                     if (isAutoRequestInstall) {
-                        installApk(manager.getUriForDownloadedFile(id));
+                        installApkById((int) id);
                     }
                     intent.setAction(DOWNLOAD_STATUS);
                     intent.putExtra(PARAMS_STATUS, DownloadStatus.STATUS_SUCCESSFUL.getValue());
@@ -262,9 +263,14 @@ public class UpgradeManager extends ContextWrapper {
             Log.d(TAG, uri.toString());
             install.setDataAndType(uri, "application/vnd.android.package-archive");
             install.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            install.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                install.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            } else {
+                install.addCategory(Intent.CATEGORY_DEFAULT);
+            }
             startActivity(install);
             return true;
+
         } else {
             return false;
         }
@@ -273,14 +279,30 @@ public class UpgradeManager extends ContextWrapper {
     public boolean installApkById(int id) {
         if (isUseDownloadManager) {
             DownloadManager manager = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
-            return installApk(manager.getUriForDownloadedFile(id));
+            Uri uri = null;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                uri = manager.getUriForDownloadedFile(id);
+            } else {
+                DownloadManager.Query query = new DownloadManager.Query();
+                Cursor cursor = manager.query(query.setFilterById(id));
+                cursor.moveToNext();
+                String address = cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI));
+                uri = Uri.parse(address);
+                cursor.close();
+            }
+            return installApk(uri);
         } else {
             UpgradeSQLite sqLite = new UpgradeSQLite(this);
             String path = sqLite.queryPathById(id);
             if (path == null) return false;
 
             File file = new File(path);
-            Uri uri = RUpgradeFileProvider.getUriForFile(this, this.getApplicationInfo().packageName + ".fileProvider", file);
+            Uri uri = null;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                uri = RUpgradeFileProvider.getUriForFile(this, this.getApplicationInfo().packageName + ".fileProvider", file);
+            } else {
+                uri = Uri.fromFile(file);
+            }
             return installApk(uri);
         }
 
@@ -315,17 +337,15 @@ public class UpgradeManager extends ContextWrapper {
                     long id = intent.getLongExtra(PARAMS_ID, 0L);
 
                     if (!isUseDownloadManager) {
-                        if((status==DownloadStatus.STATUS_RUNNING.getValue() || status == DownloadStatus.STATUS_SUCCESSFUL.getValue())&&notificationVisibility== 1){
+                        if ((status == DownloadStatus.STATUS_RUNNING.getValue() || status == DownloadStatus.STATUS_SUCCESSFUL.getValue()) && notificationVisibility == 1) {
                             UpgradeNotification.createNotification(context, (int) id, apkName, current_length, max_length, String.format(Locale.CHINA, "%.0f  seconds left", planTime), status);
-                        }else if(notificationVisibility == 0){
+                        } else if (notificationVisibility == 0) {
                             UpgradeNotification.createNotification(context, (int) id, apkName, current_length, max_length, String.format(Locale.CHINA, "%.0f  seconds left", planTime), status);
-                        }else if(status == DownloadStatus.STATUS_SUCCESSFUL.getValue()&& notificationVisibility == 3){
+                        } else if (status == DownloadStatus.STATUS_SUCCESSFUL.getValue() && notificationVisibility == 3) {
                             UpgradeNotification.createNotification(context, (int) id, apkName, current_length, max_length, String.format(Locale.CHINA, "%.0f  seconds left", planTime), status);
                         }
                         if (isAutoRequestInstall && status == DownloadStatus.STATUS_SUCCESSFUL.getValue()) {
-                            File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), apkName);
-                            Uri uri = RUpgradeFileProvider.getUriForFile(context, context.getApplicationInfo().packageName + ".fileProvider", file);
-                            installApk(uri);
+                            installApkById((int) id);
                         }
                     }
                     eventSink.success(ResultMap.getInstance()
@@ -340,13 +360,8 @@ public class UpgradeManager extends ContextWrapper {
                             .getMap());
 
                 } else if (intent != null && intent.getAction() != null && intent.getAction().equals(UpgradeManager.DOWNLOAD_INSTALL)) {
-                    int id = intent.getIntExtra(DOWNLOAD_ID, 0);
-                    UpgradeSQLite sqLite = new UpgradeSQLite(context);
-                    String path = sqLite.queryPathById(id);
-                    if (path == null) return;
-                    File file = new File(path);
-                    Uri uri = RUpgradeFileProvider.getUriForFile(context, context.getApplicationInfo().packageName + ".fileProvider", file);
-                    installApk(uri);
+                    int id = intent.getIntExtra(UpgradeService.DOWNLOAD_ID, 0);
+                    installApkById(id);
                     UpgradeNotification.removeNotification(context, id);
                 }
             }
@@ -379,7 +394,7 @@ public class UpgradeManager extends ContextWrapper {
             Intent intent = new Intent(this, UpgradeService.class);
             Bundle bundle = new Bundle();
             bundle.putBoolean(UpgradeService.DOWNLOAD_RESTART, true);
-            bundle.putInt(DOWNLOAD_ID, (int) id);
+            bundle.putInt(UpgradeService.DOWNLOAD_ID, (int) id);
             bundle.putString(UpgradeService.DOWNLOAD_URL, (String) result.get(UpgradeSQLite.URL));
             bundle.putString(UpgradeService.DOWNLOAD_APK_NAME, (String) result.get(UpgradeSQLite.APK_NAME));
             bundle.putSerializable(UpgradeService.DOWNLOAD_Header, (Serializable) result.get(UpgradeSQLite.HEADER));

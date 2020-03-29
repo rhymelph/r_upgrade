@@ -124,14 +124,13 @@ public class UpgradeService extends Service {
         filter.addAction(RECEIVER_CANCEL);
         filter.addAction(RECEIVER_RESTART);
         filter.addAction(RECEIVER_PAUSE);
-//        filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+        filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
         registerReceiver(actionReceiver, filter);
 
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        isFirst = true;
 
         Bundle bundle = intent.getExtras();
         assert (bundle != null);

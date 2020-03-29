@@ -30,7 +30,7 @@ public enum RUpgradeMethodEnum implements IRUpgradeMethodHandler {
     install {
         @Override
         public void handler(MethodCall call, MethodChannel.Result result) {
-            result.success(upgradeManager.installApkById((int) call.argument("id")));
+            result.success(upgradeManager.installApkById((Integer) call.argument("id")));
 
         }
     },

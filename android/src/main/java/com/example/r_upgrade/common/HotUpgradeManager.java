@@ -47,7 +47,6 @@ public class HotUpgradeManager extends ContextWrapper {
 
     private File getHotAssets() {
         File file = null;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
             file = new File(getFlutterAssets(), System.currentTimeMillis() + ".zip");
             if (!file.exists()) {
                 try {
@@ -57,7 +56,6 @@ public class HotUpgradeManager extends ContextWrapper {
                     e.printStackTrace();
                 }
             }
-        }
         return file;
     }
 

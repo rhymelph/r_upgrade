@@ -72,7 +72,6 @@ class RUpgrade {
     });
   }
 
-
   ///
   /// Install your apk by [id].
   ///
@@ -93,7 +92,6 @@ class RUpgrade {
     });
   }
 
-
   /// ----------- new v0.2.0 ------------///
   ///
   /// Pause by the [id] download task ,only use to [upgrade] params [useDownloadManager] is false.
@@ -113,22 +111,22 @@ class RUpgrade {
   /// * if download status is [STATUS_SUCCESSFUL] , will install apk.
   ///
   /// * if not found the id , will return [false].
-  static Future<bool> upgradeWithId(int id)async{
+  static Future<bool> upgradeWithId(int id) async {
     assert(Platform.isAndroid, 'This method only support android application');
-    return await _methodChannel.invokeMethod("upgradeWithId",{
-      "id":id,
+    return await _methodChannel.invokeMethod("upgradeWithId", {
+      "id": id,
     });
   }
 
   ///
   /// Get download status by ID , only use to [upgrade] params [useDownloadManager] is false.
   ///
-  static Future<DownloadStatus> getDownloadStatus(int id)async{
+  static Future<DownloadStatus> getDownloadStatus(int id) async {
     assert(Platform.isAndroid, 'This method only support android application');
-    int result =await _methodChannel.invokeMethod("getDownloadStatus",{
-      "id":id,
+    int result = await _methodChannel.invokeMethod("getDownloadStatus", {
+      "id": id,
     });
-    return result==null?null:DownloadStatus._internal(result);
+    return result == null ? null : DownloadStatus._internal(result);
   }
 
   ///
@@ -138,8 +136,6 @@ class RUpgrade {
     assert(Platform.isAndroid, 'This method only support android application');
     return await _methodChannel.invokeMethod('getLastUpgradedId');
   }
-
-
 }
 
 ///
