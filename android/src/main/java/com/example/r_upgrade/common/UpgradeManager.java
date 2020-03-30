@@ -6,6 +6,7 @@ import android.content.ContentProvider;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -21,6 +22,7 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.Serializable;
+import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.util.Locale;
 import java.util.Map;
@@ -28,6 +30,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import io.flutter.plugin.common.EventChannel;
+import io.flutter.plugin.common.MethodChannel;
 
 
 public class UpgradeManager extends ContextWrapper {
@@ -59,18 +62,26 @@ public class UpgradeManager extends ContextWrapper {
 
     private Integer notificationVisibility = 0;
 
-    public static UpgradeManager upgradeManager;
 
-    public static void init(Context context) {
-        upgradeManager = new UpgradeManager(context);
+    private BroadcastReceiver downloadReceiver;
+
+    private MethodChannel channel;
+
+    public void dispose() {
+        unregisterReceiver(downloadReceiver);
     }
 
-    public static void dispose() {
-        upgradeManager = null;
-    }
-
-    public UpgradeManager(Context base) {
+    public UpgradeManager(Context base,MethodChannel channel) {
         super(base);
+        this.channel = channel;
+        UpgradeSQLite sqLite = new UpgradeSQLite(this);
+        sqLite.pauseDownloading();
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
+        filter.addAction(UpgradeManager.DOWNLOAD_STATUS);
+        filter.addAction(UpgradeManager.DOWNLOAD_INSTALL);
+        downloadReceiver = createBroadcastReceiver();
+        registerReceiver(downloadReceiver,filter);
     }
 
 
@@ -308,7 +319,7 @@ public class UpgradeManager extends ContextWrapper {
 
     }
 
-    public BroadcastReceiver createBroadcastReceiver(final EventChannel.EventSink eventSink) {
+    public BroadcastReceiver createBroadcastReceiver() {
         return new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -348,7 +359,8 @@ public class UpgradeManager extends ContextWrapper {
                             installApkById((int) id);
                         }
                     }
-                    eventSink.success(ResultMap.getInstance()
+                    if(channel!=null)
+                    channel.invokeMethod("update",ResultMap.getInstance()
                             .pubClear(PARAMS_CURRENT_LENGTH, current_length)
                             .put(PARAMS_ID, id)
                             .put(PARAMS_PERCENT, percent)
@@ -383,14 +395,18 @@ public class UpgradeManager extends ContextWrapper {
         return sqLite.queryIdByVersionNameAndVersionCode(versionName, versionCode);
     }
 
-    public boolean upgradeWithId(Integer id) {
+    public boolean upgradeWithId(Integer id, Integer notificationVisibility, Boolean isAutoRequestInstall) {
+        this.notificationVisibility = notificationVisibility;
+        this.isAutoRequestInstall = isAutoRequestInstall;
         UpgradeSQLite sqLite = new UpgradeSQLite(this);
         Map<String, Object> result = sqLite.queryById(id);
         if (result == null) return false;
+        String path = (String) result.get(UpgradeSQLite.PATH);
+        File downloadFile = new File(path);
 
         int status = (int) result.get(UpgradeSQLite.STATUS);
         if (status == DownloadStatus.STATUS_PAUSED.getValue() || status == DownloadStatus.STATUS_FAILED.getValue()
-                || status == DownloadStatus.STATUS_CANCEL.getValue()) {
+                || status == DownloadStatus.STATUS_CANCEL.getValue() || !downloadFile.exists()) {
             Intent intent = new Intent(this, UpgradeService.class);
             Bundle bundle = new Bundle();
             bundle.putBoolean(UpgradeService.DOWNLOAD_RESTART, true);
@@ -404,7 +420,6 @@ public class UpgradeManager extends ContextWrapper {
             installApkById(id);
         }
         return true;
-
     }
 
     public Integer getDownloadStatus(Integer id) {

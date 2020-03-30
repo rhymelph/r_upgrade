@@ -203,4 +203,11 @@ public class UpgradeSQLite extends SQLiteOpenHelper {
         SQLiteDatabase writableDatabase = getWritableDatabase();
         writableDatabase.delete(VERSION_MANAGER, ID + "=?", new String[]{String.valueOf(id)});
     }
+
+    public void pauseDownloading() {
+        SQLiteDatabase writableDatabase = getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(STATUS, DownloadStatus.STATUS_PAUSED.getValue());
+        writableDatabase.update(VERSION_MANAGER, values, STATUS + "=? or " + STATUS + "=?", new String[]{String.valueOf(DownloadStatus.STATUS_PENDING.getValue()), String.valueOf(DownloadStatus.STATUS_RUNNING.getValue()),});
+    }
 }

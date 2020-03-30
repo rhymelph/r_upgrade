@@ -1,3 +1,5 @@
+## 0.2.2
+* fix not use stream can not open notification,update `upgradeWithId` method.
 ## 0.2.1
 * fix Android 6.0 install error.
 ## 0.2.0

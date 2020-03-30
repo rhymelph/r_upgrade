@@ -244,22 +244,35 @@ public class UpgradeService extends Service {
                     cursor.close();
                     return true;
                 } else {
+                    boolean isNewDownload = false;
+
                     //续传
                     String path = cursor.getString(cursor.getColumnIndex(UpgradeSQLite.PATH));
                     downloadFile = new File(path);
+                    //下载的文件已被删除
+                    if (!downloadFile.exists()) {
+                        try {
+                            downloadFile.createNewFile();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        currentLength = 0;
+                        lastCurrentLength = currentLength;
+                        isNewDownload = true;
+                    } else {
+                        currentLength = cursor.getInt(cursor.getColumnIndex(UpgradeSQLite.CURRENT_LENGTH));
+                        lastCurrentLength = currentLength;
+                        maxLength = cursor.getInt(cursor.getColumnIndex(UpgradeSQLite.MAX_LENGTH));
+                    }
                     apkName = cursor.getString(cursor.getColumnIndex(UpgradeSQLite.APK_NAME));
-                    currentLength = cursor.getInt(cursor.getColumnIndex(UpgradeSQLite.CURRENT_LENGTH));
-                    lastCurrentLength = currentLength;
-
                     url = cursor.getString(cursor.getColumnIndex(UpgradeSQLite.URL));
-                    maxLength = cursor.getInt(cursor.getColumnIndex(UpgradeSQLite.MAX_LENGTH));
                     String header = cursor.getString(cursor.getColumnIndex(UpgradeSQLite.HEADER));
                     this.header = getMapForJson(header);
                     cursor.close();
                     //更新一条SQL
                     sqLite.update(id, currentLength, maxLength, DownloadStatus.STATUS_PENDING.getValue());
 
-                    return false;
+                    return isNewDownload;
                 }
             } else {
                 // 重新下载

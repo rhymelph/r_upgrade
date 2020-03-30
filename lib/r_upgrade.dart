@@ -7,19 +7,32 @@ import 'dart:io';
 import 'package:flutter/services.dart';
 
 class RUpgrade {
-  static const MethodChannel _methodChannel =
-      const MethodChannel('com.rhyme/r_upgrade_method');
-  static const EventChannel _eventChannel =
-      const EventChannel('com.rhyme/r_upgrade_event');
+  static MethodChannel __methodChannel;
+
+  static MethodChannel get _methodChannel {
+    if (__methodChannel == null) {
+      __methodChannel = MethodChannel('com.rhyme/r_upgrade_method');
+      __methodChannel.setMethodCallHandler(_methodCallHandler);
+    }
+    return __methodChannel;
+  }
+
+  static Future _methodCallHandler(MethodCall call) async {
+    if (call.method == 'update') {
+      _downloadInfo.add(DownloadInfo.formMap(call.arguments));
+    }
+    return null;
+  }
+
+  static StreamController<DownloadInfo> _downloadInfo =
+      StreamController.broadcast();
 
   ///
   /// Download info stream . this will listen your upgrade progress and more info.
   ///
   static Stream<DownloadInfo> get stream {
     assert(Platform.isAndroid, 'This method only support android application');
-    return _eventChannel
-        .receiveBroadcastStream()
-        .map((map) => DownloadInfo.formMap(map));
+    return _downloadInfo.stream;
   }
 
   ///
@@ -111,10 +124,17 @@ class RUpgrade {
   /// * if download status is [STATUS_SUCCESSFUL] , will install apk.
   ///
   /// * if not found the id , will return [false].
-  static Future<bool> upgradeWithId(int id) async {
+  static Future<bool> upgradeWithId(
+    int id, {
+    NotificationVisibility notificationVisibility =
+        NotificationVisibility.VISIBILITY_VISIBLE,
+    bool isAutoRequestInstall = true,
+  }) async {
     assert(Platform.isAndroid, 'This method only support android application');
     return await _methodChannel.invokeMethod("upgradeWithId", {
       "id": id,
+      "notificationVisibility": notificationVisibility.value,
+      "isAutoRequestInstall": isAutoRequestInstall,
     });
   }
 

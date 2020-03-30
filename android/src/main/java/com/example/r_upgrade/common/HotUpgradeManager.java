@@ -22,17 +22,13 @@ import io.flutter.plugin.common.PluginRegistry;
 
 public class HotUpgradeManager extends ContextWrapper {
     private static final String TAG = "HotUpgradeManager";
-    private static final String FLUTTER_ASSETS="flutter_assets";
+    private static final String FLUTTER_ASSETS = "flutter_assets";
     private static final String APP_FLUTTER = "app_flutter";
-    public static  HotUpgradeManager hotManager;
 
-    public static void init(Context context){
-        hotManager = new HotUpgradeManager(context);
-    }
-    public static void dispose(){
-        hotManager = null;
+    public void dispose() {
 
     }
+
     public HotUpgradeManager(Context context) {
         super(context);
     }
@@ -46,34 +42,34 @@ public class HotUpgradeManager extends ContextWrapper {
     }
 
     private File getHotAssets() {
-        File file = null;
-            file = new File(getFlutterAssets(), System.currentTimeMillis() + ".zip");
-            if (!file.exists()) {
-                try {
-                    boolean isSuccess = file.createNewFile();
-                    return isSuccess ? file : null;
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+        File file;
+        file = new File(getFlutterAssets(), System.currentTimeMillis() + ".zip");
+        if (!file.exists()) {
+            try {
+                boolean isSuccess = file.createNewFile();
+                return isSuccess ? file : null;
+            } catch (IOException e) {
+                e.printStackTrace();
             }
+        }
         return file;
     }
 
-    private boolean deleteFlutterAssets(){
-        File file = new File(getFlutterAssets(),FLUTTER_ASSETS);
-        if(file.exists()){
-            if(file.isDirectory()){
-                for (File item : file.listFiles()){
-                    if(item.exists()){
+    private boolean deleteFlutterAssets() {
+        File file = new File(getFlutterAssets(), FLUTTER_ASSETS);
+        if (file.exists()) {
+            if (file.isDirectory()) {
+                for (File item : file.listFiles()) {
+                    if (item.exists()) {
                         item.delete();
                     }
                 }
             }
             file.delete();
-        }else {
+        } else {
             return false;
         }
-        return  true;
+        return true;
     }
 
     public Boolean hotUpgrade(int id) {
@@ -88,7 +84,6 @@ public class HotUpgradeManager extends ContextWrapper {
             FileDescriptor fileDescriptor = descriptor.getFileDescriptor();
             if (fileDescriptor == null) return false;
             FileInputStream stream = new FileInputStream(fileDescriptor);
-//                File file = new File();
             File zipFile = getHotAssets();
             FileOutputStream outputStream = new FileOutputStream(zipFile);
             byte[] buffer = new byte[1024];
@@ -101,7 +96,7 @@ public class HotUpgradeManager extends ContextWrapper {
             outputStream.close();
 
             deleteFlutterAssets();
-            unZipFile(zipFile.getPath(),getFlutterAssets().getPath()+File.separator+FLUTTER_ASSETS,true);
+            unZipFile(zipFile.getPath(), getFlutterAssets().getPath() + File.separator + FLUTTER_ASSETS, true);
             return true;
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -112,10 +107,9 @@ public class HotUpgradeManager extends ContextWrapper {
     }
 
     /**
-     *
-     * @param archive 解压文件得路径
+     * @param archive       解压文件得路径
      * @param decompressDir 解压文件目标路径
-     * @param isDeleteZip  解压完毕是否删除解压文件
+     * @param isDeleteZip   解压完毕是否删除解压文件
      * @throws IOException
      */
     public static void unZipFile(String archive, String decompressDir, boolean isDeleteZip) throws IOException {
@@ -132,7 +126,6 @@ public class HotUpgradeManager extends ContextWrapper {
                     decompressDirFile.mkdirs();
                 }
             } else {
-                String fileDir = path.substring(0, path.lastIndexOf("/"));
                 if (decompressDir.endsWith(".zip")) {
                     decompressDir = decompressDir.substring(0, decompressDir.lastIndexOf(".zip"));
                 }

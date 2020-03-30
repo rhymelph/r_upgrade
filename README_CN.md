@@ -94,6 +94,7 @@ info 里包含的信息如下:
       //    调用此方法前状态为 [STATUS_PAUSED]、[STATUS_FAILED]、[STATUS_CANCEL],将继续下载
       //    调用此方法前状态为 [STATUS_RUNNING]、[STATUS_PENDING]，不会发生任何变化
       //    调用此方法前状态为 [STATUS_SUCCESSFUL]，将会安装应用
+      // 当文件被删除时，重新下载
     }
 ```
 
