@@ -24,9 +24,26 @@ class RUpgrade {
     return null;
   }
 
+  ///  Android and IOS
+  ///
+  /// if you want to upgrade in your website
+  ///
+  ///  [url] your website url
+  ///
+  static Future<bool> upgradeFromUrl(String url) async {
+    return await _methodChannel.invokeMethod("upgradeFromUrl", {
+      'url': url,
+    });
+  }
+
+  /// Android
+  ///
+  /// download broadcast
+  ///
   static StreamController<DownloadInfo> _downloadInfo =
       StreamController.broadcast();
 
+  /// Android
   ///
   /// Download info stream . this will listen your upgrade progress and more info.
   ///
@@ -35,6 +52,7 @@ class RUpgrade {
     return _downloadInfo.stream;
   }
 
+  /// Android
   ///
   /// You can use this method upgrade your android application.If your application is ios. Oh,so sorry...
   ///
@@ -65,16 +83,7 @@ class RUpgrade {
     });
   }
 
-  ///
-  /// if your application is ios
-  ///
-  static Future<void> upgradeFromAppStore(String url) async {
-    assert(Platform.isIOS, 'This method only support ios application');
-    await _methodChannel.invokeMethod("upgradeFromAppStore", {
-      'url': url,
-    });
-  }
-
+  /// Android
   ///
   /// Cancel by the [id] download task .
   ///
@@ -85,6 +94,7 @@ class RUpgrade {
     });
   }
 
+  /// Android
   ///
   /// Install your apk by [id].
   ///
@@ -95,6 +105,7 @@ class RUpgrade {
     });
   }
 
+  /// Android
   ///
   /// hot upgrade your apk by [id].
   ///
@@ -105,7 +116,7 @@ class RUpgrade {
     });
   }
 
-  /// ----------- new v0.2.0 ------------///
+  /// Android
   ///
   /// Pause by the [id] download task ,only use to [upgrade] params [useDownloadManager] is false.
   ///
@@ -116,6 +127,7 @@ class RUpgrade {
     });
   }
 
+  /// Android
   ///
   /// Upgrade with ID ,only use to [upgrade] params [useDownloadManager] is false.
   ///
@@ -138,6 +150,7 @@ class RUpgrade {
     });
   }
 
+  /// Android
   ///
   /// Get download status by ID , only use to [upgrade] params [useDownloadManager] is false.
   ///
@@ -149,6 +162,7 @@ class RUpgrade {
     return result == null ? null : DownloadStatus._internal(result);
   }
 
+  /// Android
   ///
   /// Get the ID of the last upgrade by version name and version code , only use to [upgrade] params [useDownloadManager] is false.
   ///
@@ -157,17 +171,27 @@ class RUpgrade {
     return await _methodChannel.invokeMethod('getLastUpgradedId');
   }
 
+  /// IOS
   ///
-  /// if your application is ios
-  /// [id] your app store id.
+  /// [appId] your appId in appStore
   ///
-  static Future<String> getVersionFromAppStore(String id) async {
+  static Future<bool> upgradeFromAppStore(String appId) async {
     assert(Platform.isIOS, 'This method only support ios application');
-    return await _methodChannel.invokeMethod("getVersionFromAppStore", {
-      'id': id,
+    return await _methodChannel.invokeMethod("upgradeFromAppStore", {
+      'appId': appId,
     });
   }
 
+  /// IOS
+  ///
+  /// [id] your appId in appStore
+  ///
+  static Future<String> getVersionFromAppStore(String appId) async {
+    assert(Platform.isIOS, 'This method only support ios application');
+    return await _methodChannel.invokeMethod("getVersionFromAppStore", {
+      'appId': appId,
+    });
+  }
 }
 
 ///

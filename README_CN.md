@@ -1,6 +1,8 @@
 # r_upgrade
 [![pub package](https://img.shields.io/pub/v/r_upgrade.svg)](https://pub.dartlang.org/packages/r_upgrade)
 
+![](screen/r_upgrade.png)
+
 Android和IOS的升级应用插件==Flutter应用升级插件
 
 ## 开始吧
@@ -13,7 +15,19 @@ dependencies:
   r_upgrade: last version
 ```
 
-### 2.添加升级下载进度监听
+### 2.使用打开链接的方式进行更新（`Android`和`IOS`通用）
+```dart
+    void upgradeFromUrl()async{
+        bool isSuccess =await RUpgrade.upgradeFromUrl(
+                    'https://www.baidu.com',
+                  );
+        print(isSuccess);
+    }
+```
+
+## Android平台
+
+### 1.添加升级下载进度监听
 ```dart
 RUpgrade.stream.listen((DownloadInfo info){
   ///...
@@ -34,7 +48,7 @@ info 里包含的信息如下:
 
 注意： 部分http下载链接可能返回 `max_length = -1`，请自行判断
 
-### 3.立即升级你的应用
+### 2.立即升级你的应用
 目前分为两部分
 `useDownloadManager`:
 - `true`: 调用系统的`DownloadManager`进行下载
@@ -54,7 +68,7 @@ info 里包含的信息如下:
                  apkName: 'app-release.apk',isAutoRequestInstall: true);
     }
 ```
-### 4. 取消下载
+### 3. 取消下载
 `useDownloadManager`:
 - `false`: id由调用`upgrade`或调用`getLastUpgradedId`后返回
 - `true` : id由调用`upgrade`后返回
@@ -64,7 +78,7 @@ info 里包含的信息如下:
     }
 ```
 
-### 5. 安装应用
+### 4. 安装应用
 `useDownloadManager`:
 - `false`: id由调用`upgrade`或调用`getLastUpgradedId`后返回
 - `true` : id由调用`upgrade`后返回
@@ -74,7 +88,7 @@ info 里包含的信息如下:
     }
 ```
 
-### 6. 暂停下载(`Service`)
+### 5. 暂停下载(`Service`)
 `useDownloadManager`:
 - `false`: id由调用`upgrade`或调用`getLastUpgradedId`后返回
 ```dart
@@ -83,7 +97,7 @@ info 里包含的信息如下:
     }
 ```
 
-### 7. 继续下载(`Service`)
+### 6. 继续下载(`Service`)
 `useDownloadManager`:
 - `false`: id由调用`upgrade`或调用`getLastUpgradedId`后返回
 ```dart
@@ -98,7 +112,7 @@ info 里包含的信息如下:
     }
 ```
 
-### 8. 获取最后一次下载的ID(`Service`)
+### 7. 获取最后一次下载的ID(`Service`)
 该方法只会寻找当前应用版本名和版本号下下载过的ID
 ```dart
     void getLastUpgradeId() async {
@@ -106,7 +120,7 @@ info 里包含的信息如下:
     }
 ```
 
-### 9. 获取ID对应的下载状态(`Service`)
+### 8. 获取ID对应的下载状态(`Service`)
 `useDownloadManager`:
 - `false`: id由调用`upgrade`或调用`getLastUpgradedId`后返回
 ```dart
@@ -115,14 +129,7 @@ info 里包含的信息如下:
    }
 ```
 
-### 10.如果你的应用为IOS，使用此方法跳转到appStore进行下载更新
-```dart
-    void iosUpgrade(String url)async{
-      RUpgrade.appStore(url);
-    }
-```
-
-### 11.热更新
+### 10.热更新 (使用 DownloadManager)
 - 你可以使用升级返回的`id`进行热更新，下载的文件需要将新版本生成的`isolate_snapshot_data`、`kernel_blob.bin`、`vm_snapshot_data`打进zip文件中下载
 步骤：
     - 运行 `flutter clean` 清理build文件
@@ -168,3 +175,24 @@ info 里包含的信息如下:
 
 > 注意：目前热更新尚处于测试阶段，只支持Flutter代码的变更，不支持资源文件等，热更新造成的一切的后果插件的作者概不负责，由使用者承担。
 
+## IOS平台
+
+### 1.跳转到AppStore进行更新
+```dart
+    void upgradeFromAppStore() async {
+        bool isSuccess =await RUpgrade.upgradeFromAppStore(
+                '您的AppId',//例如:微信的AppId:414478124
+              );
+        print(isSuccess);
+    }
+```
+
+### 2.获取AppStore中你的应用最后的版本名
+```dart
+    void getVersionFromAppStore() async {
+        String versionName = await RUpgrade.getVersionFromAppStore(
+                '您的AppId',//例如:微信的AppId:414478124
+               );
+        print(versionName);
+    }
+```

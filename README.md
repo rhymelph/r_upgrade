@@ -1,6 +1,8 @@
 # r_upgrade
 [![pub package](https://img.shields.io/pub/v/r_upgrade.svg)](https://pub.dartlang.org/packages/r_upgrade)
 
+![](screen/r_upgrade.png)
+
 Android and IOS upgrade plugin.
 
 ## [中文点此](README_CN.md)
@@ -9,12 +11,25 @@ Android and IOS upgrade plugin.
 
 ### 1. Use Plugin:
 add this code in `pubspec.yaml`
+
 ```yaml
 dependencies:
   r_upgrade: last version
 ```
 
-### 2. Add Upgrade Download Listener
+### 2. Upgrade from your website ( Android or IOS )
+```dart
+    void upgradeFromUrl()async{
+        bool isSuccess =await RUpgrade.upgradeFromUrl(
+                    'https://www.google.com',
+                  );
+        print(isSuccess);
+    }
+```
+
+## Android Platform
+
+### 1. Add Upgrade Download Listener
 ```dart
 RUpgrade.stream.listen((DownloadInfo info){
   ///...
@@ -33,7 +48,7 @@ info:
 | (double) speed | download speed kb/s |
 | (DownloadStatus) status | download status <br> `STATUS_PAUSED` <br> `STATUS_PENDING` <br> `STATUS_RUNNING` <br> `STATUS_SUCCESSFUL` <br> `STATUS_FAILED` <br> `STATUS_CANCEL`|
 
-### 3. Upgrade your application
+### 2. Upgrade your application
 This upgrade have two part.
 `useDownloadManager`:
 - `true`: Use system `DownloadManager`to download
@@ -53,7 +68,7 @@ This upgrade have two part.
                  apkName: 'app-release.apk',isAutoRequestInstall: true);
     }
 ```
-### 4. Cancel Download
+### 3. Cancel Download
 `useDownloadManager`:
 - `false`: use `upgrade`or `getLastUpgradedId` method will return .
 - `true` : use `upgrade` method will return .
@@ -63,7 +78,7 @@ This upgrade have two part.
     }
 ```
 
-### 5. Install Apk
+### 4. Install Apk
 `useDownloadManager`:
 - `false`: use `upgrade`or `getLastUpgradedId` method will return .
 - `true` : use `upgrade` method will return .
@@ -73,7 +88,7 @@ This upgrade have two part.
     }
 ```
 
-### 6. Pause Download(`Service`)
+### 5. Pause Download(`Service`)
 `useDownloadManager`:
 - `false`: use `upgrade`or `getLastUpgradedId` method will return .
 ```dart
@@ -82,7 +97,7 @@ This upgrade have two part.
     }
 ```
 
-### 7. Continue Download(`Service`)
+### 6. Continue Download(`Service`)
 `useDownloadManager`:
 - `false`: use `upgrade`or `getLastUpgradedId` method will return .
 ```dart
@@ -98,7 +113,7 @@ This upgrade have two part.
     }
 ```
 
-### 8. Get the last upgrade id(`Service`)
+### 7. Get the last upgrade id(`Service`)
 this method will find id by your application version name and version code.
 ```dart
     void getLastUpgradeId() async {
@@ -106,7 +121,7 @@ this method will find id by your application version name and version code.
     }
 ```
 
-### 9. Get the download status from id(`Service`)
+### 8. Get the download status from id(`Service`)
 `useDownloadManager`:
 - `false`: use `upgrade`or `getLastUpgradedId` method will return .
 ```dart
@@ -115,14 +130,14 @@ this method will find id by your application version name and version code.
    }
 ```
 
-### 10.your application is ios.You can use this.
+### 9.your application is ios.You can use this.
 ```dart
     void iosUpgrade(String url)async{
       RUpgrade.appStore(url);
     }
 ```
 
-### 11. Hot Upgrade
+### 10. Hot Upgrade ( use DownloadManager )
 - you can use this id to hot upgrade,but download file is zip. include three file [isolate_snapshot_data]、[kernel_blob.bin]、[vm_snapshot_data].Your can use `flutter build bundle` generate.
 ```
  flutter build bundle
@@ -166,3 +181,25 @@ download complete you can use download `id` to hot upgrade
 ```
 
 > At present, the hot update is still in the testing stage, only supporting the change of the flutter code, not supporting the resource file, etc. the author of the plug-in is not responsible for all the consequences caused by the hot update, and the user is responsible for it.
+
+## IOS Platform
+
+### 1.Go to the AppStore Upgrade
+```dart
+    void upgradeFromAppStore() async {
+        bool isSuccess =await RUpgrade.upgradeFromAppStore(
+                 'your AppId',//such as:WeChat AppId:414478124
+              );
+        print(isSuccess);
+    }
+```
+
+### 2.Get the last version form AppStore
+```dart
+    void getVersionFromAppStore() async {
+        String versionName = await RUpgrade.getVersionFromAppStore(
+                'your AppId',//such as:WeChat AppId:414478124
+               );
+        print(versionName);
+    }
+```

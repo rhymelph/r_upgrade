@@ -23,6 +23,8 @@ class _MyAppState extends State<MyApp> {
 
   GlobalKey<ScaffoldState> _state = GlobalKey();
 
+  String iosVersion = "";
+
   @override
   void initState() {
     super.initState();
@@ -43,18 +45,35 @@ class _MyAppState extends State<MyApp> {
   Widget _buildIOSPlatformWidget() => ListView(
         children: <Widget>[
           ListTile(
-            title: Text('Go to app store'),
+            title: Text('Go to url(WeChat)'),
             onTap: () async {
-              RUpgrade.upgradeFromAppStore(
-                'https://apps.apple.com/us/app/i2-school-家长端/id1294204672?l=zh&ls=1',
+              RUpgrade.upgradeFromUrl(
+                'https://apps.apple.com/cn/app/wechat/id414478124?l=en',
               );
             },
           ),
           ListTile(
-            title: Text('get version from app store'),
+            title: Text('Go to appStore from appId(WeChat)'),
             onTap: () async {
-              String versionName = await RUpgrade.getVersionFromAppStore('1294204672');
-            print('IOS版本号:$versionName');
+              RUpgrade.upgradeFromAppStore(
+                '414478124',
+              );
+            },
+          ),
+          ListTile(
+            title: Text('get version from app store(WeChat)'),
+            trailing: iosVersion != null
+                ? Text(iosVersion,
+                    style: Theme.of(context).textTheme.subtitle.copyWith(
+                          color: Colors.grey,
+                        ))
+                : null,
+            onTap: () async {
+              String versionName =
+                  await RUpgrade.getVersionFromAppStore('414478124');
+              setState(() {
+                iosVersion = versionName;
+              });
             },
           ),
         ],
@@ -71,6 +90,15 @@ class _MyAppState extends State<MyApp> {
                     fontWeight: FontWeight.w600,
                   ),
             ),
+          ),
+          ListTile(
+            title: Text('跳转到链接更新'),
+            onTap: () async {
+              bool isSuccess = await RUpgrade.upgradeFromUrl(
+                'https://www.baidu.com',
+              );
+              print(isSuccess);
+            },
           ),
           ListTile(
             title: Text('开始全量更新'),

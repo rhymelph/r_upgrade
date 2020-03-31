@@ -71,7 +71,7 @@ public class UpgradeManager extends ContextWrapper {
         unregisterReceiver(downloadReceiver);
     }
 
-    public UpgradeManager(Context base,MethodChannel channel) {
+    public UpgradeManager(Context base, MethodChannel channel) {
         super(base);
         this.channel = channel;
         UpgradeSQLite sqLite = new UpgradeSQLite(this);
@@ -81,7 +81,7 @@ public class UpgradeManager extends ContextWrapper {
         filter.addAction(UpgradeManager.DOWNLOAD_STATUS);
         filter.addAction(UpgradeManager.DOWNLOAD_INSTALL);
         downloadReceiver = createBroadcastReceiver();
-        registerReceiver(downloadReceiver,filter);
+        registerReceiver(downloadReceiver, filter);
     }
 
 
@@ -359,17 +359,17 @@ public class UpgradeManager extends ContextWrapper {
                             installApkById((int) id);
                         }
                     }
-                    if(channel!=null)
-                    channel.invokeMethod("update",ResultMap.getInstance()
-                            .pubClear(PARAMS_CURRENT_LENGTH, current_length)
-                            .put(PARAMS_ID, id)
-                            .put(PARAMS_PERCENT, percent)
-                            .put(PARAMS_PLAN_TIME, planTime)
-                            .put(PARAMS_STATUS, status)
-                            .put(PARAMS_SPEED, speed)
-                            .put(PARAMS_MAX_LENGTH, max_length)
-                            .put(PARAMS_PATH, path)
-                            .getMap());
+                    if (channel != null)
+                        channel.invokeMethod("update", ResultMap.getInstance()
+                                .pubClear(PARAMS_CURRENT_LENGTH, current_length)
+                                .put(PARAMS_ID, id)
+                                .put(PARAMS_PERCENT, percent)
+                                .put(PARAMS_PLAN_TIME, planTime)
+                                .put(PARAMS_STATUS, status)
+                                .put(PARAMS_SPEED, speed)
+                                .put(PARAMS_MAX_LENGTH, max_length)
+                                .put(PARAMS_PATH, path)
+                                .getMap());
 
                 } else if (intent != null && intent.getAction() != null && intent.getAction().equals(UpgradeManager.DOWNLOAD_INSTALL)) {
                     int id = intent.getIntExtra(UpgradeService.DOWNLOAD_ID, 0);
@@ -426,5 +426,17 @@ public class UpgradeManager extends ContextWrapper {
         UpgradeSQLite sqLite = new UpgradeSQLite(this);
         return sqLite.queryStatusById(id);
 
+    }
+
+    public boolean upgradeFromUrl(String url) {
+        Uri uri = Uri.parse(url);
+        try {
+            Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 }
