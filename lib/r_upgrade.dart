@@ -156,6 +156,18 @@ class RUpgrade {
     assert(Platform.isAndroid, 'This method only support android application');
     return await _methodChannel.invokeMethod('getLastUpgradedId');
   }
+
+  ///
+  /// if your application is ios
+  /// [id] your app store id.
+  ///
+  static Future<String> getVersionFromAppStore(String id) async {
+    assert(Platform.isIOS, 'This method only support ios application');
+    return await _methodChannel.invokeMethod("getVersionFromAppStore", {
+      'id': id,
+    });
+  }
+
 }
 
 ///

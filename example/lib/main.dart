@@ -46,8 +46,15 @@ class _MyAppState extends State<MyApp> {
             title: Text('Go to app store'),
             onTap: () async {
               RUpgrade.upgradeFromAppStore(
-                'https://mydata-1252536312.cos.ap-guangzhou.myqcloud.com/r_upgrade.apk',
+                'https://apps.apple.com/us/app/i2-school-家长端/id1294204672?l=zh&ls=1',
               );
+            },
+          ),
+          ListTile(
+            title: Text('get version from app store'),
+            onTap: () async {
+              String versionName = await RUpgrade.getVersionFromAppStore('1294204672');
+            print('IOS版本号:$versionName');
             },
           ),
         ],
