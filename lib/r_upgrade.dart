@@ -36,6 +36,19 @@ class RUpgrade {
     });
   }
 
+  ///  Android
+  ///
+  /// if you want to upgrade form your store.
+  ///
+  ///  [stores] if null,show all store list
+  ///
+  static Future<bool> upgradeFromAndroidStore(AndroidStore store) async {
+    assert(Platform.isAndroid, 'This method only support android application');
+    return await _methodChannel.invokeMethod("upgradeFromAndroidStore", {
+      'stores': store?._packageName,
+    });
+  }
+
   /// Android
   ///
   /// download broadcast
@@ -271,7 +284,7 @@ class DownloadStatus {
 
   get hashCode => _value;
 
-  operator ==(status) => status._value == this._value;
+  operator ==(status) => status._packageName == this._value;
 
   toString() => 'DownloadStatus($_value)';
 }
@@ -293,7 +306,7 @@ class NotificationVisibility {
 
   get hashCode => _value;
 
-  operator ==(status) => status._value == this._value;
+  operator ==(status) => status._packageName == this._value;
 
   toString() => 'NotificationVisibility($_value)';
 
@@ -317,4 +330,50 @@ class NotificationVisibility {
   ///
   static const VISIBILITY_VISIBLE_NOTIFY_ONLY_COMPLETION =
       const NotificationVisibility._internal(3);
+}
+
+///
+/// Android application store.
+///
+/// [packageName] store package name.
+class AndroidStore {
+  final String _packageName;
+
+  String get packageName => _packageName;
+
+  const AndroidStore.internal(this._packageName);
+
+  //google play
+  static const GOOGLE_PLAY = const AndroidStore.internal('com.android.vending');
+
+  //应用宝
+  static const TENCENT =
+      const AndroidStore.internal('com.tencent.android.qqdownloader');
+
+  //360手机助手
+  static const QIHOO = const AndroidStore.internal('com.qihoo.appstore');
+
+  //百度手机助手
+  static const BAIDU = const AndroidStore.internal('com.baidu.appsearch');
+
+  //小米应用商店
+  static const XIAOMI = const AndroidStore.internal('com.xiaomi.market');
+
+  //豌豆荚
+  static const WANDOU = const AndroidStore.internal('com.wandoujia.phoenix2');
+
+  //华为应用市场
+  static const HUAWEI = const AndroidStore.internal('com.huawei.appmarket');
+
+  //淘宝手机助手
+  static const TAOBAO = const AndroidStore.internal('com.taobao.appcenter');
+
+  //安卓市场
+  static const HIAPK = const AndroidStore.internal('com.hiapk.marketpho');
+
+  //安智市场
+  static const GOAPK = const AndroidStore.internal('cn.goapk.market');
+
+  //酷安
+  static const COOLAPK = const AndroidStore.internal('com.coolapk.market');
 }

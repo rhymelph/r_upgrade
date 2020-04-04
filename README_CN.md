@@ -27,7 +27,16 @@ dependencies:
 
 ## Android平台
 
-### 1.添加升级下载进度监听
+### 1.跳转到应用商店更新
+```dart
+    void upgradeFromAndroidStore(){
+       bool isSuccess = await RUpgrade.upgradeFromAndroidStore(AndroidStore.BAIDU);
+       print('${isSuccess?'跳转成功':'跳转失败'}');
+    }
+```
+### 2.通过下载链接进行apk下载
+
+#### 1.添加升级下载进度监听
 ```dart
 RUpgrade.stream.listen((DownloadInfo info){
   ///...
@@ -48,7 +57,7 @@ info 里包含的信息如下:
 
 注意： 部分http下载链接可能返回 `max_length = -1`，请自行判断
 
-### 2.立即升级你的应用
+#### 2.立即升级你的应用
 目前分为两部分
 `useDownloadManager`:
 - `true`: 调用系统的`DownloadManager`进行下载
@@ -68,7 +77,7 @@ info 里包含的信息如下:
                  apkName: 'app-release.apk',isAutoRequestInstall: true);
     }
 ```
-### 3. 取消下载
+#### 3. 取消下载
 `useDownloadManager`:
 - `false`: id由调用`upgrade`或调用`getLastUpgradedId`后返回
 - `true` : id由调用`upgrade`后返回
@@ -78,7 +87,7 @@ info 里包含的信息如下:
     }
 ```
 
-### 4. 安装应用
+#### 4. 安装应用
 `useDownloadManager`:
 - `false`: id由调用`upgrade`或调用`getLastUpgradedId`后返回
 - `true` : id由调用`upgrade`后返回
@@ -88,7 +97,7 @@ info 里包含的信息如下:
     }
 ```
 
-### 5. 暂停下载(`Service`)
+#### 5. 暂停下载(`Service`)
 `useDownloadManager`:
 - `false`: id由调用`upgrade`或调用`getLastUpgradedId`后返回
 ```dart
@@ -97,7 +106,7 @@ info 里包含的信息如下:
     }
 ```
 
-### 6. 继续下载(`Service`)
+#### 6. 继续下载(`Service`)
 `useDownloadManager`:
 - `false`: id由调用`upgrade`或调用`getLastUpgradedId`后返回
 ```dart
@@ -112,7 +121,7 @@ info 里包含的信息如下:
     }
 ```
 
-### 7. 获取最后一次下载的ID(`Service`)
+#### 7. 获取最后一次下载的ID(`Service`)
 该方法只会寻找当前应用版本名和版本号下下载过的ID
 ```dart
     void getLastUpgradeId() async {
@@ -120,7 +129,7 @@ info 里包含的信息如下:
     }
 ```
 
-### 8. 获取ID对应的下载状态(`Service`)
+#### 8. 获取ID对应的下载状态(`Service`)
 `useDownloadManager`:
 - `false`: id由调用`upgrade`或调用`getLastUpgradedId`后返回
 ```dart
@@ -129,7 +138,7 @@ info 里包含的信息如下:
    }
 ```
 
-### 10.热更新 (使用 DownloadManager)
+#### 9. 热更新 (使用 DownloadManager)
 - 你可以使用升级返回的`id`进行热更新，下载的文件需要将新版本生成的`isolate_snapshot_data`、`kernel_blob.bin`、`vm_snapshot_data`打进zip文件中下载
 步骤：
     - 运行 `flutter clean` 清理build文件

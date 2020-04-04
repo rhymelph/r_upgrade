@@ -1,7 +1,5 @@
 package com.example.r_upgrade.method;
 
-import android.content.Intent;
-import android.net.Uri;
 
 import com.example.r_upgrade.common.HotUpgradeManager;
 import com.example.r_upgrade.common.UpgradeManager;
@@ -28,6 +26,12 @@ public enum RUpgradeMethodEnum implements IRUpgradeMethodHandler {
         @Override
         public void handler(UpgradeManager upgradeManager, HotUpgradeManager hotUpgradeManager, MethodCall call, MethodChannel.Result result) {
             result.success(upgradeManager.upgradeFromUrl((String)call.argument("url")));
+        }
+    },
+    upgradeFromAndroidStore{
+        @Override
+        public void handler(UpgradeManager upgradeManager, HotUpgradeManager hotUpgradeManager, MethodCall call, MethodChannel.Result result) {
+            result.success(upgradeManager.upgradeFromAndroidStore((String)call.argument("stores")));
         }
     },
     cancel {

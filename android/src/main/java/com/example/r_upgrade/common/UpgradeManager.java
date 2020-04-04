@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Timer;
@@ -432,6 +433,21 @@ public class UpgradeManager extends ContextWrapper {
         Uri uri = Uri.parse(url);
         try {
             Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public boolean upgradeFromAndroidStore(String store) {
+        Uri uri = Uri.parse("market://details?id=" + this.getApplicationInfo().packageName);
+        try {
+            Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+            if (store != null) {
+                intent.setPackage(store);
+            }
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
             return true;

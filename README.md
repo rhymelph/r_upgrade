@@ -29,7 +29,17 @@ dependencies:
 
 ## Android Platform
 
-### 1. Add Upgrade Download Listener
+### 1. App upgrade from store.
+```dart
+    void upgradeFromAndroidStore(){
+       bool isSuccess = await RUpgrade.upgradeFromAndroidStore(AndroidStore.GOOGLE_PLAY);
+       print('${isSuccess?'jump success':'jump error'}');
+    }
+```
+
+### 2. App upgrade from download link.
+
+#### 1. Add Upgrade Download Listener
 ```dart
 RUpgrade.stream.listen((DownloadInfo info){
   ///...
@@ -48,7 +58,7 @@ info:
 | (double) speed | download speed kb/s |
 | (DownloadStatus) status | download status <br> `STATUS_PAUSED` <br> `STATUS_PENDING` <br> `STATUS_RUNNING` <br> `STATUS_SUCCESSFUL` <br> `STATUS_FAILED` <br> `STATUS_CANCEL`|
 
-### 2. Upgrade your application
+#### 2. Upgrade your application
 This upgrade have two part.
 `useDownloadManager`:
 - `true`: Use system `DownloadManager`to download
@@ -68,7 +78,7 @@ This upgrade have two part.
                  apkName: 'app-release.apk',isAutoRequestInstall: true);
     }
 ```
-### 3. Cancel Download
+#### 3. Cancel Download
 `useDownloadManager`:
 - `false`: use `upgrade`or `getLastUpgradedId` method will return .
 - `true` : use `upgrade` method will return .
@@ -78,7 +88,7 @@ This upgrade have two part.
     }
 ```
 
-### 4. Install Apk
+#### 4. Install Apk
 `useDownloadManager`:
 - `false`: use `upgrade`or `getLastUpgradedId` method will return .
 - `true` : use `upgrade` method will return .
@@ -88,7 +98,7 @@ This upgrade have two part.
     }
 ```
 
-### 5. Pause Download(`Service`)
+#### 5. Pause Download(`Service`)
 `useDownloadManager`:
 - `false`: use `upgrade`or `getLastUpgradedId` method will return .
 ```dart
@@ -97,7 +107,7 @@ This upgrade have two part.
     }
 ```
 
-### 6. Continue Download(`Service`)
+#### 6. Continue Download(`Service`)
 `useDownloadManager`:
 - `false`: use `upgrade`or `getLastUpgradedId` method will return .
 ```dart
@@ -113,7 +123,7 @@ This upgrade have two part.
     }
 ```
 
-### 7. Get the last upgrade id(`Service`)
+#### 7. Get the last upgrade id(`Service`)
 this method will find id by your application version name and version code.
 ```dart
     void getLastUpgradeId() async {
@@ -121,7 +131,7 @@ this method will find id by your application version name and version code.
     }
 ```
 
-### 8. Get the download status from id(`Service`)
+#### 8. Get the download status from id(`Service`)
 `useDownloadManager`:
 - `false`: use `upgrade`or `getLastUpgradedId` method will return .
 ```dart
@@ -130,14 +140,7 @@ this method will find id by your application version name and version code.
    }
 ```
 
-### 9.your application is ios.You can use this.
-```dart
-    void iosUpgrade(String url)async{
-      RUpgrade.appStore(url);
-    }
-```
-
-### 10. Hot Upgrade ( use DownloadManager )
+#### 9. Hot Upgrade ( use DownloadManager )
 - you can use this id to hot upgrade,but download file is zip. include three file [isolate_snapshot_data]、[kernel_blob.bin]、[vm_snapshot_data].Your can use `flutter build bundle` generate.
 ```
  flutter build bundle

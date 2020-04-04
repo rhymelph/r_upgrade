@@ -1,5 +1,5 @@
-## 0.2.3
-* fix ios open error、add `getVersionFromAppStore`、`upgradeFromUrl` method.
+## 0.2.4
+* add `upgradeFromAndroidStore` method.
 ## 0.2.2
 * fix not use stream can not open notification,update `upgradeWithId` method.
 ## 0.2.1

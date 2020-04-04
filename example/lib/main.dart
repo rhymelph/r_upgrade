@@ -92,6 +92,14 @@ class _MyAppState extends State<MyApp> {
             ),
           ),
           ListTile(
+            title: Text('跳转到应用商店'),
+            onTap: () async {
+              bool isSuccess =
+                  await RUpgrade.upgradeFromAndroidStore(AndroidStore.BAIDU);
+              print('${isSuccess ? '跳转成功' : '跳转失败'}');
+            },
+          ),
+          ListTile(
             title: Text('跳转到链接更新'),
             onTap: () async {
               bool isSuccess = await RUpgrade.upgradeFromUrl(

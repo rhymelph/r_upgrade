@@ -18,7 +18,6 @@ import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import io.flutter.plugin.common.PluginRegistry;
 
 public class HotUpgradeManager extends ContextWrapper {
     private static final String TAG = "HotUpgradeManager";
