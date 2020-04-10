@@ -284,7 +284,7 @@ class DownloadStatus {
 
   get hashCode => _value;
 
-  operator ==(status) => status._packageName == this._value;
+  operator ==(status) => status._value == this._value;
 
   toString() => 'DownloadStatus($_value)';
 }
