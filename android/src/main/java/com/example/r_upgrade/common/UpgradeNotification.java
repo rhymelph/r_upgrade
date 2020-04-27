@@ -12,12 +12,14 @@ import android.os.Build;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
+import com.example.r_upgrade.R;
+
 public class UpgradeNotification {
     public static final String TAG = "UpgradeNotification";
 
     private static final String CHANNEL_NAME = "r_upgrade_notification";
 
-    static void createNotification(Context context, int id, String title, int current_length, int max_length, String planTime, int status) {
+    static void createNotification(Context context, int id, String title, int current_length, int max_length, String contentText, int status) {
         if (status == DownloadStatus.STATUS_CANCEL.getValue()) {
             removeNotification(context, id);
             return;
@@ -34,9 +36,9 @@ public class UpgradeNotification {
             notification = new NotificationCompat.Builder(context, CHANNEL_NAME)
                     .setSmallIcon(context.getApplicationInfo().icon)
                     .setContentTitle(title)
-                    .setContentText(indeterminate?"":planTime)
+                    .setContentText(indeterminate ? "" : contentText)
                     .setContentIntent(pausePendingIntent)
-                    .setProgress(indeterminate?0:max_length, indeterminate?0:current_length, indeterminate)
+                    .setProgress(indeterminate ? 0 : max_length, indeterminate ? 0 : current_length, indeterminate)
                     .build();
         } else if (status == DownloadStatus.STATUS_SUCCESSFUL.getValue()) {
             Intent installIntent = new Intent();
@@ -50,7 +52,7 @@ public class UpgradeNotification {
                     .setSmallIcon(context.getApplicationInfo().icon)
                     .setContentTitle(title)
                     .setContentIntent(installPendingIntent)
-                    .setContentText("Download Finished")
+                    .setContentText(context.getResources().getString(R.string.r_upgrade_download_finish))
                     .build();
         } else if (status == DownloadStatus.STATUS_PAUSED.getValue()) {
             Intent reStartIntent = new Intent();
@@ -62,7 +64,7 @@ public class UpgradeNotification {
                     .setSmallIcon(context.getApplicationInfo().icon)
                     .setContentTitle(title)
                     .setContentIntent(reStartPendingIntent)
-                    .setContentText("Download Paused")
+                    .setContentText(context.getResources().getString(R.string.r_upgrade_download_paused))
                     .build();
         } else if (status == DownloadStatus.STATUS_FAILED.getValue()) {
             Intent reStartIntent = new Intent();
@@ -74,7 +76,7 @@ public class UpgradeNotification {
                     .setSmallIcon(context.getApplicationInfo().icon)
                     .setContentTitle(title)
                     .setContentIntent(reStartPendingIntent)
-                    .setContentText("Download Failed")
+                    .setContentText(context.getResources().getString(R.string.r_upgrade_download_failed))
                     .build();
         } else {
             notification = new NotificationCompat.Builder(context, CHANNEL_NAME)

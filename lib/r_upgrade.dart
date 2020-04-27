@@ -73,6 +73,7 @@ class RUpgrade {
   /// * [header] download  request header.
   /// * [apkName] download  filename and notification title name.
   /// * [notificationVisibility] download running notification visibility mode.
+  /// * [notificationStyle] download notification show style about content text, only support [useDownloadManager]==false.
   /// * [isAutoRequestInstall] download completed will install apk.
   /// * [useDownloadManager] if true will use DownloadManager,false will use my service ,
   /// *         if true will no use [pause] , [upgradeWithId] , [getDownloadStatus] , [getLastUpgradedId] methods.
@@ -82,6 +83,7 @@ class RUpgrade {
     String apkName,
     NotificationVisibility notificationVisibility =
         NotificationVisibility.VISIBILITY_VISIBLE,
+    NotificationStyle notificationStyle = NotificationStyle.planTime,
     bool isAutoRequestInstall = true,
     bool useDownloadManager = false,
   }) {
@@ -90,7 +92,8 @@ class RUpgrade {
       'url': url,
       "header": header,
       "apkName": apkName,
-      "notificationVisibility": notificationVisibility.value,
+      "notificationVisibility": notificationVisibility?.value,
+      "notificationStyle": notificationStyle?.index,
       "isAutoRequestInstall": isAutoRequestInstall,
       "useDownloadManager": useDownloadManager,
     });
@@ -330,6 +333,15 @@ class NotificationVisibility {
   ///
   static const VISIBILITY_VISIBLE_NOTIFY_ONLY_COMPLETION =
       const NotificationVisibility._internal(3);
+}
+
+/// Notification show style about content text
+enum NotificationStyle {
+  speechAndPlanTime,
+  planTimeAndSpeech,
+  speech,
+  planTime,
+  none,
 }
 
 ///

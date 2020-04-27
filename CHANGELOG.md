@@ -1,3 +1,5 @@
+## 0.2.5
+* add `notificationStyle` params from `upgrade` method.
 ## 0.2.4
 * add `upgradeFromAndroidStore` method.
 ## 0.2.2

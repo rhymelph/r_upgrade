@@ -18,6 +18,7 @@ public enum RUpgradeMethodEnum implements IRUpgradeMethodHandler {
                     (Map<String, String>) call.argument("header"),
                     (String) call.argument("apkName"),
                     (Integer) call.argument("notificationVisibility"),
+                    (Integer) call.argument("notificationStyle"),
                     (Boolean) call.argument("isAutoRequestInstall"),
                     (Boolean) call.argument("useDownloadManager")));
         }

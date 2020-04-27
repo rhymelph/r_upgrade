@@ -126,6 +126,7 @@ class _MyAppState extends State<MyApp> {
                   'https://mydata-1252536312.cos.ap-guangzhou.myqcloud.com/r_upgrade.apk',
                   apkName: 'r_upgrade.apk',
                   isAutoRequestInstall: isAutoRequestInstall,
+                  notificationStyle: NotificationStyle.speechAndPlanTime,
                   useDownloadManager: false);
               setState(() {});
             },

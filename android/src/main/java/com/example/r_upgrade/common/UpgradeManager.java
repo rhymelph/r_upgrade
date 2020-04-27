@@ -16,6 +16,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
 
+import com.example.r_upgrade.R;
 import com.example.r_upgrade.RUpgradeFileProvider;
 
 import org.json.JSONObject;
@@ -62,6 +63,7 @@ public class UpgradeManager extends ContextWrapper {
     private boolean isUseDownloadManager;
 
     private Integer notificationVisibility = 0;
+    private UpgradeNotificationStyle notificationStyle = UpgradeNotificationStyle.none;
 
 
     private BroadcastReceiver downloadReceiver;
@@ -86,9 +88,14 @@ public class UpgradeManager extends ContextWrapper {
     }
 
 
-    public long upgrade(String url, Map<String, String> header, String apkName, Integer notificationVisibility, Boolean isAutoRequestInstall, Boolean useDownloadManager) {
+    public long upgrade(String url, Map<String, String> header, String apkName, Integer notificationVisibility, Integer notificationStyle, Boolean isAutoRequestInstall, Boolean useDownloadManager) {
         this.isAutoRequestInstall = Boolean.TRUE == isAutoRequestInstall;
         this.isUseDownloadManager = Boolean.TRUE == useDownloadManager;
+        if (notificationStyle != null) {
+            this.notificationStyle = UpgradeNotificationStyle.values()[notificationStyle];
+        } else {
+            this.notificationStyle = UpgradeNotificationStyle.none;
+        }
         this.notificationVisibility = notificationVisibility;
 
         long id = 0;
@@ -349,12 +356,13 @@ public class UpgradeManager extends ContextWrapper {
                     long id = intent.getLongExtra(PARAMS_ID, 0L);
 
                     if (!isUseDownloadManager) {
+                        String contentText = notificationStyle == null ? "" : notificationStyle.getNotificationStyleString(context, speed, planTime);
                         if ((status == DownloadStatus.STATUS_RUNNING.getValue() || status == DownloadStatus.STATUS_SUCCESSFUL.getValue()) && notificationVisibility == 1) {
-                            UpgradeNotification.createNotification(context, (int) id, apkName, current_length, max_length, String.format(Locale.CHINA, "%.0f  seconds left", planTime), status);
+                            UpgradeNotification.createNotification(context, (int) id, apkName, current_length, max_length, contentText, status);
                         } else if (notificationVisibility == 0) {
-                            UpgradeNotification.createNotification(context, (int) id, apkName, current_length, max_length, String.format(Locale.CHINA, "%.0f  seconds left", planTime), status);
+                            UpgradeNotification.createNotification(context, (int) id, apkName, current_length, max_length, contentText, status);
                         } else if (status == DownloadStatus.STATUS_SUCCESSFUL.getValue() && notificationVisibility == 3) {
-                            UpgradeNotification.createNotification(context, (int) id, apkName, current_length, max_length, String.format(Locale.CHINA, "%.0f  seconds left", planTime), status);
+                            UpgradeNotification.createNotification(context, (int) id, apkName, current_length, max_length, contentText, status);
                         }
                         if (isAutoRequestInstall && status == DownloadStatus.STATUS_SUCCESSFUL.getValue()) {
                             installApkById((int) id);

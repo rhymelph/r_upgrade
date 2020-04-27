@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="r_upgrade_download_speech">%.2fkb/s</string>
+    <string name="r_upgrade_download_planTime">预计%.0f秒后完成</string>
+    <string name="r_upgrade_download_finish">下载完成</string>
+    <string name="r_upgrade_download_paused">下载被暂停</string>
+    <string name="r_upgrade_download_failed">下载失败</string>
+</resources>

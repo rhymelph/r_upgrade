@@ -71,6 +71,7 @@ This upgrade have two part.
     // [isAutoRequestInstall] downloaded finish will auto request install apk.
     // [apkName] apk name (such as `release.apk`)
     // [notificationVisibility] notification visibility.
+    // [notificationStyle] download notification show style about content text, only support [useDownloadManager]==false.
     // [useDownloadManager] look up at
     void upgrade() async {
       int id = await RUpgrade.upgrade(
@@ -184,6 +185,30 @@ download complete you can use download `id` to hot upgrade
 ```
 
 > At present, the hot update is still in the testing stage, only supporting the change of the flutter code, not supporting the resource file, etc. the author of the plug-in is not responsible for all the consequences caused by the hot update, and the user is responsible for it.
+
+## Android Platform Notification Bar
+If you want to customize the content displayed in the download notification bar, you can do so, modify or add files `project/android/app/main/res/r_upgrade_value.xml`，add the following code
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="r_upgrade_download_speech">%.0f kb/s</string>
+    <string name="r_upgrade_download_planTime">%.0fs left</string>
+    <string name="r_upgrade_download_finish">Download finished</string>
+    <string name="r_upgrade_download_paused">Download paused</string>
+    <string name="r_upgrade_download_failed">Download failed</string>
+</resources>
+```
+And then.When you use `upgrade` method,you should set the `notificationStyle` param.
+```dart
+/// Notification show style about content text
+enum NotificationStyle {
+  speechAndPlanTime, // 100kb/s 1s left
+  planTimeAndSpeech, // 1s left 100kb/s
+  speech,// 100kb/s
+  planTime, // 1s left
+  none, //
+}
+```
 
 ## IOS Platform
 

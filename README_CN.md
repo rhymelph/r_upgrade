@@ -184,6 +184,31 @@ info 里包含的信息如下:
 
 > 注意：目前热更新尚处于测试阶段，只支持Flutter代码的变更，不支持资源文件等，热更新造成的一切的后果插件的作者概不负责，由使用者承担。
 
+## 安卓平台通知栏
+
+如果你想自定义通知栏显示的内容, 可以这样做, 修改或添加文件路径为`project/android/app/main/res/r_upgrade_value.xml`，添加下面代码
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="r_upgrade_download_speech">%.2fkb/s</string>
+    <string name="r_upgrade_download_planTime">预计%.0f秒后完成</string>
+    <string name="r_upgrade_download_finish">下载完成</string>
+    <string name="r_upgrade_download_paused">下载被暂停</string>
+    <string name="r_upgrade_download_failed">下载失败</string>
+</resources>
+```
+然后.当你使用`upgrade`方法时,你应该设置参数`notificationStyle`，默认为显示预计完成时间.
+```dart
+/// Notification show style about content text
+enum NotificationStyle {
+  speechAndPlanTime, // 100kb/s 预计1秒后完成
+  planTimeAndSpeech, // 预计1秒后完成 100kb/s
+  speech,// 100kb/s
+  planTime, // 预计1秒后完成
+  none, //
+}
+```
+
 ## IOS平台
 
 ### 1.跳转到AppStore进行更新
