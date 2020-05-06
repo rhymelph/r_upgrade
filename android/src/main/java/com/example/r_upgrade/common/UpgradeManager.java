@@ -77,8 +77,7 @@ public class UpgradeManager extends ContextWrapper {
     public UpgradeManager(Context base, MethodChannel channel) {
         super(base);
         this.channel = channel;
-        UpgradeSQLite sqLite = new UpgradeSQLite(this);
-        sqLite.pauseDownloading();
+        UpgradeSQLite.getInstance(this).pauseDownloading();
         IntentFilter filter = new IntentFilter();
         filter.addAction(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
         filter.addAction(UpgradeManager.DOWNLOAD_STATUS);
@@ -132,8 +131,7 @@ public class UpgradeManager extends ContextWrapper {
             }, 0, 500);
             Log.d(TAG, "upgrade: " + id);
         } else {
-            UpgradeSQLite sqLite = new UpgradeSQLite(this);
-            id = sqLite.createRecord(this, url, apkName, header == null ? "" : new JSONObject(header).toString(), DownloadStatus.STATUS_PENDING.getValue());
+            id = UpgradeSQLite.getInstance(this).createRecord(this, url, apkName, header == null ? "" : new JSONObject(header).toString(), DownloadStatus.STATUS_PENDING.getValue());
 
             Intent intent = new Intent(this, UpgradeService.class);
             Bundle bundle = new Bundle();
@@ -311,8 +309,7 @@ public class UpgradeManager extends ContextWrapper {
             }
             return installApk(uri);
         } else {
-            UpgradeSQLite sqLite = new UpgradeSQLite(this);
-            String path = sqLite.queryPathById(id);
+            String path = UpgradeSQLite.getInstance(this).queryPathById(id);
             if (path == null) return false;
 
             File file = new File(path);
@@ -400,15 +397,13 @@ public class UpgradeManager extends ContextWrapper {
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
-        UpgradeSQLite sqLite = new UpgradeSQLite(this);
-        return sqLite.queryIdByVersionNameAndVersionCode(versionName, versionCode);
+        return UpgradeSQLite.getInstance(this).queryIdByVersionNameAndVersionCode(versionName, versionCode);
     }
 
     public boolean upgradeWithId(Integer id, Integer notificationVisibility, Boolean isAutoRequestInstall) {
         this.notificationVisibility = notificationVisibility;
         this.isAutoRequestInstall = isAutoRequestInstall;
-        UpgradeSQLite sqLite = new UpgradeSQLite(this);
-        Map<String, Object> result = sqLite.queryById(id);
+        Map<String, Object> result = UpgradeSQLite.getInstance(this).queryById(id);
         if (result == null) return false;
         String path = (String) result.get(UpgradeSQLite.PATH);
         File downloadFile = new File(path);
@@ -432,8 +427,7 @@ public class UpgradeManager extends ContextWrapper {
     }
 
     public Integer getDownloadStatus(Integer id) {
-        UpgradeSQLite sqLite = new UpgradeSQLite(this);
-        return sqLite.queryStatusById(id);
+        return UpgradeSQLite.getInstance(this).queryStatusById(id);
 
     }
 

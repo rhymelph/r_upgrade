@@ -18,6 +18,15 @@ import java.util.Map;
 public class UpgradeSQLite extends SQLiteOpenHelper {
     private static final String TAG = "UpgradeSQLite";
 
+    private static UpgradeSQLite instance;
+
+    public synchronized static UpgradeSQLite getInstance(Context context) {
+        if (instance == null) {
+            instance = new UpgradeSQLite(context);
+        }
+        return instance;
+    }
+
     private static final String DATABASE_NAME = "r_upgrade.db";
     private static final int VERSION = 1;
     public static final String VERSION_MANAGER = "version_manager";

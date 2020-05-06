@@ -119,7 +119,7 @@ public class UpgradeService extends Service {
     public void onCreate() {
         super.onCreate();
         service = this;
-        sqLite = new UpgradeSQLite(this);
+        sqLite = UpgradeSQLite.getInstance(this);
         IntentFilter filter = new IntentFilter();
         filter.addAction(RECEIVER_CANCEL);
         filter.addAction(RECEIVER_RESTART);
