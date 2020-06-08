@@ -17,9 +17,17 @@ import com.example.r_upgrade.R;
 public class UpgradeNotification {
     public static final String TAG = "UpgradeNotification";
 
-    private static final String CHANNEL_NAME = "r_upgrade_notification";
+    private static String CHANNEL_NAME;
 
     static void createNotification(Context context, int id, String title, int current_length, int max_length, String contentText, int status) {
+        if (CHANNEL_NAME == null) {
+            try {
+                CHANNEL_NAME = context.getPackageName() + "_notification";
+            } catch (Exception e) {
+                e.printStackTrace();
+                CHANNEL_NAME = "r_upgrade_notification";
+            }
+        }
         if (status == DownloadStatus.STATUS_CANCEL.getValue()) {
             removeNotification(context, id);
             return;

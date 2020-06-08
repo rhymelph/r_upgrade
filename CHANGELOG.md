@@ -1,3 +1,5 @@
+## 0.2.6
+* fix mini bug ,and change notification channel name ,fix example hot upgrade error.
 ## 0.2.5
 * add `notificationStyle` params from `upgrade` method.
 ## 0.2.4
