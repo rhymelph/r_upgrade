@@ -3,6 +3,8 @@
 
 ![](screen/r_upgrade.png)
 
+## [中文点此](README_CN.md)
+
 Android and IOS upgrade plugin.
 
 - [✔] Jump link mode upgrade
@@ -18,8 +20,6 @@ Android and IOS upgrade plugin.
 - [✔] `Android` increment upgrade
 - [✔] `IOS` Jump to Appstore upgrade according to appid
 - [✔] `IOS` Get the current online version of Appstore according to appid
-
-## [中文点此](README_CN.md)
 
 ## Getting Started
 
