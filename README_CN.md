@@ -100,6 +100,7 @@ info 里包含的信息如下:
                  'https://raw.githubusercontent.com/rhymelph/r_upgrade/master/apk/app-release.apk',
                  apkName: 'app-release.apk',isAutoRequestInstall: true);
     }
+```
 新增升级的口味：(不支持使用DownloadManager下载)
 ```dart
 enum RUpgradeFlavor {
