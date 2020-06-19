@@ -9,6 +9,7 @@ import 'package:flutter/services.dart';
 class RUpgrade {
   static MethodChannel __methodChannel;
 
+  /// single
   static MethodChannel get _methodChannel {
     if (__methodChannel == null) {
       __methodChannel = MethodChannel('com.rhyme/r_upgrade_method');
@@ -17,11 +18,19 @@ class RUpgrade {
     return __methodChannel;
   }
 
+  /// handle download info call back.
   static Future _methodCallHandler(MethodCall call) async {
     if (call.method == 'update') {
       _downloadInfo.add(DownloadInfo.formMap(call.arguments));
     }
     return null;
+  }
+
+  /// [isDebug] is true will print log.
+  static Future<void> setDebug(bool isDebug) async {
+    return _methodChannel.invokeMethod('setDebug', {
+      'isDebug': isDebug,
+    });
   }
 
   ///  Android and IOS
@@ -71,31 +80,34 @@ class RUpgrade {
   ///
   /// * [url] download url.
   /// * [header] download  request header.
-  /// * [apkName] download  filename and notification title name.
+  /// * [fileName] download  filename and notification title name.
   /// * [notificationVisibility] download running notification visibility mode.
   /// * [notificationStyle] download notification show style about content text, only support [useDownloadManager]==false.
   /// * [isAutoRequestInstall] download completed will install apk.
   /// * [useDownloadManager] if true will use DownloadManager,false will use my service ,
   /// *         if true will no use [pause] , [upgradeWithId] , [getDownloadStatus] , [getLastUpgradedId] methods.
+  /// * [upgradeFlavor] you can use [RUpgradeFlavor.normal] , [RUpgradeFlavor.hotUpgrade] , [RUpgradeFlavor.incrementUpgrade] flavor
   static Future<int> upgrade(
     String url, {
     Map<String, String> header,
-    String apkName,
+    String fileName,
     NotificationVisibility notificationVisibility =
         NotificationVisibility.VISIBILITY_VISIBLE,
     NotificationStyle notificationStyle = NotificationStyle.planTime,
     bool isAutoRequestInstall = true,
     bool useDownloadManager = false,
+    RUpgradeFlavor upgradeFlavor = RUpgradeFlavor.normal,
   }) {
     assert(Platform.isAndroid, 'This method only support android application');
     return _methodChannel.invokeMethod('upgrade', {
       'url': url,
       "header": header,
-      "apkName": apkName,
+      "fileName": fileName,
       "notificationVisibility": notificationVisibility?.value,
       "notificationStyle": notificationStyle?.index,
       "isAutoRequestInstall": isAutoRequestInstall,
       "useDownloadManager": useDownloadManager,
+      "upgradeFlavor": upgradeFlavor?.index,
     });
   }
 
@@ -117,17 +129,6 @@ class RUpgrade {
   static Future<bool> install(int id) async {
     assert(Platform.isAndroid, 'This method only support android application');
     return await _methodChannel.invokeMethod("install", {
-      'id': id,
-    });
-  }
-
-  /// Android
-  ///
-  /// hot upgrade your apk by [id].
-  ///
-  static Future<bool> hotUpgrade(int id) async {
-    assert(Platform.isAndroid, 'This method only support android application');
-    return await _methodChannel.invokeMethod("hotUpgrade", {
       'id': id,
     });
   }
@@ -342,6 +343,13 @@ enum NotificationStyle {
   speech,
   planTime,
   none,
+}
+
+/// Upgrade Flavor
+enum RUpgradeFlavor {
+  normal,
+  hotUpgrade,
+  incrementUpgrade,
 }
 
 ///

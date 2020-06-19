@@ -5,6 +5,20 @@
 
 Android and IOS upgrade plugin.
 
+- [✔] Jump link mode upgrade
+- [✔] Jump to store mode upgrade
+- [✔] `Android` Download APK using download link
+    - [✔] Monitor download information
+    - [✔] cancel/pause/continue download
+    - [✔] Get download status according to ID
+    - [✔] Install app according to ID
+    - [✔] Get the last download ID (based on the version name and version number)
+    - [✔] Modify the information displayed in the notification bar
+- [✔] `Android` hot upgrade
+- [✔] `Android` increment upgrade
+- [✔] `IOS` Jump to Appstore upgrade according to appid
+- [✔] `IOS` Get the current online version of Appstore according to appid
+
 ## [中文点此](README_CN.md)
 
 ## Getting Started
@@ -39,6 +53,14 @@ dependencies:
 
 ### 2. App upgrade from download link.
 
+> make sure your application had this permission and request dynamic permission.
+
+```xml
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+```
+
 #### 1. Add Upgrade Download Listener
 ```dart
 RUpgrade.stream.listen((DownloadInfo info){
@@ -50,11 +72,11 @@ info:
 | param | desc |
 | - | - |
 | (int) id | download id |
-| (int) max_length<br> ( total Deprecated ) | download max bytes length (bytes) |
-| (int) current_length <br> ( progress Deprecated ) | download current bytes length (bytes) |
+| (int) max_length | download max bytes length (bytes) |
+| (int) current_length | download current bytes length (bytes) |
 | (double) percent | download percent 0-100 |
 | (double) planTime | download plan time /s (X.toStringAsFixed(0)) |
-| (String) path <br> ( address Deprecated ) | download file path |
+| (String) path | download file path |
 | (double) speed | download speed kb/s |
 | (DownloadStatus) status | download status <br> `STATUS_PAUSED` <br> `STATUS_PENDING` <br> `STATUS_RUNNING` <br> `STATUS_SUCCESSFUL` <br> `STATUS_FAILED` <br> `STATUS_CANCEL`|
 
@@ -64,25 +86,35 @@ This upgrade have two part.
 - `true`: Use system `DownloadManager`to download
     - advantage：Simple, use system.
     - Inferiority：can not use http download , can not click the notification pause downloading, can not pause and continue download by network status etc...
+    - support: `RUpgrade.stream`、`install`、`cancel`
 - `false`: Use `Service` download（default use）
     - advantage：Power, support http/https download, support auto pause and continue download by network status etc..
     - Inferiority：No bugs found yet. If you find a bug, you are welcome to issue
+    - support: `RUpgrade.stream`、`install`、`cancel`
 ```dart
     // [isAutoRequestInstall] downloaded finish will auto request install apk.
     // [apkName] apk name (such as `release.apk`)
     // [notificationVisibility] notification visibility.
     // [notificationStyle] download notification show style about content text, only support [useDownloadManager]==false.
-    // [useDownloadManager] look up at
+    // [useDownloadManager] if true will use DownloadManager,false will use my service ,
+    //         if true will no use [pause] , [upgradeWithId] , [getDownloadStatus] , [getLastUpgradedId] methods.
+    // [upgradeFlavor] you can use [RUpgradeFlavor.normal] , [RUpgradeFlavor.hotUpgrade] , [RUpgradeFlavor.incrementUpgrade] flavor
     void upgrade() async {
       int id = await RUpgrade.upgrade(
                  'https://raw.githubusercontent.com/rhymelph/r_upgrade/master/apk/app-release.apk',
                  apkName: 'app-release.apk',isAutoRequestInstall: true);
     }
 ```
+New upgraded flavor：(no support use DownloadManager)
+```dart
+enum RUpgradeFlavor {
+  normal, // full upgrade
+  hotUpgrade, // hot upgrade
+  incrementUpgrade, // increment upgrade
+}
+```
+
 #### 3. Cancel Download
-`useDownloadManager`:
-- `false`: use `upgrade`or `getLastUpgradedId` method will return .
-- `true` : use `upgrade` method will return .
 ```dart
     void cancel() async {
       bool isSuccess=await RUpgrade.cancel(id);
@@ -90,27 +122,20 @@ This upgrade have two part.
 ```
 
 #### 4. Install Apk
-`useDownloadManager`:
-- `false`: use `upgrade`or `getLastUpgradedId` method will return .
-- `true` : use `upgrade` method will return .
 ```dart
     void install() async {
       bool isSuccess=await RUpgrade.install(id);
     }
 ```
 
-#### 5. Pause Download(`Service`)
-`useDownloadManager`:
-- `false`: use `upgrade`or `getLastUpgradedId` method will return .
+#### 5. Pause Download
 ```dart
     void pause() async {
       bool isSuccess=await RUpgrade.pause(id);
     }
 ```
 
-#### 6. Continue Download(`Service`)
-`useDownloadManager`:
-- `false`: use `upgrade`or `getLastUpgradedId` method will return .
+#### 6. Continue Download
 ```dart
     void pause() async {
       bool isSuccess=await RUpgrade.upgradeWithId(id);
@@ -124,30 +149,57 @@ This upgrade have two part.
     }
 ```
 
-#### 7. Get the last upgrade id(`Service`)
-this method will find id by your application version name and version code.
+#### 7. Get the last upgrade id
 ```dart
     void getLastUpgradeId() async {
      int id = await RUpgrade.getLastUpgradedId();
     }
 ```
 
-#### 8. Get the download status from id(`Service`)
-`useDownloadManager`:
-- `false`: use `upgrade`or `getLastUpgradedId` method will return .
+#### 8. Get the download status from id
 ```dart
     void getDownloadStatus()async{
     DownloadStatus status = await RUpgrade.getDownloadStatus(id);
    }
 ```
+#### 9. 增量升级
+- 1.Download [bsdiff](https://github.com/rhymelph/r_upgrade/releases/download/v0.3.0/bsdiff) to local.
+- 2.Prepare two installation packages, one is the one to be upgraded（ old.apk ）, an installation package that you need to update（ new.apk )
+- 3.Switch to the 'bsdiff' directory downloaded above on the command line, and run the command`./bsdiff old.apk new.apk increment.patch`
+- 4.Put the` increment.patch `Upload to server
+- 5.use `RUpgrade.upgrade（...,upgradeFlavor:RUpgradeFlavor.incrementUpgrade）`download file
+- 6.use `RUpgrade.install(id)` install apk.
 
-#### 9. Hot Upgrade ( use DownloadManager )
+The code is as follows：
+```dart
+    int id;
+    void incrementUpgrade(){
+        id = await RUpgrade.upgrade(
+                'https://mydata-1252536312.cos.ap-guangzhou.myqcloud.com/r_upgrade.patch',
+                fileName: 'r_upgrade.patch',
+                useDownloadManager: false,
+                isAutoRequestInstall: false,
+                upgradeFlavor: RUpgradeFlavor.incrementUpgrade,
+              );
+    }
+
+    void install(){
+        try {
+            await RUpgrade.install(id);
+        } catch (e) {
+            _state.currentState
+                .showSnackBar(SnackBar(content: Text('failure!')));
+        }
+    }
+```
+
+#### 10. Hot Upgrade
 - you can use this id to hot upgrade,but download file is zip. include three file [isolate_snapshot_data]、[kernel_blob.bin]、[vm_snapshot_data].Your can use `flutter build bundle` generate.
 ```
  flutter build bundle
 ```
 
-generate file path form ./build/flutter_assets and packaged into zip.
+- generate file path form ./build/flutter_assets and packaged into zip.
 
 ```
 |- AssetManifest.json
@@ -161,29 +213,23 @@ generate file path form ./build/flutter_assets and packaged into zip.
     |- ...
 |- vm_snapshot_data      *
 ```
-download complete you can use download `id` to hot upgrade
+
+- use `RUpgrade.upgrade（...,upgradeFlavor:RUpgradeFlavor.hotUpgrade）`download file.
+- download complete you can use download `id` to hot upgrade
+
 ```dart
            bool isSuccess = await RUpgrade.hotUpgrade(id);
            if (isSuccess) {
               _state.currentState
-                    .showSnackBar(SnackBar(content: Text('热更新成功，3s后退出应用，请重新进入')));
+                    .showSnackBar(SnackBar(content: Text('Hot update succeeded, exit the application after 3S, please enter again')));
                 Future.delayed(Duration(seconds: 3)).then((_){
                   SystemNavigator.pop(animated: true);
                 });
            }else{
               _state.currentState
-                    .showSnackBar(SnackBar(content: Text('热更新失败，请等待更新包下载完成')));
+                    .showSnackBar(SnackBar(content: Text('Hot update failed, please wait for update package download to complete')));
               }
 ```
-
-> if your application is **Android**,make sure your application had this permission and request dynamic permission.
-
-```xml
-    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-```
-
 > At present, the hot update is still in the testing stage, only supporting the change of the flutter code, not supporting the resource file, etc. the author of the plug-in is not responsible for all the consequences caused by the hot update, and the user is responsible for it.
 
 ## Android Platform Notification Bar

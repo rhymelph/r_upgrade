@@ -62,7 +62,7 @@ public class UpgradeService extends Service {
     public static final String DOWNLOAD_RESTART = "download_restart";
 
 
-    private static final String TAG = "UpgradeService";
+    private static final String TAG = "r_upgrade.Service";
     private Executor mExecutor = Executors.newSingleThreadExecutor();
     private UpgradeSQLite sqLite;
     private UpgradeRunnable runnable;
@@ -86,7 +86,7 @@ public class UpgradeService extends Service {
                 ConnectivityManager conMgr = (ConnectivityManager) context.getSystemService(CONNECTIVITY_SERVICE);
                 NetworkInfo info = ConnectivityManagerCompat.getNetworkInfoFromBroadcast(conMgr, intent);
                 if (info != null && info.isConnected()) {
-                    Log.d(TAG, "onReceive: 当前网络正在连接");
+                    RUpgradeLogger.get().d(TAG, "onReceive: 当前网络正在连接");
                     if (isFirst) {
                         isFirst = false;
                         return;
@@ -101,7 +101,7 @@ public class UpgradeService extends Service {
                     }
                     runnable.pause(-1);
                     isFirst = false;
-                    Log.d(TAG, "onReceive: 当前网络已断开");
+                    RUpgradeLogger.get().d(TAG, "onReceive: 当前网络已断开");
                 }
             }
         }
@@ -307,30 +307,30 @@ public class UpgradeService extends Service {
                 intent.putExtra(PARAMS_APK_NAME, apkName);
                 upgradeService.sendBroadcast(intent);
                 sqLite.update(id, currentLength, maxLength, DownloadStatus.STATUS_RUNNING.getValue());
-//                Log.d(TAG, "handlerDownloadRunning: running queryTask: 下载中\n" +
-//                        "url: " +
-//                        url +
-//                        "\n============>" +
-//                        "total:" +
-//                        maxLength +
-//                        "，" +
-//                        "progress:" +
-//                        currentLength +
-//                        "，" +
-//                        String.format("%.2f", percent) +
-//                        "% , " +
-//                        String.format("%.2f", speed) +
-//                        "kb/s , " +
-//                        "预计：" +
-//                        String.format("%.0f", planTime) +
-//                        "s");
+                RUpgradeLogger.get().d(TAG, "handlerDownloadRunning: running queryTask: 下载中\n" +
+                        "url: " +
+                        url +
+                        "\n============>" +
+                        "total:" +
+                        maxLength +
+                        "，" +
+                        "progress:" +
+                        currentLength +
+                        "，" +
+                        String.format("%.2f", percent) +
+                        "% , " +
+                        String.format("%.2f", speed) +
+                        "kb/s , " +
+                        "预计：" +
+                        String.format("%.0f", planTime) +
+                        "s");
                 lastCurrentLength = currentLength;
                 lastTime = System.currentTimeMillis();
             }
         }
 
         private void handlerDownloadCancel() {
-//            Log.d(TAG, "handlerDownloadCancel: ");
+            RUpgradeLogger.get().d(TAG, "handlerDownloadCancel: ");
             timer.cancel();
             Intent intent = new Intent();
             intent.setAction(DOWNLOAD_STATUS);
@@ -343,7 +343,7 @@ public class UpgradeService extends Service {
         }
 
         private void handlerDownloadPause() {
-            Log.d(TAG, "handlerDownloadPause: downloadFile:" + downloadFile);
+            RUpgradeLogger.get().d(TAG, "handlerDownloadPause: downloadFile:" + downloadFile);
             if (timer != null) {
                 timer.cancel();
             }
@@ -358,7 +358,7 @@ public class UpgradeService extends Service {
         }
 
         private void handlerDownloadFinish() {
-//            Log.d(TAG, "handlerDownloadFinish: finish");
+            RUpgradeLogger.get().d(TAG, "handlerDownloadFinish: finish");
             timer.cancel();
             Intent intent = new Intent();
             intent.setAction(DOWNLOAD_STATUS);
@@ -372,7 +372,7 @@ public class UpgradeService extends Service {
         }
 
         private void handlerDownloadFailure() {
-//            Log.d(TAG, "handlerDownloadFailure: failure");
+            RUpgradeLogger.get().d(TAG, "handlerDownloadFailure: failure");
             Intent intent = new Intent(DOWNLOAD_STATUS);
             intent.putExtra(PARAMS_ID, id);
             intent.putExtra(PARAMS_APK_NAME, apkName);
@@ -441,7 +441,7 @@ public class UpgradeService extends Service {
                     connection.setSSLSocketFactory(ssf);
                     connection.setDoInput(true);
                     int code = connection.getResponseCode();
-                    Log.d(TAG, "run: code=" + code);
+                    RUpgradeLogger.get().d(TAG, "run: code=" + code);
                     connection.connect();
                     is = connection.getInputStream();
                     if (isNewDownload) {
@@ -462,7 +462,7 @@ public class UpgradeService extends Service {
                     }
                     connection.setDoInput(true);
                     int code = connection.getResponseCode();
-                    Log.d(TAG, "run: code=" + code);
+                    RUpgradeLogger.get().d(TAG, "run: code=" + code);
                     connection.connect();
                     is = connection.getInputStream();
                     if (isNewDownload) {
@@ -470,7 +470,7 @@ public class UpgradeService extends Service {
                     }
                 }
                 assert (is != null);
-                Log.d(TAG, "run: maxLength:" + maxLength);
+                RUpgradeLogger.get().d(TAG, "run: maxLength:" + maxLength);
 
                 byte[] buff = new byte[1024];
 

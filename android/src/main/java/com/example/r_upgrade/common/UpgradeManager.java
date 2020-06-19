@@ -2,7 +2,6 @@ package com.example.r_upgrade.common;
 
 import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
-import android.content.ContentProvider;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
@@ -16,27 +15,23 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
 
-import com.example.r_upgrade.R;
 import com.example.r_upgrade.RUpgradeFileProvider;
 
 import org.json.JSONObject;
 
 import java.io.File;
 import java.io.Serializable;
-import java.lang.reflect.Method;
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugin.common.MethodChannel;
 
 
 public class UpgradeManager extends ContextWrapper {
-    private static final String TAG = "UpgradeManager";
+    private static final String TAG = "r_upgrade.Manager";
     //广播的action
     public static final String DOWNLOAD_STATUS = "com.example.r_upgrade.DOWNLOAD_STATUS";
     public static final String DOWNLOAD_INSTALL = "com.example.r_upgrade.DOWNLOAD_INSTALL";
@@ -70,6 +65,7 @@ public class UpgradeManager extends ContextWrapper {
 
     private MethodChannel channel;
 
+
     public void dispose() {
         unregisterReceiver(downloadReceiver);
     }
@@ -87,7 +83,7 @@ public class UpgradeManager extends ContextWrapper {
     }
 
 
-    public long upgrade(String url, Map<String, String> header, String apkName, Integer notificationVisibility, Integer notificationStyle, Boolean isAutoRequestInstall, Boolean useDownloadManager) {
+    public long upgrade(String url, Map<String, String> header, String apkName, Integer notificationVisibility, Integer notificationStyle, Boolean isAutoRequestInstall, Boolean useDownloadManager, Integer upgradeFlavor) {
         this.isAutoRequestInstall = Boolean.TRUE == isAutoRequestInstall;
         this.isUseDownloadManager = Boolean.TRUE == useDownloadManager;
         if (notificationStyle != null) {
@@ -129,9 +125,9 @@ public class UpgradeManager extends ContextWrapper {
                     queryTask(finalId);
                 }
             }, 0, 500);
-            Log.d(TAG, "upgrade: " + id);
+            RUpgradeLogger.get().d(TAG, "upgrade: " + id);
         } else {
-            id = UpgradeSQLite.getInstance(this).createRecord(this, url, apkName, header == null ? "" : new JSONObject(header).toString(), DownloadStatus.STATUS_PENDING.getValue());
+            id = UpgradeSQLite.getInstance(this).createRecord(this, url, apkName, header == null ? "" : new JSONObject(header).toString(), DownloadStatus.STATUS_PENDING.getValue(), upgradeFlavor);
 
             Intent intent = new Intent(this, UpgradeService.class);
             Bundle bundle = new Bundle();
@@ -181,14 +177,14 @@ public class UpgradeManager extends ContextWrapper {
             Intent intent = new Intent();
             switch (status) {
                 case DownloadManager.STATUS_PAUSED:
-//                    Log.d(TAG, "queryTask: 下载被暂停");
+                    RUpgradeLogger.get().d(TAG, "queryTask: 下载被暂停");
                     intent.setAction(DOWNLOAD_STATUS);
                     intent.putExtra(PARAMS_STATUS, DownloadStatus.STATUS_PAUSED.getValue());
                     intent.putExtra(PARAMS_ID, id);
                     sendBroadcast(intent);
                     break;
                 case DownloadManager.STATUS_PENDING:
-//                    Log.d(TAG, "queryTask: 下载延迟==========>总大小:");
+                    RUpgradeLogger.get().d(TAG, "queryTask: 下载延迟==========>总大小:");
                     intent.setAction(DOWNLOAD_STATUS);
                     intent.putExtra(PARAMS_STATUS, DownloadStatus.STATUS_PENDING.getValue());
                     intent.putExtra(PARAMS_ID, id);
@@ -215,23 +211,23 @@ public class UpgradeManager extends ContextWrapper {
                     //当前进度
                     double percent = new BigDecimal((progress * 1.0f / total) * 100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
                     if (progress - lastProgress > 0) {
-//                        Log.d(TAG, "queryTask: 下载中\n" +
-//                                "url: " +
-//                                url +
-//                                "\n============>" +
-//                                "total:" +
-//                                total +
-//                                "，" +
-//                                "progress:" +
-//                                progress +
-//                                "，" +
-//                                String.format("%.2f", percent) +
-//                                "% , " +
-//                                String.format("%.2f", speed) +
-//                                "kb/s , " +
-//                                "预计：" +
-//                                String.format("%.0f", planTime) +
-//                                "s");
+                        RUpgradeLogger.get().d(TAG, "queryTask: 下载中\n" +
+                                "url: " +
+                                url +
+                                "\n============>" +
+                                "total:" +
+                                total +
+                                "，" +
+                                "progress:" +
+                                progress +
+                                "，" +
+                                String.format(Locale.getDefault(),"%.2f", percent) +
+                                "% , " +
+                                String.format(Locale.getDefault(),"%.2f", speed) +
+                                "kb/s , " +
+                                "预计：" +
+                                String.format(Locale.getDefault(),"%.0f", planTime) +
+                                "s");
                         intent.setAction(DOWNLOAD_STATUS);
 
                         intent.putExtra(PARAMS_ID, id);
@@ -248,7 +244,7 @@ public class UpgradeManager extends ContextWrapper {
                     }
                     break;
                 case DownloadManager.STATUS_SUCCESSFUL:
-//                    Log.d(TAG, "queryTask: 下载成功");
+                    RUpgradeLogger.get().d(TAG, "queryTask: 下载成功");
                     if (isAutoRequestInstall) {
                         installApkById((int) id);
                     }
@@ -259,7 +255,7 @@ public class UpgradeManager extends ContextWrapper {
                     lastProgress = 0;
                     break;
                 case DownloadManager.STATUS_FAILED:
-//                    Log.d(TAG, "queryTask: 下载失败");
+                    RUpgradeLogger.get().d(TAG, "queryTask: 下载失败");
                     intent.setAction(DOWNLOAD_STATUS);
                     intent.putExtra(PARAMS_STATUS, DownloadStatus.STATUS_FAILED.getValue());
                     intent.putExtra(PARAMS_ID, id);
@@ -273,56 +269,15 @@ public class UpgradeManager extends ContextWrapper {
         }
     }
 
-    //安装apk
-    public boolean installApk(Uri uri) {
-        Intent install = new Intent(Intent.ACTION_VIEW);
-        if (uri != null) {
-            Log.d(TAG, uri.toString());
-            install.setDataAndType(uri, "application/vnd.android.package-archive");
-            install.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                install.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            } else {
-                install.addCategory(Intent.CATEGORY_DEFAULT);
-            }
-            startActivity(install);
-            return true;
 
-        } else {
-            return false;
-        }
+    public void installApkById(int id) {
+        installApkById(id, null);
     }
 
-    public boolean installApkById(int id) {
-        if (isUseDownloadManager) {
-            DownloadManager manager = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
-            Uri uri = null;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                uri = manager.getUriForDownloadedFile(id);
-            } else {
-                DownloadManager.Query query = new DownloadManager.Query();
-                Cursor cursor = manager.query(query.setFilterById(id));
-                cursor.moveToNext();
-                String address = cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI));
-                uri = Uri.parse(address);
-                cursor.close();
-            }
-            return installApk(uri);
-        } else {
-            String path = UpgradeSQLite.getInstance(this).queryPathById(id);
-            if (path == null) return false;
-
-            File file = new File(path);
-            Uri uri = null;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                uri = RUpgradeFileProvider.getUriForFile(this, this.getApplicationInfo().packageName + ".fileProvider", file);
-            } else {
-                uri = Uri.fromFile(file);
-            }
-            return installApk(uri);
-        }
-
+    public void installApkById(int id, MethodChannel.Result result) {
+        new GenerateAndInstallAsyncTask(this, isUseDownloadManager, result).execute(id);
     }
+
 
     public BroadcastReceiver createBroadcastReceiver() {
         return new BroadcastReceiver() {
@@ -458,3 +413,6 @@ public class UpgradeManager extends ContextWrapper {
         }
     }
 }
+
+
+

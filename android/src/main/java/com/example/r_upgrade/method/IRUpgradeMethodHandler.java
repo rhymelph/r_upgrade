@@ -9,6 +9,6 @@ import io.flutter.plugin.common.MethodChannel;
 
 public interface IRUpgradeMethodHandler {
 
-    void handler(UpgradeManager upgradeManager, HotUpgradeManager hotUpgradeManager, MethodCall call, MethodChannel.Result result);
+    void handler(UpgradeManager upgradeManager, MethodCall call, MethodChannel.Result result);
 
 }

@@ -12,11 +12,14 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 
 public class UpgradeSQLite extends SQLiteOpenHelper {
-    private static final String TAG = "UpgradeSQLite";
+    private static final String TAG = "r_upgrade.SQLite";
+    private static final String DATABASE_NAME = "r_upgrade.db";
+    private static final int DATABASE_VERSION = 2;
 
     private static UpgradeSQLite instance;
 
@@ -27,8 +30,6 @@ public class UpgradeSQLite extends SQLiteOpenHelper {
         return instance;
     }
 
-    private static final String DATABASE_NAME = "r_upgrade.db";
-    private static final int VERSION = 1;
     public static final String VERSION_MANAGER = "version_manager";
 
     public static final String ID = "id";
@@ -43,9 +44,12 @@ public class UpgradeSQLite extends SQLiteOpenHelper {
 
     public static final String VERSION_NAME = "version_name";
     public static final String VERSION_CODE = "version_code";
+    public static final String UPGRADE_FLAVOR = "upgrade_flavor";
+    public static final int UPGRADE_FLAVOR_Normal = 0;
+    public static final int UPGRADE_FLAVOR_HOT_UPDATE = 1;
+    public static final int UPGRADE_FLAVOR_INCREMENT = 3;
 
-
-    private static final String DATABASE_CREATE = "create table " + VERSION_MANAGER + "(" +
+    private static final String DATABASE_CREATE = "create table if not exists " + VERSION_MANAGER + "(" +
             ID + " integer primary key autoincrement," +
             URL + " text," +
             PATH + " text," +
@@ -55,10 +59,11 @@ public class UpgradeSQLite extends SQLiteOpenHelper {
             MAX_LENGTH + " integer," +
             STATUS + " integer," +
             VERSION_NAME + " text," +
-            VERSION_CODE + " integer)";
+            VERSION_CODE + " integer,"+
+            UPGRADE_FLAVOR + " integer)";
 
     public UpgradeSQLite(@Nullable Context context) {
-        super(context, DATABASE_NAME, null, VERSION);
+        super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
     @Override
@@ -68,6 +73,11 @@ public class UpgradeSQLite extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        RUpgradeLogger.get().d(TAG, String.format(Locale.ENGLISH,"onUpgrade: oldVersion:%d , newVersion:%d", oldVersion, newVersion));
+        if(oldVersion == 1){
+            db.execSQL("delete from "+VERSION_MANAGER);
+            db.execSQL("alter table "+VERSION_MANAGER+" add column "+UPGRADE_FLAVOR+" integer");
+        }
     }
 
     public Integer queryIdByVersionNameAndVersionCode(String versionName, int versionCode) {
@@ -77,7 +87,7 @@ public class UpgradeSQLite extends SQLiteOpenHelper {
         boolean canMoveNext = cursor.moveToNext();
         if (canMoveNext) {
             int id = cursor.getInt(cursor.getColumnIndex(ID));
-            Log.d(TAG, "queryByVersionNameAndVersionCode: " + id);
+            RUpgradeLogger.get().d(TAG, "queryByVersionNameAndVersionCode: " + id);
             cursor.close();
             return id;
         } else {
@@ -98,11 +108,13 @@ public class UpgradeSQLite extends SQLiteOpenHelper {
             String apkName = cursor.getString(cursor.getColumnIndex(APK_NAME));
             int status = cursor.getInt(cursor.getColumnIndex(STATUS));
             String header = cursor.getString(cursor.getColumnIndex(HEADER));
+            int rUpgradeFlavor = cursor.getInt(cursor.getColumnIndex(UPGRADE_FLAVOR));
             result.put(PATH, path);
             result.put(APK_NAME, apkName);
             result.put(URL, url);
             result.put(STATUS, status);
             result.put(HEADER, header);
+            result.put(UPGRADE_FLAVOR, rUpgradeFlavor);
             return result;
         } else {
             cursor.close();
@@ -110,20 +122,6 @@ public class UpgradeSQLite extends SQLiteOpenHelper {
         }
     }
 
-    public String queryPathById(long id) {
-        SQLiteDatabase readableDatabase = getReadableDatabase();
-        Cursor cursor = readableDatabase.rawQuery("select * from " + VERSION_MANAGER + " where " + ID + "=?", new String[]{String.valueOf(id)});
-        String path = "";
-        boolean canMoveNext = cursor.moveToNext();
-        if (canMoveNext) {
-            path = cursor.getString(cursor.getColumnIndex(PATH));
-            cursor.close();
-            return path;
-        } else {
-            cursor.close();
-            return null;
-        }
-    }
 
     Integer queryStatusById(int id) {
         SQLiteDatabase readableDatabase = getReadableDatabase();
@@ -141,7 +139,7 @@ public class UpgradeSQLite extends SQLiteOpenHelper {
 
 
     //创建记录
-    long createRecord(Context context, String url, String apk_name, String header, int status) {
+    long createRecord(Context context, String url, String apk_name, String header, int status, int upgradeFlavor) {
         String versionName = "";
         int versionCode = 0;
         try {
@@ -164,7 +162,7 @@ public class UpgradeSQLite extends SQLiteOpenHelper {
         values.put(STATUS, status);
         values.put(VERSION_NAME, versionName);
         values.put(VERSION_CODE, versionCode);
-
+        values.put(UPGRADE_FLAVOR, upgradeFlavor);
         return writableDatabase.insert(VERSION_MANAGER, null, values);
     }
 

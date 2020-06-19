@@ -23,7 +23,6 @@ public class RUpgradePlugin implements FlutterPlugin {
 
     private MethodChannel _channel;
     private UpgradeManager upgradeManager;
-    private HotUpgradeManager hotUpgradeManager;
 
     public RUpgradePlugin() {
 
@@ -31,9 +30,8 @@ public class RUpgradePlugin implements FlutterPlugin {
 
     private RUpgradePlugin(Context context, BinaryMessenger messenger) {
         _channel = new MethodChannel(messenger, PLUGIN_METHOD_NAME);
-        hotUpgradeManager = new HotUpgradeManager(context);
         upgradeManager = new UpgradeManager(context, _channel);
-        _channel.setMethodCallHandler(new RUpgradeMethodCallHandler(upgradeManager, hotUpgradeManager));
+        _channel.setMethodCallHandler(new RUpgradeMethodCallHandler(upgradeManager));
     }
 
     /**
@@ -56,9 +54,7 @@ public class RUpgradePlugin implements FlutterPlugin {
         if (upgradeManager != null) {
             upgradeManager.dispose();
         }
-        if (hotUpgradeManager != null) {
-            hotUpgradeManager.dispose();
-        }
+
         if (_channel != null) {
             _channel.setMethodCallHandler(null);
             _channel = null;

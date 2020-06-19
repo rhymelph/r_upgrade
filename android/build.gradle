@@ -16,6 +16,9 @@ rootProject.allprojects {
     repositories {
         google()
         jcenter()
+        flatDir{
+            dirs project(':r_upgrade').file('libs')
+        }
     }
 }
 
@@ -35,4 +38,5 @@ android {
 
 dependencies {
     implementation 'androidx.core:core:1.0.2'
+    implementation(name:"r_upgrade_lib-debug",ext:"aar")
 }

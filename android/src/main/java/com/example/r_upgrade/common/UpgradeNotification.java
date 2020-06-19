@@ -15,7 +15,7 @@ import androidx.core.app.NotificationManagerCompat;
 import com.example.r_upgrade.R;
 
 public class UpgradeNotification {
-    public static final String TAG = "UpgradeNotification";
+    public static final String TAG = "r_upgrade.Notification";
 
     private static String CHANNEL_NAME;
 

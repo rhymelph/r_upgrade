@@ -1,6 +1,5 @@
 package com.example.r_upgrade.common;
 
-import android.app.DownloadManager;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.net.Uri;
@@ -18,26 +17,19 @@ import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import io.flutter.util.PathUtils;
+
 
 public class HotUpgradeManager extends ContextWrapper {
     private static final String TAG = "HotUpgradeManager";
     private static final String FLUTTER_ASSETS = "flutter_assets";
-    private static final String APP_FLUTTER = "app_flutter";
-
-    public void dispose() {
-
-    }
 
     public HotUpgradeManager(Context context) {
         super(context);
     }
 
     private File getFlutterAssets() {
-        File file = null;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-            file = new File(getDataDir(), APP_FLUTTER);
-        }
-        return file;
+        return new File(PathUtils.getDataDirectory(this));
     }
 
     private File getHotAssets() {
@@ -54,7 +46,7 @@ public class HotUpgradeManager extends ContextWrapper {
         return file;
     }
 
-    private boolean deleteFlutterAssets() {
+    private void deleteFlutterAssets() {
         File file = new File(getFlutterAssets(), FLUTTER_ASSETS);
         if (file.exists()) {
             if (file.isDirectory()) {
@@ -65,17 +57,10 @@ public class HotUpgradeManager extends ContextWrapper {
                 }
             }
             file.delete();
-        } else {
-            return false;
         }
-        return true;
     }
 
-    public Boolean hotUpgrade(int id) {
-        File file = getFlutterAssets();
-        if (file == null) return false;
-        DownloadManager manager = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
-        Uri uri = manager.getUriForDownloadedFile(id);
+    public Boolean hotUpgrade(Uri uri) {
         //获取文件流
         try {
             //复制下载的文件到资源文件中

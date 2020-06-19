@@ -10,16 +10,14 @@ import io.flutter.plugin.common.MethodChannel;
 
 public class RUpgradeMethodCallHandler implements MethodChannel.MethodCallHandler {
     private UpgradeManager upgradeManager;
-    private HotUpgradeManager hotUpgradeManager;
 
-    public RUpgradeMethodCallHandler(UpgradeManager upgradeManager, HotUpgradeManager hotUpgradeManager) {
+    public RUpgradeMethodCallHandler(UpgradeManager upgradeManager) {
         this.upgradeManager = upgradeManager;
-        this.hotUpgradeManager = hotUpgradeManager;
     }
 
     @Override
     public void onMethodCall(MethodCall call, @NonNull MethodChannel.Result result) {
         RUpgradeMethodEnum methodEnum = RUpgradeMethodEnum.valueOf(call.method);
-        methodEnum.handler(upgradeManager,hotUpgradeManager,call, result);
+        methodEnum.handler(upgradeManager,call, result);
     }
 }

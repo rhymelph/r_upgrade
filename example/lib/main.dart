@@ -64,7 +64,7 @@ class _MyAppState extends State<MyApp> {
             title: Text('get version from app store(WeChat)'),
             trailing: iosVersion != null
                 ? Text(iosVersion,
-                    style: Theme.of(context).textTheme.subtitle.copyWith(
+                    style: Theme.of(context).textTheme.subtitle2.copyWith(
                           color: Colors.grey,
                         ))
                 : null,
@@ -124,7 +124,7 @@ class _MyAppState extends State<MyApp> {
 //                "http://192.168.1.105:8888/files/static/kuan.apk",
 //                  'http://dl-cdn.coolapkmarket.com/down/apk_file/2020/0308/Coolapk-v10.0.3-2003081-coolapk-app-release.apk?_upt=b210caeb1585012557',
                   'https://mydata-1252536312.cos.ap-guangzhou.myqcloud.com/r_upgrade.apk',
-                  apkName: 'r_upgrade.apk',
+                  fileName: 'r_upgrade.apk',
                   isAutoRequestInstall: isAutoRequestInstall,
                   notificationStyle: NotificationStyle.speechAndPlanTime,
                   useDownloadManager: false);
@@ -203,7 +203,7 @@ class _MyAppState extends State<MyApp> {
             ),
           ),
           ListTile(
-            title: Text('开始热更新'),
+            title: Text('开始下载热更新'),
             onTap: () async {
               if (isClickHotUpgrade != null) {
                 _state.currentState
@@ -215,15 +215,17 @@ class _MyAppState extends State<MyApp> {
               if (!await canReadStorage()) return;
               id = await RUpgrade.upgrade(
                   'https://mydata-1252536312.cos.ap-guangzhou.myqcloud.com/r_upgrade.zip',
-                  apkName: 'r_upgrade.zip',
-                  useDownloadManager: true,
-                  isAutoRequestInstall: isAutoRequestInstall);
+                  fileName: 'r_upgrade.zip',
+                  useDownloadManager: false,
+                  isAutoRequestInstall: false,
+                  upgradeFlavor: RUpgradeFlavor.hotUpgrade);
               setState(() {});
             },
           ),
           ListTile(
             title: Text('进行热更新'),
             onTap: () async {
+              if (!await canReadStorage()) return;
               if (isClickHotUpgrade == false) {
                 _state.currentState
                     .showSnackBar(SnackBar(content: Text('请进行安装应用')));
@@ -234,7 +236,8 @@ class _MyAppState extends State<MyApp> {
                     .showSnackBar(SnackBar(content: Text('请点击开始热更新')));
                 return;
               }
-              bool isSuccess = await RUpgrade.hotUpgrade(id);
+//              bool isSuccess = await RUpgrade.hotUpgrade(id);
+              bool isSuccess = await RUpgrade.install(id);
               if (isSuccess) {
                 _state.currentState.showSnackBar(
                     SnackBar(content: Text('热更新成功，3s后退出应用，请重新进入')));
@@ -244,6 +247,47 @@ class _MyAppState extends State<MyApp> {
               } else {
                 _state.currentState
                     .showSnackBar(SnackBar(content: Text('热更新失败，请等待更新包下载完成')));
+              }
+            },
+          ),
+          Divider(),
+          ListTile(
+            title: Text(
+              '增量更新',
+              style: Theme.of(context).textTheme.title.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
+          ),
+          ListTile(
+            title: Text('开始下载增量更新'),
+            onTap: () async {
+              if (!await canReadStorage()) return;
+              id = await RUpgrade.upgrade(
+                'https://mydata-1252536312.cos.ap-guangzhou.myqcloud.com/r_upgrade.patch',
+                fileName: 'r_upgrade.patch',
+                useDownloadManager: false,
+                isAutoRequestInstall: false,
+                upgradeFlavor: RUpgradeFlavor.incrementUpgrade,
+              );
+              setState(() {});
+            },
+          ),
+          ListTile(
+            title: Text('进行增量更新'),
+            onTap: () async {
+              if (!await canReadStorage()) return;
+
+              if (id == null) {
+                _state.currentState
+                    .showSnackBar(SnackBar(content: Text('请点击开始增量更新')));
+                return;
+              }
+              try {
+                await RUpgrade.install(id);
+              } catch (e) {
+                _state.currentState
+                    .showSnackBar(SnackBar(content: Text('增量更新失败!')));
               }
             },
           ),
@@ -261,7 +305,7 @@ class _MyAppState extends State<MyApp> {
             trailing: lastId != null
                 ? Text(
                     lastId.toString(),
-                    style: Theme.of(context).textTheme.subtitle.copyWith(
+                    style: Theme.of(context).textTheme.subtitle2.copyWith(
                           color: Colors.grey,
                         ),
                   )
@@ -294,7 +338,7 @@ class _MyAppState extends State<MyApp> {
             ),
             trailing: lastStatus != null
                 ? Text(getStatus(lastStatus),
-                    style: Theme.of(context).textTheme.subtitle.copyWith(
+                    style: Theme.of(context).textTheme.subtitle2.copyWith(
                           color: Colors.grey,
                         ))
                 : null,
@@ -322,13 +366,26 @@ class _MyAppState extends State<MyApp> {
       home: Scaffold(
         key: _state,
         appBar: AppBar(
-          backgroundColor:
-              version != 1 ? Colors.black : Theme.of(context).primaryColor,
+          backgroundColor: getVersionColor(),
           title: Text(_getAppBarText()),
         ),
         body: _buildMultiPlatformWidget(),
       ),
     );
+  }
+
+  Color getVersionColor() {
+    switch (version) {
+      case 1:
+        return Theme.of(context).primaryColor;
+      case 2:
+        return Colors.black;
+      case 3:
+        return Colors.red;
+      case 4:
+        return Colors.orange;
+    }
+    return Theme.of(context).primaryColor;
   }
 
   String _getAppBarText() {
@@ -339,6 +396,8 @@ class _MyAppState extends State<MyApp> {
         return 'hot upgrade version = $version ${id != null ? 'id = $id' : ''}';
       case 3:
         return 'all upgrade version = $version ${id != null ? 'id = $id' : ''}';
+      case 4:
+        return 'plus upgrade version = $version ${id != null ? 'id = $id' : ''}';
     }
     return 'unknow version  = $version ${id != null ? 'id = $id' : ''}';
   }

@@ -10,6 +10,9 @@ public class SwiftRUpgradePlugin: NSObject, FlutterPlugin {
     
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         switch call.method {
+        case "setDebug":
+            result(nil)
+            break
         case "upgradeFromUrl":
             print(call.arguments ?? "null")
             guard let url = (call.arguments as? Dictionary<String, Any>)?["url"] as? String else {
