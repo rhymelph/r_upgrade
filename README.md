@@ -162,7 +162,7 @@ enum RUpgradeFlavor {
     DownloadStatus status = await RUpgrade.getDownloadStatus(id);
    }
 ```
-#### 9. 增量升级
+#### 9. Increment Upgrade
 - 1.Download [bsdiff](https://github.com/rhymelph/r_upgrade/releases/download/v0.3.0/bsdiff) to local.
 - 2.Prepare two installation packages, one is the one to be upgraded（ old.apk ）, an installation package that you need to update（ new.apk )
 - 3.Switch to the 'bsdiff' directory downloaded above on the command line, and run the command`./bsdiff old.apk new.apk increment.patch`
