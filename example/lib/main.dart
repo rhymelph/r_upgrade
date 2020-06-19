@@ -28,6 +28,7 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+    RUpgrade.setDebug(true);
   }
 
   Widget _buildMultiPlatformWidget() {

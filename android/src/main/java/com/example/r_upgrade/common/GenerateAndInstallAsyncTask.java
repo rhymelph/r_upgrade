@@ -61,6 +61,7 @@ class GenerateAndInstallAsyncTask extends AsyncTask<Integer, Integer, Uri> {
                 }
                 if (upgradeFlavor == UpgradeSQLite.UPGRADE_FLAVOR_INCREMENT) {
                     String newPath = new IncrementUpgradeManager(contextWrapper.get()).mixinAndGetNewApk(path);
+                    RUpgradeLogger.get().d(TAG,"合成成功，新的安装包路径："+newPath);
                     if (newPath == null) return null;
                     file = new File(newPath);
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {

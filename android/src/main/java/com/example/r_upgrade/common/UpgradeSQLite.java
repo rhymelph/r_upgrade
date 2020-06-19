@@ -47,7 +47,7 @@ public class UpgradeSQLite extends SQLiteOpenHelper {
     public static final String UPGRADE_FLAVOR = "upgrade_flavor";
     public static final int UPGRADE_FLAVOR_Normal = 0;
     public static final int UPGRADE_FLAVOR_HOT_UPDATE = 1;
-    public static final int UPGRADE_FLAVOR_INCREMENT = 3;
+    public static final int UPGRADE_FLAVOR_INCREMENT = 2;
 
     private static final String DATABASE_CREATE = "create table if not exists " + VERSION_MANAGER + "(" +
             ID + " integer primary key autoincrement," +

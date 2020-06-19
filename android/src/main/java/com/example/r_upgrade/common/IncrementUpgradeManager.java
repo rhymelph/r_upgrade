@@ -30,9 +30,10 @@ public class IncrementUpgradeManager extends ContextWrapper {
             }
             newApkFile.createNewFile();
             rUpgradeLib.mixinPatch(oldApkPath, patchPath, newApkFile.getPath());
-            RUpgradeLogger.get().d(TAG, String.format("mixinAndGetNewApk: %s",newApkFile.getPath()));
+            RUpgradeLogger.get().d(TAG, "mixinAndGetNewApk"+newApkFile.getPath());
             return newApkFile.getPath();
         } catch (Exception e) {
+            RUpgradeLogger.get().d(TAG, "合成失败：");
             e.printStackTrace();
         }
         return null;
