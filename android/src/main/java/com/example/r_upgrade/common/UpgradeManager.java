@@ -1,5 +1,6 @@
 package com.example.r_upgrade.common;
 
+import android.app.Activity;
 import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -65,13 +66,20 @@ public class UpgradeManager extends ContextWrapper {
 
     private MethodChannel channel;
 
+    private StoragePermissions.PermissionsRegistry permissionsRegistry;
+    private StoragePermissions storagePermissions;
+    private Activity activity;
+
 
     public void dispose() {
         unregisterReceiver(downloadReceiver);
     }
 
-    public UpgradeManager(Context base, MethodChannel channel) {
+    public UpgradeManager(Activity base, MethodChannel channel, StoragePermissions storagePermissions, StoragePermissions.PermissionsRegistry permissionsRegistry) {
         super(base);
+        this.activity = base;
+        this.storagePermissions = storagePermissions;
+        this.permissionsRegistry = permissionsRegistry;
         this.channel = channel;
         UpgradeSQLite.getInstance(this).pauseDownloading();
         IntentFilter filter = new IntentFilter();
@@ -83,7 +91,7 @@ public class UpgradeManager extends ContextWrapper {
     }
 
 
-    public long upgrade(String url, Map<String, String> header, String apkName, Integer notificationVisibility, Integer notificationStyle, Boolean isAutoRequestInstall, Boolean useDownloadManager, Integer upgradeFlavor) {
+    public void upgrade(final String url, final Map<String, String> header, final String apkName, final Integer notificationVisibility, Integer notificationStyle, Boolean isAutoRequestInstall, Boolean useDownloadManager, final Integer upgradeFlavor, final MethodChannel.Result result) {
         this.isAutoRequestInstall = Boolean.TRUE == isAutoRequestInstall;
         this.isUseDownloadManager = Boolean.TRUE == useDownloadManager;
         if (notificationStyle != null) {
@@ -93,54 +101,62 @@ public class UpgradeManager extends ContextWrapper {
         }
         this.notificationVisibility = notificationVisibility;
 
-        long id = 0;
+        storagePermissions.requestPermissions(activity, permissionsRegistry, new StoragePermissions.ResultCallback() {
+            @Override
+            public void onResult(String errorCode, String errorDescription) {
+                if (errorCode == null) {
+                    long id = 0;
 
-        if (isUseDownloadManager) {
-            DownloadManager manager = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
-            DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
-            if (header != null) {
-                for (Map.Entry<String, String> entry : header.entrySet()) {
-                    request.addRequestHeader(entry.getKey(), entry.getValue());
+                    if (isUseDownloadManager) {
+                        DownloadManager manager = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+                        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
+                        if (header != null) {
+                            for (Map.Entry<String, String> entry : header.entrySet()) {
+                                request.addRequestHeader(entry.getKey(), entry.getValue());
+                            }
+                        }
+                        if (notificationVisibility != null) {
+                            request.setNotificationVisibility(notificationVisibility);
+                        } else {
+                            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+                        }
+                        request.setMimeType("application/vnd.android.package-archive");
+
+                        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, apkName == null ? "release.apk" : apkName);
+
+                        request.setTitle(apkName == null ? "upgradePackage.apk" : apkName);
+                        id = manager.enqueue(request);
+                        if (timer != null) {
+                            timer.cancel();
+                        }
+                        timer = new Timer();
+                        final long finalId = id;
+                        timer.schedule(new TimerTask() {
+                            @Override
+                            public void run() {
+                                queryTask(finalId);
+                            }
+                        }, 0, 500);
+                        RUpgradeLogger.get().d(TAG, "upgrade: " + id);
+                    } else {
+                        id = UpgradeSQLite.getInstance(activity).createRecord(activity, url, apkName, header == null ? "" : new JSONObject(header).toString(), DownloadStatus.STATUS_PENDING.getValue(), upgradeFlavor);
+
+                        Intent intent = new Intent(activity, UpgradeService.class);
+                        Bundle bundle = new Bundle();
+                        bundle.putBoolean(UpgradeService.DOWNLOAD_RESTART, false);
+                        bundle.putInt(UpgradeService.DOWNLOAD_ID, (int) id);
+                        bundle.putString(UpgradeService.DOWNLOAD_URL, url);
+                        bundle.putString(UpgradeService.DOWNLOAD_APK_NAME, apkName);
+                        bundle.putSerializable(UpgradeService.DOWNLOAD_Header, (Serializable) header);
+                        intent.putExtras(bundle);
+                        startService(intent);
+                    }
+                    result.success(id);
+                } else {
+                    result.error(errorCode, errorDescription, null);
                 }
             }
-            if (notificationVisibility != null) {
-                request.setNotificationVisibility(notificationVisibility);
-            } else {
-                request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-            }
-            request.setMimeType("application/vnd.android.package-archive");
-
-            request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, apkName == null ? "release.apk" : apkName);
-
-            request.setTitle(apkName == null ? "upgradePackage.apk" : apkName);
-            id = manager.enqueue(request);
-            if (timer != null) {
-                timer.cancel();
-            }
-            timer = new Timer();
-            final long finalId = id;
-            timer.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    queryTask(finalId);
-                }
-            }, 0, 500);
-            RUpgradeLogger.get().d(TAG, "upgrade: " + id);
-        } else {
-            id = UpgradeSQLite.getInstance(this).createRecord(this, url, apkName, header == null ? "" : new JSONObject(header).toString(), DownloadStatus.STATUS_PENDING.getValue(), upgradeFlavor);
-
-            Intent intent = new Intent(this, UpgradeService.class);
-            Bundle bundle = new Bundle();
-            bundle.putBoolean(UpgradeService.DOWNLOAD_RESTART, false);
-            bundle.putInt(UpgradeService.DOWNLOAD_ID, (int) id);
-            bundle.putString(UpgradeService.DOWNLOAD_URL, url);
-            bundle.putString(UpgradeService.DOWNLOAD_APK_NAME, apkName);
-            bundle.putSerializable(UpgradeService.DOWNLOAD_Header, (Serializable) header);
-            intent.putExtras(bundle);
-            startService(intent);
-        }
-
-        return id;
+        });
     }
 
     //取消下载
@@ -221,12 +237,12 @@ public class UpgradeManager extends ContextWrapper {
                                 "progress:" +
                                 progress +
                                 "，" +
-                                String.format(Locale.getDefault(),"%.2f", percent) +
+                                String.format(Locale.getDefault(), "%.2f", percent) +
                                 "% , " +
-                                String.format(Locale.getDefault(),"%.2f", speed) +
+                                String.format(Locale.getDefault(), "%.2f", speed) +
                                 "kb/s , " +
                                 "预计：" +
-                                String.format(Locale.getDefault(),"%.0f", planTime) +
+                                String.format(Locale.getDefault(), "%.0f", planTime) +
                                 "s");
                         intent.setAction(DOWNLOAD_STATUS);
 
@@ -274,8 +290,19 @@ public class UpgradeManager extends ContextWrapper {
         installApkById(id, null);
     }
 
-    public void installApkById(int id, MethodChannel.Result result) {
-        new GenerateAndInstallAsyncTask(this, isUseDownloadManager, result).execute(id);
+    public void installApkById(final int id, final MethodChannel.Result result) {
+        storagePermissions.requestPermissions(activity, permissionsRegistry, new StoragePermissions.ResultCallback() {
+            @Override
+            public void onResult(String errorCode, String errorDescription) {
+                if (errorCode == null) {
+                    new GenerateAndInstallAsyncTask(activity, isUseDownloadManager, result).execute(id);
+                } else {
+                    if (result != null) {
+                        result.error(errorCode, errorDescription, null);
+                    }
+                }
+            }
+        });
     }
 
 
@@ -355,30 +382,45 @@ public class UpgradeManager extends ContextWrapper {
         return UpgradeSQLite.getInstance(this).queryIdByVersionNameAndVersionCode(versionName, versionCode);
     }
 
-    public boolean upgradeWithId(Integer id, Integer notificationVisibility, Boolean isAutoRequestInstall) {
+    public void upgradeWithId(final Integer id, Integer notificationVisibility, Boolean isAutoRequestInstall, final MethodChannel.Result methodResult) {
         this.notificationVisibility = notificationVisibility;
         this.isAutoRequestInstall = isAutoRequestInstall;
-        Map<String, Object> result = UpgradeSQLite.getInstance(this).queryById(id);
-        if (result == null) return false;
+        final Map<String, Object> result = UpgradeSQLite.getInstance(this).queryById(id);
+        if (result == null) {
+            methodResult.success(false);
+            return;
+        }
         String path = (String) result.get(UpgradeSQLite.PATH);
         File downloadFile = new File(path);
 
         int status = (int) result.get(UpgradeSQLite.STATUS);
         if (status == DownloadStatus.STATUS_PAUSED.getValue() || status == DownloadStatus.STATUS_FAILED.getValue()
                 || status == DownloadStatus.STATUS_CANCEL.getValue() || !downloadFile.exists()) {
-            Intent intent = new Intent(this, UpgradeService.class);
-            Bundle bundle = new Bundle();
-            bundle.putBoolean(UpgradeService.DOWNLOAD_RESTART, true);
-            bundle.putInt(UpgradeService.DOWNLOAD_ID, (int) id);
-            bundle.putString(UpgradeService.DOWNLOAD_URL, (String) result.get(UpgradeSQLite.URL));
-            bundle.putString(UpgradeService.DOWNLOAD_APK_NAME, (String) result.get(UpgradeSQLite.APK_NAME));
-            bundle.putSerializable(UpgradeService.DOWNLOAD_Header, (Serializable) result.get(UpgradeSQLite.HEADER));
-            intent.putExtras(bundle);
-            startService(intent);
+            storagePermissions.requestPermissions(activity, permissionsRegistry, new StoragePermissions.ResultCallback() {
+                @Override
+                public void onResult(String errorCode, String errorDescription) {
+                    if (errorCode == null) {
+                        Intent intent = new Intent(activity, UpgradeService.class);
+                        Bundle bundle = new Bundle();
+                        bundle.putBoolean(UpgradeService.DOWNLOAD_RESTART, true);
+                        bundle.putInt(UpgradeService.DOWNLOAD_ID, (int) id);
+                        bundle.putString(UpgradeService.DOWNLOAD_URL, (String) result.get(UpgradeSQLite.URL));
+                        bundle.putString(UpgradeService.DOWNLOAD_APK_NAME, (String) result.get(UpgradeSQLite.APK_NAME));
+                        bundle.putSerializable(UpgradeService.DOWNLOAD_Header, (Serializable) result.get(UpgradeSQLite.HEADER));
+                        intent.putExtras(bundle);
+                        startService(intent);
+                        methodResult.success(true);
+                    } else {
+                        methodResult.error(errorCode, errorDescription, null);
+                    }
+                }
+            });
         } else if (status == DownloadStatus.STATUS_SUCCESSFUL.getValue()) {
-            installApkById(id);
+            installApkById(id, methodResult);
+        } else {
+            // not known
+            methodResult.success(false);
         }
-        return true;
     }
 
     public Integer getDownloadStatus(Integer id) {

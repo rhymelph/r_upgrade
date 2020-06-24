@@ -3,12 +3,19 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
-import 'package:permission_handler/permission_handler.dart';
+
+//import 'package:permission_handler/permission_handler.dart';
 import 'package:r_upgrade/r_upgrade.dart';
 
 const version = 1;
 
 void main() => runApp(MyApp());
+
+enum UpgradeMethod {
+  all,
+  hot,
+  increment,
+}
 
 class MyApp extends StatefulWidget {
   @override
@@ -19,7 +26,7 @@ class _MyAppState extends State<MyApp> {
   int id;
   bool isAutoRequestInstall = false;
 
-  bool isClickHotUpgrade;
+  UpgradeMethod upgradeMethod;
 
   GlobalKey<ScaffoldState> _state = GlobalKey();
 
@@ -112,15 +119,13 @@ class _MyAppState extends State<MyApp> {
           ListTile(
             title: Text('开始全量更新'),
             onTap: () async {
-              if (isClickHotUpgrade != null) {
+              if (upgradeMethod != null) {
                 _state.currentState
-                    .showSnackBar(SnackBar(content: Text('已开始下载')));
+                    .showSnackBar(SnackBar(content: Text(getUpgradeMethod())));
                 return;
               }
-              isClickHotUpgrade = false;
 
-              if (!await canReadStorage()) return;
-
+//              if (!await canReadStorage()) return;
               id = await RUpgrade.upgrade(
 //                "http://192.168.1.105:8888/files/static/kuan.apk",
 //                  'http://dl-cdn.coolapkmarket.com/down/apk_file/2020/0308/Coolapk-v10.0.3-2003081-coolapk-app-release.apk?_upt=b210caeb1585012557',
@@ -129,21 +134,34 @@ class _MyAppState extends State<MyApp> {
                   isAutoRequestInstall: isAutoRequestInstall,
                   notificationStyle: NotificationStyle.speechAndPlanTime,
                   useDownloadManager: false);
+              upgradeMethod = UpgradeMethod.all;
               setState(() {});
             },
           ),
           ListTile(
-            title: Text('安装apk'),
+            title: Text('安装全量更新'),
             onTap: () async {
-              if (isClickHotUpgrade == true) {
-                _state.currentState
-                    .showSnackBar(SnackBar(content: Text('请进行热更新')));
+              if (upgradeMethod != UpgradeMethod.all && upgradeMethod != null) {
+                _state.currentState.showSnackBar(
+                    SnackBar(content: Text('请进行${getUpgradeMethodName()}')));
                 return;
               }
-              bool isSuccess = await RUpgrade.install(id);
-              if (isSuccess) {
+              if (id == null) {
                 _state.currentState
-                    .showSnackBar(SnackBar(content: Text('请求成功')));
+                    .showSnackBar(SnackBar(content: Text('当前没有ID可安装')));
+                return;
+              }
+              final status = await RUpgrade.getDownloadStatus(id);
+
+              if (status == DownloadStatus.STATUS_SUCCESSFUL) {
+                bool isSuccess = await RUpgrade.install(id);
+                if (isSuccess) {
+                  _state.currentState
+                      .showSnackBar(SnackBar(content: Text('请求成功')));
+                }
+              } else {
+                _state.currentState
+                    .showSnackBar(SnackBar(content: Text('当前ID未完成下载')));
               }
             },
           ),
@@ -162,6 +180,11 @@ class _MyAppState extends State<MyApp> {
               if (id == null) {
                 _state.currentState
                     .showSnackBar(SnackBar(content: Text('当前没有ID可升级')));
+                return;
+              }
+              if (upgradeMethod != null) {
+                _state.currentState
+                    .showSnackBar(SnackBar(content: Text(getUpgradeMethod())));
                 return;
               }
               await RUpgrade.upgradeWithId(id);
@@ -188,7 +211,7 @@ class _MyAppState extends State<MyApp> {
                 _state.currentState
                     .showSnackBar(SnackBar(content: Text('取消成功')));
                 id = null;
-                isClickHotUpgrade = null;
+                upgradeMethod = null;
                 setState(() {});
               }
               print('cancel');
@@ -206,30 +229,29 @@ class _MyAppState extends State<MyApp> {
           ListTile(
             title: Text('开始下载热更新'),
             onTap: () async {
-              if (isClickHotUpgrade != null) {
+              if (upgradeMethod != null) {
                 _state.currentState
-                    .showSnackBar(SnackBar(content: Text('已开始下载')));
+                    .showSnackBar(SnackBar(content: Text(getUpgradeMethod())));
                 return;
               }
-              isClickHotUpgrade = true;
-
-              if (!await canReadStorage()) return;
+//              if (!await canReadStorage()) return;
               id = await RUpgrade.upgrade(
                   'https://mydata-1252536312.cos.ap-guangzhou.myqcloud.com/r_upgrade.zip',
                   fileName: 'r_upgrade.zip',
                   useDownloadManager: false,
                   isAutoRequestInstall: false,
                   upgradeFlavor: RUpgradeFlavor.hotUpgrade);
+              upgradeMethod = UpgradeMethod.hot;
               setState(() {});
             },
           ),
           ListTile(
             title: Text('进行热更新'),
             onTap: () async {
-              if (!await canReadStorage()) return;
-              if (isClickHotUpgrade == false) {
-                _state.currentState
-                    .showSnackBar(SnackBar(content: Text('请进行安装应用')));
+//              if (!await canReadStorage()) return;
+              if (upgradeMethod != UpgradeMethod.hot && upgradeMethod != null) {
+                _state.currentState.showSnackBar(
+                    SnackBar(content: Text('请进行${getUpgradeMethodName()}')));
                 return;
               }
               if (id == null) {
@@ -238,16 +260,23 @@ class _MyAppState extends State<MyApp> {
                 return;
               }
 //              bool isSuccess = await RUpgrade.hotUpgrade(id);
-              bool isSuccess = await RUpgrade.install(id);
-              if (isSuccess) {
-                _state.currentState.showSnackBar(
-                    SnackBar(content: Text('热更新成功，3s后退出应用，请重新进入')));
-                Future.delayed(Duration(seconds: 3)).then((_) {
-                  SystemNavigator.pop(animated: true);
-                });
+              final status = await RUpgrade.getDownloadStatus(id);
+
+              if (status == DownloadStatus.STATUS_SUCCESSFUL) {
+                bool isSuccess = await RUpgrade.install(id);
+                if (isSuccess) {
+                  _state.currentState.showSnackBar(
+                      SnackBar(content: Text('热更新成功，3s后退出应用，请重新进入')));
+                  Future.delayed(Duration(seconds: 3)).then((_) {
+                    SystemNavigator.pop(animated: true);
+                  });
+                } else {
+                  _state.currentState.showSnackBar(
+                      SnackBar(content: Text('热更新失败，请等待更新包下载完成')));
+                }
               } else {
                 _state.currentState
-                    .showSnackBar(SnackBar(content: Text('热更新失败，请等待更新包下载完成')));
+                    .showSnackBar(SnackBar(content: Text('当前ID未完成下载')));
               }
             },
           ),
@@ -263,7 +292,12 @@ class _MyAppState extends State<MyApp> {
           ListTile(
             title: Text('开始下载增量更新'),
             onTap: () async {
-              if (!await canReadStorage()) return;
+              if (upgradeMethod != null) {
+                _state.currentState
+                    .showSnackBar(SnackBar(content: Text(getUpgradeMethod())));
+                return;
+              }
+//              if (!await canReadStorage()) return;
               id = await RUpgrade.upgrade(
                 'https://mydata-1252536312.cos.ap-guangzhou.myqcloud.com/r_upgrade.patch',
                 fileName: 'r_upgrade.patch',
@@ -271,21 +305,33 @@ class _MyAppState extends State<MyApp> {
                 isAutoRequestInstall: false,
                 upgradeFlavor: RUpgradeFlavor.incrementUpgrade,
               );
+              upgradeMethod = UpgradeMethod.increment;
               setState(() {});
             },
           ),
           ListTile(
             title: Text('进行增量更新'),
             onTap: () async {
-              if (!await canReadStorage()) return;
-
+//              if (!await canReadStorage()) return;
+              if (upgradeMethod != UpgradeMethod.increment &&
+                  upgradeMethod != null) {
+                _state.currentState.showSnackBar(
+                    SnackBar(content: Text('请进行${getUpgradeMethodName()}}')));
+                return;
+              }
               if (id == null) {
                 _state.currentState
                     .showSnackBar(SnackBar(content: Text('请点击开始增量更新')));
                 return;
               }
               try {
-                await RUpgrade.install(id);
+                final status = await RUpgrade.getDownloadStatus(id);
+                if (status == DownloadStatus.STATUS_SUCCESSFUL) {
+                  await RUpgrade.install(id);
+                } else {
+                  _state.currentState
+                      .showSnackBar(SnackBar(content: Text('当前ID未完成下载')));
+                }
               } catch (e) {
                 _state.currentState
                     .showSnackBar(SnackBar(content: Text('增量更新失败!')));
@@ -465,7 +511,7 @@ class _MyAppState extends State<MyApp> {
   String getStatus(DownloadStatus status) {
     if (status == DownloadStatus.STATUS_FAILED) {
       id = null;
-      isClickHotUpgrade = null;
+      upgradeMethod = null;
       return "下载失败";
     } else if (status == DownloadStatus.STATUS_PAUSED) {
       return "下载暂停";
@@ -477,32 +523,61 @@ class _MyAppState extends State<MyApp> {
       return "下载成功";
     } else if (status == DownloadStatus.STATUS_CANCEL) {
       id = null;
-      isClickHotUpgrade = null;
+      upgradeMethod = null;
       return "下载取消";
     } else {
       id = null;
-      isClickHotUpgrade = null;
+      upgradeMethod = null;
       return "未知";
     }
   }
 
-  Future<bool> canReadStorage() async {
-    if (Platform.isIOS) return true;
-    var status = await PermissionHandler()
-        .checkPermissionStatus(PermissionGroup.storage);
-    if (status != PermissionStatus.granted) {
-      var future = await PermissionHandler()
-          .requestPermissions([PermissionGroup.storage]);
-      for (final item in future.entries) {
-        if (item.value != PermissionStatus.granted) {
-          return false;
-        }
-      }
-    } else {
-      return true;
+  String getUpgradeMethod() {
+    switch (upgradeMethod) {
+      case UpgradeMethod.all:
+        return '已经开始全量更新';
+        break;
+      case UpgradeMethod.hot:
+        return '已经开始热更新';
+        break;
+      case UpgradeMethod.increment:
+        return '已经开始增量更新';
+        break;
     }
-    return true;
+    return '';
   }
+
+  String getUpgradeMethodName() {
+    switch (upgradeMethod) {
+      case UpgradeMethod.all:
+        return '全量更新';
+        break;
+      case UpgradeMethod.hot:
+        return '热更新';
+        break;
+      case UpgradeMethod.increment:
+        return '增量更新';
+        break;
+    }
+    return '';
+  }
+//  Future<bool> canReadStorage() async {
+//    if (Platform.isIOS) return true;
+//    var status = await PermissionHandler()
+//        .checkPermissionStatus(PermissionGroup.storage);
+//    if (status != PermissionStatus.granted) {
+//      var future = await PermissionHandler()
+//          .requestPermissions([PermissionGroup.storage]);
+//      for (final item in future.entries) {
+//        if (item.value != PermissionStatus.granted) {
+//          return false;
+//        }
+//      }
+//    } else {
+//      return true;
+//    }
+//    return true;
+//  }
 
   String getSpeech(double speech) {
     String unit = 'kb/s';

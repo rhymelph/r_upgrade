@@ -21,13 +21,13 @@ public enum RUpgradeMethodEnum implements IRUpgradeMethodHandler {
     upgrade {
         @Override
         public void handler(UpgradeManager upgradeManager, MethodCall call, MethodChannel.Result result) {
-            result.success(upgradeManager.upgrade((String) call.argument("url"),
+            upgradeManager.upgrade((String) call.argument("url"),
                     (Map<String, String>) call.argument("header"),
                     (String) call.argument("fileName"),
                     (Integer) call.argument("notificationVisibility"),
                     (Integer) call.argument("notificationStyle"),
                     (Boolean) call.argument("isAutoRequestInstall"),
-                    (Boolean) call.argument("useDownloadManager"), (Integer) call.argument("upgradeFlavor")));
+                    (Boolean) call.argument("useDownloadManager"), (Integer) call.argument("upgradeFlavor"), result);
         }
     },
     upgradeFromUrl {
@@ -64,8 +64,8 @@ public enum RUpgradeMethodEnum implements IRUpgradeMethodHandler {
     upgradeWithId {
         @Override
         public void handler(UpgradeManager upgradeManager, MethodCall call, MethodChannel.Result result) {
-            result.success(upgradeManager.upgradeWithId((Integer) call.argument("id"), (Integer) call.argument("notificationVisibility"),
-                    (Boolean) call.argument("isAutoRequestInstall")));
+            upgradeManager.upgradeWithId((Integer) call.argument("id"), (Integer) call.argument("notificationVisibility"),
+                    (Boolean) call.argument("isAutoRequestInstall"),result);
         }
     },
     getDownloadStatus {

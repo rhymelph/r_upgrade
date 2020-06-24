@@ -1,3 +1,5 @@
+## 0.3.1
+* add `Android` permission check, when you use `upgrade` or `install`.
 ## 0.3.0
 * remove `hotUpgrade` method,add increment upgrade.edit `upgrade` method.
 ## 0.2.6
