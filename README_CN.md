@@ -231,7 +231,7 @@ enum RUpgradeFlavor {
 
 ## 安卓平台通知栏
 
-如果你想自定义通知栏显示的内容, 可以这样做, 修改或添加文件路径为`project/android/app/main/res/r_upgrade_value.xml`，添加下面代码
+如果你想自定义通知栏显示的内容, 可以这样做, 修改或添加文件路径为`project/android/app/main/res/values/r_upgrade_value.xml`，添加下面代码
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
