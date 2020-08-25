@@ -233,7 +233,7 @@ The code is as follows：
 > At present, the hot update is still in the testing stage, only supporting the change of the flutter code, not supporting the resource file, etc. the author of the plug-in is not responsible for all the consequences caused by the hot update, and the user is responsible for it.
 
 ## Android Platform Notification Bar
-If you want to customize the content displayed in the download notification bar, you can do so, modify or add files `project/android/app/main/res/r_upgrade_value.xml`，add the following code
+If you want to customize the content displayed in the download notification bar, you can do so, modify or add files `project/android/app/main/res/values/r_upgrade_value.xml`，add the following code
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
