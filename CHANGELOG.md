@@ -1,3 +1,5 @@
+## 0.3.1+1
+* fix [#17](https://github.com/rhymelph/r_upgrade/issues/17)
 ## 0.3.1
 * add `Android` permission check, when you use `upgrade` or `install`.
 ## 0.3.0
