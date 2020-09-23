@@ -442,10 +442,12 @@ public class UpgradeService extends Service {
                     connection.setDoInput(true);
                     int code = connection.getResponseCode();
                     RUpgradeLogger.get().d(TAG, "run: code=" + code);
-                    connection.connect();
-                    is = connection.getInputStream();
-                    if (isNewDownload) {
-                        maxLength = connection.getContentLength();
+                    if(code == 200) {
+                        connection.connect();
+                        is = connection.getInputStream();
+                        if (isNewDownload) {
+                            maxLength = connection.getContentLength();
+                        }
                     }
                 } else {
                     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -463,10 +465,12 @@ public class UpgradeService extends Service {
                     connection.setDoInput(true);
                     int code = connection.getResponseCode();
                     RUpgradeLogger.get().d(TAG, "run: code=" + code);
-                    connection.connect();
-                    is = connection.getInputStream();
-                    if (isNewDownload) {
-                        maxLength = connection.getContentLength();
+                    if(code == 200) {
+                        connection.connect();
+                        is = connection.getInputStream();
+                        if (isNewDownload) {
+                            maxLength = connection.getContentLength();
+                        }
                     }
                 }
                 assert (is != null);
@@ -501,6 +505,9 @@ public class UpgradeService extends Service {
                     handlerDownloadFinish();
                 }
             } catch (Exception e) {
+                if(downloadFile.exists()) {
+                    downloadFile.delete();
+                }
                 timer.cancel();
                 e.printStackTrace();
                 if (is != null) {

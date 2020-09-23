@@ -25,6 +25,13 @@ public class IncrementUpgradeManager extends ContextWrapper {
         File parentFile = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
         File newApkFile = new File(parentFile, oldApkPath.substring(oldApkPath.lastIndexOf("/") + 1));
         try {
+            File patchFile = new File(patchPath);
+            if(!patchFile.exists()) {
+                return null;
+            }
+            if(patchFile.length() == 0) {
+                return null;
+            }
             if (newApkFile.exists()) {
                 newApkFile.delete();
             }
