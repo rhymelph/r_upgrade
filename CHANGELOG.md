@@ -1,3 +1,5 @@
+## 0.3.1+2
+* Improve the download process and repair the problem that incremental update files do not exist.
 ## 0.3.1+1
 * fix [#17](https://github.com/rhymelph/r_upgrade/issues/17)
 ## 0.3.1

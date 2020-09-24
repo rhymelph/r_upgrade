@@ -289,43 +289,47 @@ public class UpgradeService extends Service {
         }
 
         private void handlerDownloadRunning() {
-            if (currentLength - lastCurrentLength > 0) {
-                double percent = new BigDecimal((currentLength * 1.0f / maxLength) * 100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
-                double speed = ((currentLength - lastCurrentLength) * 1000f / (System.currentTimeMillis() - lastTime)) / 1024;
-                //计划完成时间
-                double planTime = (maxLength - currentLength) / (speed * 1024f);
-                Intent intent = new Intent();
-                intent.setAction(DOWNLOAD_STATUS);
-                intent.putExtra(PARAMS_CURRENT_LENGTH, currentLength);
-                intent.putExtra(PARAMS_STATUS, DownloadStatus.STATUS_RUNNING.getValue());
-                intent.putExtra(PARAMS_PERCENT, percent);
-                intent.putExtra(PARAMS_MAX_LENGTH, maxLength);
-                intent.putExtra(PARAMS_SPEED, speed);
-                intent.putExtra(PARAMS_PLAN_TIME, planTime);
-                intent.putExtra(PARAMS_PATH, downloadFile.getPath());
-                intent.putExtra(PARAMS_ID, id);
-                intent.putExtra(PARAMS_APK_NAME, apkName);
-                upgradeService.sendBroadcast(intent);
-                sqLite.update(id, currentLength, maxLength, DownloadStatus.STATUS_RUNNING.getValue());
-                RUpgradeLogger.get().d(TAG, "handlerDownloadRunning: running queryTask: 下载中\n" +
-                        "url: " +
-                        url +
-                        "\n============>" +
-                        "total:" +
-                        maxLength +
-                        "，" +
-                        "progress:" +
-                        currentLength +
-                        "，" +
-                        String.format("%.2f", percent) +
-                        "% , " +
-                        String.format("%.2f", speed) +
-                        "kb/s , " +
-                        "预计：" +
-                        String.format("%.0f", planTime) +
-                        "s");
-                lastCurrentLength = currentLength;
-                lastTime = System.currentTimeMillis();
+            try {
+                if (currentLength - lastCurrentLength > 0) {
+                    double percent = new BigDecimal((currentLength * 1.0f / maxLength) * 100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+                    double speed = ((currentLength - lastCurrentLength) * 1000f / (System.currentTimeMillis() - lastTime)) / 1024;
+                    //计划完成时间
+                    double planTime = (maxLength - currentLength) / (speed * 1024f);
+                    Intent intent = new Intent();
+                    intent.setAction(DOWNLOAD_STATUS);
+                    intent.putExtra(PARAMS_CURRENT_LENGTH, currentLength);
+                    intent.putExtra(PARAMS_STATUS, DownloadStatus.STATUS_RUNNING.getValue());
+                    intent.putExtra(PARAMS_PERCENT, percent);
+                    intent.putExtra(PARAMS_MAX_LENGTH, maxLength);
+                    intent.putExtra(PARAMS_SPEED, speed);
+                    intent.putExtra(PARAMS_PLAN_TIME, planTime);
+                    intent.putExtra(PARAMS_PATH, downloadFile.getPath());
+                    intent.putExtra(PARAMS_ID, id);
+                    intent.putExtra(PARAMS_APK_NAME, apkName);
+                    upgradeService.sendBroadcast(intent);
+                    sqLite.update(id, currentLength, maxLength, DownloadStatus.STATUS_RUNNING.getValue());
+                    RUpgradeLogger.get().d(TAG, "handlerDownloadRunning: running queryTask: 下载中\n" +
+                            "url: " +
+                            url +
+                            "\n============>" +
+                            "total:" +
+                            maxLength +
+                            "，" +
+                            "progress:" +
+                            currentLength +
+                            "，" +
+                            String.format("%.2f", percent) +
+                            "% , " +
+                            String.format("%.2f", speed) +
+                            "kb/s , " +
+                            "预计：" +
+                            String.format("%.0f", planTime) +
+                            "s");
+                    lastCurrentLength = currentLength;
+                    lastTime = System.currentTimeMillis();
+                }
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
             }
         }
 
@@ -379,11 +383,6 @@ public class UpgradeService extends Service {
             intent.putExtra(PARAMS_PATH, downloadFile.getPath());
             intent.putExtra(PARAMS_STATUS, DownloadStatus.STATUS_FAILED.getValue());
             sqLite.update(id, null, null, DownloadStatus.STATUS_FAILED.getValue());
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException ex) {
-                ex.printStackTrace();
-            }
             upgradeService.sendBroadcast(intent);
         }
 
@@ -420,6 +419,7 @@ public class UpgradeService extends Service {
                 }
 
                 URL url = new URL(this.url);
+                int code;
                 if (this.url.startsWith("https")) {
                     HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
                     connection.setRequestMethod("GET");
@@ -440,12 +440,14 @@ public class UpgradeService extends Service {
                     SSLSocketFactory ssf = sslContext.getSocketFactory();
                     connection.setSSLSocketFactory(ssf);
                     connection.setDoInput(true);
-                    int code = connection.getResponseCode();
+                    code = connection.getResponseCode();
                     RUpgradeLogger.get().d(TAG, "run: code=" + code);
-                    connection.connect();
-                    is = connection.getInputStream();
-                    if (isNewDownload) {
-                        maxLength = connection.getContentLength();
+                    if (code == 200) {
+                        connection.connect();
+                        is = connection.getInputStream();
+                        if (isNewDownload) {
+                            maxLength = connection.getContentLength();
+                        }
                     }
                 } else {
                     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -461,13 +463,19 @@ public class UpgradeService extends Service {
                         connection.setRequestProperty("range", "bytes=" + currentLength + "-");
                     }
                     connection.setDoInput(true);
-                    int code = connection.getResponseCode();
+                    code = connection.getResponseCode();
                     RUpgradeLogger.get().d(TAG, "run: code=" + code);
-                    connection.connect();
-                    is = connection.getInputStream();
-                    if (isNewDownload) {
-                        maxLength = connection.getContentLength();
+                    if (code == 200) {
+                        connection.connect();
+                        is = connection.getInputStream();
+                        if (isNewDownload) {
+                            maxLength = connection.getContentLength();
+                        }
                     }
+                }
+                if (code != 200) {
+                    handlerDownloadFailure();
+                    return;
                 }
                 assert (is != null);
                 RUpgradeLogger.get().d(TAG, "run: maxLength:" + maxLength);
@@ -523,6 +531,12 @@ public class UpgradeService extends Service {
                     } catch (IOException ex) {
                         ex.printStackTrace();
                     }
+                }
+                //防止断网的情况，出现下载失败，而不是下载暂停
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException ex) {
+                    ex.printStackTrace();
                 }
                 if (isRunning) {
                     handlerDownloadFailure();
