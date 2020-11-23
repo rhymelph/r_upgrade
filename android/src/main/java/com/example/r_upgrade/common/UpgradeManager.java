@@ -46,7 +46,7 @@ public class UpgradeManager extends ContextWrapper {
     public static final String PARAMS_PERCENT = "percent";
     public static final String PARAMS_PATH = "path";
     public static final String PARAMS_APK_NAME = "apk_name";
-
+    public static final String PARAMS_PACKAGE = "packages";
     //速度
     private double lastProgress = 0;
     //最后更新的时间
@@ -167,6 +167,7 @@ public class UpgradeManager extends ContextWrapper {
             return manager.remove(id) == 1;
         } else {
             Intent intent = new Intent(UpgradeService.RECEIVER_CANCEL);
+            intent.putExtra(PARAMS_PACKAGE, getPackageName());
             intent.putExtra(PARAMS_ID, id);
             sendBroadcast(intent);
             return true;
@@ -177,6 +178,7 @@ public class UpgradeManager extends ContextWrapper {
     public boolean pause(Integer id) {
         if (id == null) return false;
         Intent intent = new Intent(UpgradeService.RECEIVER_PAUSE);
+        intent.putExtra(PARAMS_PACKAGE, getPackageName());
         intent.putExtra(PARAMS_ID, id);
         sendBroadcast(intent);
         return true;
@@ -197,6 +199,7 @@ public class UpgradeManager extends ContextWrapper {
                     intent.setAction(DOWNLOAD_STATUS);
                     intent.putExtra(PARAMS_STATUS, DownloadStatus.STATUS_PAUSED.getValue());
                     intent.putExtra(PARAMS_ID, id);
+                    intent.putExtra(PARAMS_PACKAGE, getPackageName());
                     sendBroadcast(intent);
                     break;
                 case DownloadManager.STATUS_PENDING:
@@ -204,6 +207,7 @@ public class UpgradeManager extends ContextWrapper {
                     intent.setAction(DOWNLOAD_STATUS);
                     intent.putExtra(PARAMS_STATUS, DownloadStatus.STATUS_PENDING.getValue());
                     intent.putExtra(PARAMS_ID, id);
+                    intent.putExtra(PARAMS_PACKAGE, getPackageName());
                     sendBroadcast(intent);
                     break;
                 case DownloadManager.STATUS_RUNNING:
@@ -254,6 +258,7 @@ public class UpgradeManager extends ContextWrapper {
                         intent.putExtra(PARAMS_SPEED, speed);
                         intent.putExtra(PARAMS_PLAN_TIME, planTime);
                         intent.putExtra(PARAMS_PATH, address);
+                        intent.putExtra(PARAMS_PACKAGE, getPackageName());
                         sendBroadcast(intent);
                         lastProgress = progress;
                         lastTime = System.currentTimeMillis();
@@ -267,6 +272,7 @@ public class UpgradeManager extends ContextWrapper {
                     intent.setAction(DOWNLOAD_STATUS);
                     intent.putExtra(PARAMS_STATUS, DownloadStatus.STATUS_SUCCESSFUL.getValue());
                     intent.putExtra(PARAMS_ID, id);
+                    intent.putExtra(PARAMS_PACKAGE, getPackageName());
                     sendBroadcast(intent);
                     lastProgress = 0;
                     break;
@@ -275,6 +281,7 @@ public class UpgradeManager extends ContextWrapper {
                     intent.setAction(DOWNLOAD_STATUS);
                     intent.putExtra(PARAMS_STATUS, DownloadStatus.STATUS_FAILED.getValue());
                     intent.putExtra(PARAMS_ID, id);
+                    intent.putExtra(PARAMS_PACKAGE, getPackageName());
                     sendBroadcast(intent);
                     lastProgress = 0;
                     break;
@@ -310,6 +317,10 @@ public class UpgradeManager extends ContextWrapper {
         return new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
+                String packageName = intent.getStringExtra(PARAMS_PACKAGE);
+                if (packageName == null || !packageName.equals(getPackageName())) {
+                    return;
+                }
                 if (intent != null && intent.getAction() != null && intent.getAction().equals(DownloadManager.ACTION_DOWNLOAD_COMPLETE)) {
                     timer.cancel();
                     timer = null;

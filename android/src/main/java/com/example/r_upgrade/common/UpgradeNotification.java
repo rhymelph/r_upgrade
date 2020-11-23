@@ -37,6 +37,7 @@ public class UpgradeNotification {
             Intent pauseIntent = new Intent();
             pauseIntent.setAction(UpgradeService.RECEIVER_PAUSE);
             pauseIntent.putExtra(UpgradeManager.PARAMS_ID, id);
+            pauseIntent.putExtra(UpgradeManager.PARAMS_PACKAGE, context.getPackageName());
             PendingIntent pausePendingIntent =
                     PendingIntent.getBroadcast(context, 0, pauseIntent, PendingIntent.FLAG_UPDATE_CURRENT);
             boolean indeterminate = max_length == -1;
@@ -52,6 +53,7 @@ public class UpgradeNotification {
             Intent installIntent = new Intent();
             installIntent.setAction(UpgradeManager.DOWNLOAD_INSTALL);
             installIntent.putExtra(UpgradeService.DOWNLOAD_ID, id);
+            installIntent.putExtra(UpgradeManager.PARAMS_PACKAGE, context.getPackageName());
 
             PendingIntent installPendingIntent =
                     PendingIntent.getBroadcast(context, 0, installIntent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -66,6 +68,8 @@ public class UpgradeNotification {
             Intent reStartIntent = new Intent();
             reStartIntent.setAction(UpgradeService.RECEIVER_RESTART);
             reStartIntent.putExtra(UpgradeManager.PARAMS_ID, id);
+            reStartIntent.putExtra(UpgradeManager.PARAMS_PACKAGE, context.getPackageName());
+
             PendingIntent reStartPendingIntent =
                     PendingIntent.getBroadcast(context, 0, reStartIntent, PendingIntent.FLAG_UPDATE_CURRENT);
             notification = new NotificationCompat.Builder(context, CHANNEL_NAME)
@@ -75,11 +79,13 @@ public class UpgradeNotification {
                     .setContentText(context.getResources().getString(R.string.r_upgrade_download_paused))
                     .build();
         } else if (status == DownloadStatus.STATUS_FAILED.getValue()) {
-            Intent reStartIntent = new Intent();
-            reStartIntent.setAction(UpgradeService.RECEIVER_RESTART);
-            reStartIntent.putExtra(UpgradeManager.PARAMS_ID, id);
+            Intent failedIntent = new Intent();
+            failedIntent.setAction(UpgradeService.RECEIVER_RESTART);
+            failedIntent.putExtra(UpgradeManager.PARAMS_ID, id);
+            failedIntent.putExtra(UpgradeManager.PARAMS_PACKAGE, context.getPackageName());
+
             PendingIntent reStartPendingIntent =
-                    PendingIntent.getBroadcast(context, 0, reStartIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                    PendingIntent.getBroadcast(context, 0, failedIntent, PendingIntent.FLAG_UPDATE_CURRENT);
             notification = new NotificationCompat.Builder(context, CHANNEL_NAME)
                     .setSmallIcon(context.getApplicationInfo().icon)
                     .setContentTitle(title)

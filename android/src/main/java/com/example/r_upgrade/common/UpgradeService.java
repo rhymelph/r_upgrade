@@ -12,8 +12,6 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.IBinder;
-import android.util.Log;
-
 
 import androidx.core.net.ConnectivityManagerCompat;
 
@@ -48,6 +46,7 @@ import static com.example.r_upgrade.common.UpgradeManager.PARAMS_APK_NAME;
 import static com.example.r_upgrade.common.UpgradeManager.PARAMS_CURRENT_LENGTH;
 import static com.example.r_upgrade.common.UpgradeManager.PARAMS_ID;
 import static com.example.r_upgrade.common.UpgradeManager.PARAMS_MAX_LENGTH;
+import static com.example.r_upgrade.common.UpgradeManager.PARAMS_PACKAGE;
 import static com.example.r_upgrade.common.UpgradeManager.PARAMS_PATH;
 import static com.example.r_upgrade.common.UpgradeManager.PARAMS_PERCENT;
 import static com.example.r_upgrade.common.UpgradeManager.PARAMS_PLAN_TIME;
@@ -72,6 +71,10 @@ public class UpgradeService extends Service {
     private BroadcastReceiver actionReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            String packageName = intent.getStringExtra(PARAMS_PACKAGE);
+            if (packageName == null || !packageName.equals(getPackageName())) {
+                return;
+            }
             if (intent != null && intent.getAction() != null && intent.getAction().equals(RECEIVER_CANCEL)) {
                 int id = intent.getIntExtra(PARAMS_ID, 0);
                 runnable.cancel(id);
@@ -306,6 +309,7 @@ public class UpgradeService extends Service {
                     intent.putExtra(PARAMS_PATH, downloadFile.getPath());
                     intent.putExtra(PARAMS_ID, id);
                     intent.putExtra(PARAMS_APK_NAME, apkName);
+                    intent.putExtra(PARAMS_PACKAGE, upgradeService.getPackageName());
                     upgradeService.sendBroadcast(intent);
                     sqLite.update(id, currentLength, maxLength, DownloadStatus.STATUS_RUNNING.getValue());
                     RUpgradeLogger.get().d(TAG, "handlerDownloadRunning: running queryTask: 下载中\n" +
@@ -342,6 +346,7 @@ public class UpgradeService extends Service {
             intent.putExtra(PARAMS_APK_NAME, apkName);
             intent.putExtra(PARAMS_PATH, downloadFile.getPath());
             intent.putExtra(PARAMS_STATUS, DownloadStatus.STATUS_CANCEL.getValue());
+            intent.putExtra(PARAMS_PACKAGE, upgradeService.getPackageName());
             upgradeService.sendBroadcast(intent);
             sqLite.delete(id);
         }
@@ -357,6 +362,7 @@ public class UpgradeService extends Service {
             intent.putExtra(PARAMS_APK_NAME, apkName);
             intent.putExtra(PARAMS_PATH, downloadFile.getPath());
             intent.putExtra(PARAMS_STATUS, DownloadStatus.STATUS_PAUSED.getValue());
+            intent.putExtra(PARAMS_PACKAGE, upgradeService.getPackageName());
             upgradeService.sendBroadcast(intent);
             sqLite.update(id, currentLength, maxLength, DownloadStatus.STATUS_PAUSED.getValue());
         }
@@ -370,6 +376,7 @@ public class UpgradeService extends Service {
             intent.putExtra(PARAMS_APK_NAME, apkName);
             intent.putExtra(PARAMS_PATH, downloadFile.getPath());
             intent.putExtra(PARAMS_STATUS, DownloadStatus.STATUS_SUCCESSFUL.getValue());
+            intent.putExtra(PARAMS_PACKAGE, upgradeService.getPackageName());
             upgradeService.sendBroadcast(intent);
             sqLite.update(id, null, null, DownloadStatus.STATUS_SUCCESSFUL.getValue());
             lastCurrentLength = 0;
@@ -383,6 +390,7 @@ public class UpgradeService extends Service {
             intent.putExtra(PARAMS_PATH, downloadFile.getPath());
             intent.putExtra(PARAMS_STATUS, DownloadStatus.STATUS_FAILED.getValue());
             sqLite.update(id, null, null, DownloadStatus.STATUS_FAILED.getValue());
+            intent.putExtra(PARAMS_PACKAGE, upgradeService.getPackageName());
             upgradeService.sendBroadcast(intent);
         }
 
@@ -442,7 +450,7 @@ public class UpgradeService extends Service {
                     connection.setDoInput(true);
                     code = connection.getResponseCode();
                     RUpgradeLogger.get().d(TAG, "run: code=" + code);
-                    if (code == 200) {
+                    if (code == 200 || code == 206) {
                         connection.connect();
                         is = connection.getInputStream();
                         if (isNewDownload) {
@@ -465,7 +473,7 @@ public class UpgradeService extends Service {
                     connection.setDoInput(true);
                     code = connection.getResponseCode();
                     RUpgradeLogger.get().d(TAG, "run: code=" + code);
-                    if (code == 200) {
+                    if (code == 200 || code == 206) {
                         connection.connect();
                         is = connection.getInputStream();
                         if (isNewDownload) {
@@ -473,7 +481,7 @@ public class UpgradeService extends Service {
                         }
                     }
                 }
-                if (code != 200) {
+                if (code != 200 && code != 206) {
                     handlerDownloadFailure();
                     return;
                 }
