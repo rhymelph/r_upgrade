@@ -1,4 +1,4 @@
-## 0.3.1+2
+## 0.3.2
 * Repair the installation of two applications using the plug-in on the same device, resulting in two different but synchronous progress problems in the application, and the download failure occurred during the repair pause.
 ## 0.3.1+2
 * Improve the download process and repair the problem that incremental update files do not exist.
