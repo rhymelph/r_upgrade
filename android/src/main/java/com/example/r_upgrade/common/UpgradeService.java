@@ -25,8 +25,6 @@ import java.io.RandomAccessFile;
 import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -36,10 +34,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 
 import static com.example.r_upgrade.common.UpgradeManager.DOWNLOAD_STATUS;
 import static com.example.r_upgrade.common.UpgradeManager.PARAMS_APK_NAME;
