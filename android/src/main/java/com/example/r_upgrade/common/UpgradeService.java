@@ -441,12 +441,7 @@ public class UpgradeService extends Service {
                     if (!isNewDownload) {
                         connection.setRequestProperty("range", "bytes=" + currentLength + "-");
                     }
-                    TrustManager[] tm = {new MyX509TrustManager()};
-                    SSLContext sslContext = SSLContext.getInstance("TLS");
-                    sslContext.init(null, tm, new java.security.SecureRandom());
-                    // 从上述SSLContext对象中得到SSLSocketFactory对象
-                    SSLSocketFactory ssf = sslContext.getSocketFactory();
-                    connection.setSSLSocketFactory(ssf);
+                    connection.setSSLSocketFactory((SSLSocketFactory) SSLSocketFactory.getDefault());
                     connection.setDoInput(true);
                     code = connection.getResponseCode();
                     RUpgradeLogger.get().d(TAG, "run: code=" + code);
@@ -601,20 +596,5 @@ public class UpgradeService extends Service {
     }
 
 
-    private static class MyX509TrustManager implements X509TrustManager {
-
-        // 检查客户端证书
-        public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-        }
-
-        // 检查服务器端证书
-        public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-        }
-
-        // 返回受信任的X509证书数组
-        public X509Certificate[] getAcceptedIssuers() {
-            return null;
-        }
-    }
 }
 
