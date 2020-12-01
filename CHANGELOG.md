@@ -1,3 +1,5 @@
+## 0.3.2+2
+* fix issues #23 again.
 ## 0.3.2+1
 * fix issues #23.
 ## 0.3.2
