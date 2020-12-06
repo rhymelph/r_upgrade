@@ -1,3 +1,5 @@
+## 0.3.2+3
+* adapter android Q.
 ## 0.3.2+2
 * fix issues #23 again.
 ## 0.3.2+1

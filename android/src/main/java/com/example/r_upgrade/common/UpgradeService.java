@@ -9,6 +9,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.IBinder;
@@ -224,6 +225,13 @@ public class UpgradeService extends Service {
             }
         }
 
+        private File getDownloadDirectory() {
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+                return upgradeService.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
+            }
+            return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+        }
+
         private boolean handlerDownloadPending() {
             if (isReStart) {
                 SQLiteDatabase readableDatabase = sqLite.getReadableDatabase();
@@ -231,7 +239,7 @@ public class UpgradeService extends Service {
                 boolean canMove = cursor.moveToNext();
                 if (!canMove) {
                     // 重新下载
-                    File parentFile = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+                    File parentFile = getDownloadDirectory();
                     downloadFile = new File(parentFile.getPath(), apkName);
                     JSONObject object = null;
                     if (header != null) {
@@ -274,7 +282,7 @@ public class UpgradeService extends Service {
                 }
             } else {
                 // 重新下载
-                File parentFile = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+                File parentFile = getDownloadDirectory();
                 downloadFile = new File(parentFile.getPath(), apkName);
                 JSONObject object = null;
                 if (header != null) {
