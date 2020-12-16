@@ -3,18 +3,74 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
-
-//import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:r_upgrade/r_upgrade.dart';
+
+import 'generated/l10n.dart';
 
 const version = 1;
 
-void main() => runApp(MyApp());
+void main() => runApp(Application());
 
 enum UpgradeMethod {
   all,
   hot,
   increment,
+}
+
+class Application extends StatefulWidget {
+  @override
+  _ApplicationState createState() => _ApplicationState();
+}
+
+class _ApplicationState extends State<Application> {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      localizationsDelegates: [
+        S.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: S.delegate.supportedLocales,
+      home: Scaffold(
+        appBar: AppBar(
+          backgroundColor: getVersionColor(),
+          title: Text(_getAppBarText()),
+        ),
+        body: MyApp(),
+      ),
+    );
+  }
+
+  Color getVersionColor() {
+    switch (version) {
+      case 1:
+        return Theme.of(context).primaryColor;
+      case 2:
+        return Colors.black;
+      case 3:
+        return Colors.red;
+      case 4:
+        return Colors.orange;
+    }
+    return Theme.of(context).primaryColor;
+  }
+
+  String _getAppBarText() {
+    switch (version) {
+      case 1:
+        return 'Normal version = $version ';
+      case 2:
+        return 'hot upgrade version = $version';
+      case 3:
+        return 'all upgrade version = $version';
+      case 4:
+        return 'plus upgrade version = $version ';
+    }
+    return 'unknow version  = $version';
+  }
 }
 
 class MyApp extends StatefulWidget {
@@ -27,8 +83,6 @@ class _MyAppState extends State<MyApp> {
   bool isAutoRequestInstall = false;
 
   UpgradeMethod upgradeMethod;
-
-  GlobalKey<ScaffoldState> _state = GlobalKey();
 
   String iosVersion = "";
 
@@ -93,14 +147,14 @@ class _MyAppState extends State<MyApp> {
           Divider(),
           ListTile(
             title: Text(
-              '更新相关',
-              style: Theme.of(context).textTheme.title.copyWith(
+              S.of(context).Update_the_related,
+              style: Theme.of(context).textTheme.headline6.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
             ),
           ),
           ListTile(
-            title: Text('跳转到应用商店'),
+            title: Text(S.of(context).Jump_to_the_app_store),
             onTap: () async {
               bool isSuccess =
                   await RUpgrade.upgradeFromAndroidStore(AndroidStore.BAIDU);
@@ -108,7 +162,7 @@ class _MyAppState extends State<MyApp> {
             },
           ),
           ListTile(
-            title: Text('跳转到链接更新'),
+            title: Text(S.of(context).Jump_to_the_link_updated),
             onTap: () async {
               bool isSuccess = await RUpgrade.upgradeFromUrl(
                 'https://www.baidu.com',
@@ -117,10 +171,10 @@ class _MyAppState extends State<MyApp> {
             },
           ),
           ListTile(
-            title: Text('开始全量更新'),
+            title: Text(S.of(context).Starting_to_all_updates),
             onTap: () async {
               if (upgradeMethod != null) {
-                _state.currentState
+                ScaffoldMessenger.of(context)
                     .showSnackBar(SnackBar(content: Text(getUpgradeMethod())));
                 return;
               }
@@ -139,16 +193,20 @@ class _MyAppState extends State<MyApp> {
             },
           ),
           ListTile(
-            title: Text('安装全量更新'),
+            title: Text(S.of(context).Install_all_updates),
             onTap: () async {
               if (upgradeMethod != UpgradeMethod.all && upgradeMethod != null) {
-                _state.currentState.showSnackBar(
-                    SnackBar(content: Text('请进行${getUpgradeMethodName()}')));
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text(S
+                        .of(context)
+                        .Please_make_('${getUpgradeMethodName()}'))));
                 return;
               }
               if (id == null) {
-                _state.currentState
-                    .showSnackBar(SnackBar(content: Text('当前没有ID可安装')));
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text(S
+                        .of(context)
+                        .Currently_there_is_no_ID_can_be_installed)));
                 return;
               }
               final status = await RUpgrade.getDownloadStatus(id);
@@ -156,12 +214,12 @@ class _MyAppState extends State<MyApp> {
               if (status == DownloadStatus.STATUS_SUCCESSFUL) {
                 bool isSuccess = await RUpgrade.install(id);
                 if (isSuccess) {
-                  _state.currentState
-                      .showSnackBar(SnackBar(content: Text('请求成功')));
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Text(S.of(context).The_request_is_successful)));
                 }
               } else {
-                _state.currentState
-                    .showSnackBar(SnackBar(content: Text('当前ID未完成下载')));
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text(S.of(context).The_current_ID_not_download)));
               }
             },
           ),
@@ -172,18 +230,20 @@ class _MyAppState extends State<MyApp> {
                 isAutoRequestInstall = value;
               });
             },
-            title: Text('下载完进行安装'),
+            title: Text(S.of(context).After_download_to_install),
           ),
           ListTile(
-            title: Text('继续更新'),
+            title: Text(S.of(context).Continue_to_update),
             onTap: () async {
               if (id == null) {
-                _state.currentState
-                    .showSnackBar(SnackBar(content: Text('当前没有ID可升级')));
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text(S
+                        .of(context)
+                        .Currently_there_is_no_ID_can_be_upgraded)));
                 return;
               }
               if (upgradeMethod != null) {
-                _state.currentState
+                ScaffoldMessenger.of(context)
                     .showSnackBar(SnackBar(content: Text(getUpgradeMethod())));
                 return;
               }
@@ -192,24 +252,24 @@ class _MyAppState extends State<MyApp> {
             },
           ),
           ListTile(
-            title: Text('暂停更新'),
+            title: Text(S.of(context).updated),
             onTap: () async {
               bool isSuccess = await RUpgrade.pause(id);
               if (isSuccess) {
-                _state.currentState
-                    .showSnackBar(SnackBar(content: Text('暂停成功')));
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text(S.of(context).Suspension_of_success)));
                 setState(() {});
               }
               print('cancel');
             },
           ),
           ListTile(
-            title: Text('取消更新'),
+            title: Text(S.of(context).Cancel_the_update),
             onTap: () async {
               bool isSuccess = await RUpgrade.cancel(id);
               if (isSuccess) {
-                _state.currentState
-                    .showSnackBar(SnackBar(content: Text('取消成功')));
+                ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(S.of(context).Cancel_the_success)));
                 id = null;
                 upgradeMethod = null;
                 setState(() {});
@@ -220,17 +280,17 @@ class _MyAppState extends State<MyApp> {
           Divider(),
           ListTile(
             title: Text(
-              '热更新相关',
-              style: Theme.of(context).textTheme.title.copyWith(
+              S.of(context).Hot_update_related,
+              style: Theme.of(context).textTheme.headline6.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
             ),
           ),
           ListTile(
-            title: Text('开始下载热更新'),
+            title: Text(S.of(context).Start_download_hot_update),
             onTap: () async {
               if (upgradeMethod != null) {
-                _state.currentState
+                ScaffoldMessenger.of(context)
                     .showSnackBar(SnackBar(content: Text(getUpgradeMethod())));
                 return;
               }
@@ -246,17 +306,20 @@ class _MyAppState extends State<MyApp> {
             },
           ),
           ListTile(
-            title: Text('进行热更新'),
+            title: Text(S.of(context).For_hot_update),
             onTap: () async {
 //              if (!await canReadStorage()) return;
               if (upgradeMethod != UpgradeMethod.hot && upgradeMethod != null) {
-                _state.currentState.showSnackBar(
-                    SnackBar(content: Text('请进行${getUpgradeMethodName()}')));
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text(S
+                        .of(context)
+                        .Please_make_('${getUpgradeMethodName()}'))));
                 return;
               }
               if (id == null) {
-                _state.currentState
-                    .showSnackBar(SnackBar(content: Text('请点击开始热更新')));
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content:
+                        Text(S.of(context).Please_click_on_start_hot_update)));
                 return;
               }
 //              bool isSuccess = await RUpgrade.hotUpgrade(id);
@@ -265,35 +328,40 @@ class _MyAppState extends State<MyApp> {
               if (status == DownloadStatus.STATUS_SUCCESSFUL) {
                 bool isSuccess = await RUpgrade.install(id);
                 if (isSuccess) {
-                  _state.currentState.showSnackBar(
-                      SnackBar(content: Text('热更新成功，3s后退出应用，请重新进入')));
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Text(S
+                          .of(context)
+                          .Hot_update_is_successful_exit_the_application_after_3_s_please_re_enter)));
                   Future.delayed(Duration(seconds: 3)).then((_) {
                     SystemNavigator.pop(animated: true);
                   });
                 } else {
-                  _state.currentState.showSnackBar(
-                      SnackBar(content: Text('热更新失败，请等待更新包下载完成')));
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Text(S
+                          .of(context)
+                          .Hot_update_failed_please_wait_for_update_the_download_is_complete)));
                 }
               } else {
-                _state.currentState
-                    .showSnackBar(SnackBar(content: Text('当前ID未完成下载')));
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text(S.of(context).The_current_ID_not_download)));
               }
             },
           ),
           Divider(),
           ListTile(
             title: Text(
-              '增量更新',
-              style: Theme.of(context).textTheme.title.copyWith(
+              S.of(context).Incremental_updating,
+              style: Theme.of(context).textTheme.headline6.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
             ),
           ),
           ListTile(
-            title: Text('开始下载增量更新'),
+            title:
+                Text(S.of(context).Began_to_download_the_incremental_updating),
             onTap: () async {
               if (upgradeMethod != null) {
-                _state.currentState
+                ScaffoldMessenger.of(context)
                     .showSnackBar(SnackBar(content: Text(getUpgradeMethod())));
                 return;
               }
@@ -310,18 +378,22 @@ class _MyAppState extends State<MyApp> {
             },
           ),
           ListTile(
-            title: Text('进行增量更新'),
+            title: Text(S.of(context).Incremental_updating),
             onTap: () async {
 //              if (!await canReadStorage()) return;
               if (upgradeMethod != UpgradeMethod.increment &&
                   upgradeMethod != null) {
-                _state.currentState.showSnackBar(
-                    SnackBar(content: Text('请进行${getUpgradeMethodName()}}')));
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text(S
+                        .of(context)
+                        .Please_make_('${getUpgradeMethodName()}'))));
                 return;
               }
               if (id == null) {
-                _state.currentState
-                    .showSnackBar(SnackBar(content: Text('请点击开始增量更新')));
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text(S
+                        .of(context)
+                        .Please_click_on_start_incremental_updates)));
                 return;
               }
               try {
@@ -329,26 +401,27 @@ class _MyAppState extends State<MyApp> {
                 if (status == DownloadStatus.STATUS_SUCCESSFUL) {
                   await RUpgrade.install(id);
                 } else {
-                  _state.currentState
-                      .showSnackBar(SnackBar(content: Text('当前ID未完成下载')));
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content:
+                          Text(S.of(context).The_current_ID_not_download)));
                 }
               } catch (e) {
-                _state.currentState
-                    .showSnackBar(SnackBar(content: Text('增量更新失败!')));
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text(S.of(context).Incremental_updating_failed)));
               }
             },
           ),
           Divider(),
           ListTile(
             title: Text(
-              '历史相关',
-              style: Theme.of(context).textTheme.title.copyWith(
+              S.of(context).History_related,
+              style: Theme.of(context).textTheme.headline6.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
             ),
           ),
           ListTile(
-            title: Text('获取最后一次下载的ID'),
+            title: Text(S.of(context).For_the_last_time_to_download_the_ID),
             trailing: lastId != null
                 ? Text(
                     lastId.toString(),
@@ -360,19 +433,23 @@ class _MyAppState extends State<MyApp> {
             onTap: () async {
               lastId = await RUpgrade.getLastUpgradedId();
               if (lastId == null) {
-                _state.currentState
-                    .showSnackBar(SnackBar(content: Text('没有最后一次下载的ID')));
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text(S.of(context).No_ID_last_time_to_download)));
                 return;
               }
               setState(() {});
             },
           ),
           ListTile(
-            title: Text('根据最后一次ID升级应用'),
+            title: Text(S
+                .of(context)
+                .According_to_the_last_time_ID_escalation_applications),
             onTap: () async {
               if (lastId == null) {
-                _state.currentState
-                    .showSnackBar(SnackBar(content: Text('当前没有ID可升级')));
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text(S
+                        .of(context)
+                        .Currently_there_is_no_ID_can_be_upgraded)));
                 return;
               }
               await RUpgrade.upgradeWithId(lastId);
@@ -381,7 +458,7 @@ class _MyAppState extends State<MyApp> {
           ),
           ListTile(
             title: Text(
-              '查看最后一次ID的下载状态',
+              S.of(context).Look_at_the_last_time_ID_download_status,
             ),
             trailing: lastStatus != null
                 ? Text(getStatus(lastStatus),
@@ -391,8 +468,8 @@ class _MyAppState extends State<MyApp> {
                 : null,
             onTap: () async {
               if (lastId == null) {
-                _state.currentState
-                    .showSnackBar(SnackBar(content: Text('当前没有ID可查')));
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text(S.of(context).Currently_there_is_no_ID)));
                 return;
               }
               lastStatus = await RUpgrade.getDownloadStatus(lastId);
@@ -409,44 +486,7 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        key: _state,
-        appBar: AppBar(
-          backgroundColor: getVersionColor(),
-          title: Text(_getAppBarText()),
-        ),
-        body: _buildMultiPlatformWidget(),
-      ),
-    );
-  }
-
-  Color getVersionColor() {
-    switch (version) {
-      case 1:
-        return Theme.of(context).primaryColor;
-      case 2:
-        return Colors.black;
-      case 3:
-        return Colors.red;
-      case 4:
-        return Colors.orange;
-    }
-    return Theme.of(context).primaryColor;
-  }
-
-  String _getAppBarText() {
-    switch (version) {
-      case 1:
-        return 'Normal version = $version ${id != null ? 'id = $id' : ''}';
-      case 2:
-        return 'hot upgrade version = $version ${id != null ? 'id = $id' : ''}';
-      case 3:
-        return 'all upgrade version = $version ${id != null ? 'id = $id' : ''}';
-      case 4:
-        return 'plus upgrade version = $version ${id != null ? 'id = $id' : ''}';
-    }
-    return 'unknow version  = $version ${id != null ? 'id = $id' : ''}';
+    return _buildMultiPlatformWidget();
   }
 
   Widget _buildDownloadWindow() => Container(
@@ -491,7 +531,7 @@ class _MyAppState extends State<MyApp> {
                           height: 30,
                         ),
                         Text(
-                            '${snapshot.data.planTime.toStringAsFixed(0)}s后完成'),
+                            S.of(context).The_s_after_finish('${snapshot.data.planTime.toStringAsFixed(0)}')),
                       ],
                     );
                   } else {
@@ -505,43 +545,43 @@ class _MyAppState extends State<MyApp> {
                   }
                 },
               )
-            : Text('等待下载'),
+            : Text(S.of(context).Waiting_for_download),
       );
 
   String getStatus(DownloadStatus status) {
     if (status == DownloadStatus.STATUS_FAILED) {
       id = null;
       upgradeMethod = null;
-      return "下载失败";
+      return S.of(context).Download_failed;
     } else if (status == DownloadStatus.STATUS_PAUSED) {
-      return "下载暂停";
+      return S.of(context).Download_the_suspended;
     } else if (status == DownloadStatus.STATUS_PENDING) {
-      return "获取资源中";
+      return S.of(context).Access_to_resources;
     } else if (status == DownloadStatus.STATUS_RUNNING) {
-      return "下载中";
+      return S.of(context).In_the_download;
     } else if (status == DownloadStatus.STATUS_SUCCESSFUL) {
-      return "下载成功";
+      return S.of(context).Download_successful;
     } else if (status == DownloadStatus.STATUS_CANCEL) {
       id = null;
       upgradeMethod = null;
-      return "下载取消";
+      return S.of(context).Download_the_cancel;
     } else {
       id = null;
       upgradeMethod = null;
-      return "未知";
+      return S.of(context).The_unknown;
     }
   }
 
   String getUpgradeMethod() {
     switch (upgradeMethod) {
       case UpgradeMethod.all:
-        return '已经开始全量更新';
+        return S.of(context).Are_already_starting_to_all_updates;
         break;
       case UpgradeMethod.hot:
-        return '已经开始热更新';
+        return S.of(context).Have_begun_to_hot_update;
         break;
       case UpgradeMethod.increment:
-        return '已经开始增量更新';
+        return S.of(context).Has_already_started_to_incremental_updates;
         break;
     }
     return '';
@@ -550,17 +590,18 @@ class _MyAppState extends State<MyApp> {
   String getUpgradeMethodName() {
     switch (upgradeMethod) {
       case UpgradeMethod.all:
-        return '全量更新';
+        return S.of(context).Full_quantity_update;
         break;
       case UpgradeMethod.hot:
-        return '热更新';
+        return S.of(context).Hot_update;
         break;
       case UpgradeMethod.increment:
-        return '增量更新';
+        return S.of(context).Incremental_updating;
         break;
     }
     return '';
   }
+
 //  Future<bool> canReadStorage() async {
 //    if (Platform.isIOS) return true;
 //    var status = await PermissionHandler()
