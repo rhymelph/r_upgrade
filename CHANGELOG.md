@@ -1,3 +1,5 @@
+## 0.3.3
+* adapter null safety.
 ## 0.3.2+3
 * adapter android Q.
 ## 0.3.2+2

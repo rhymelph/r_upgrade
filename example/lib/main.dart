@@ -79,12 +79,12 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  int id;
-  bool isAutoRequestInstall = false;
+  int? id;
+  bool? isAutoRequestInstall = false;
 
-  UpgradeMethod upgradeMethod;
+  UpgradeMethod? upgradeMethod;
 
-  String iosVersion = "";
+  String? iosVersion = "";
 
   @override
   void initState() {
@@ -125,13 +125,13 @@ class _MyAppState extends State<MyApp> {
           ListTile(
             title: Text('get version from app store(WeChat)'),
             trailing: iosVersion != null
-                ? Text(iosVersion,
-                    style: Theme.of(context).textTheme.subtitle2.copyWith(
+                ? Text(iosVersion!,
+                    style: Theme.of(context).textTheme.subtitle2!.copyWith(
                           color: Colors.grey,
                         ))
                 : null,
             onTap: () async {
-              String versionName =
+              String? versionName =
                   await RUpgrade.getVersionFromAppStore('414478124');
               setState(() {
                 iosVersion = versionName;
@@ -147,31 +147,31 @@ class _MyAppState extends State<MyApp> {
           Divider(),
           ListTile(
             title: Text(
-              S.of(context).Update_the_related,
-              style: Theme.of(context).textTheme.headline6.copyWith(
+              S.of(context)!.Update_the_related,
+              style: Theme.of(context).textTheme.headline6!.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
             ),
           ),
           ListTile(
-            title: Text(S.of(context).Jump_to_the_app_store),
+            title: Text(S.of(context)!.Jump_to_the_app_store),
             onTap: () async {
-              bool isSuccess =
+              bool? isSuccess =
                   await RUpgrade.upgradeFromAndroidStore(AndroidStore.BAIDU);
-              print('${isSuccess ? '跳转成功' : '跳转失败'}');
+              print('${(isSuccess != null && isSuccess) ? '跳转成功' : '跳转失败'}');
             },
           ),
           ListTile(
-            title: Text(S.of(context).Jump_to_the_link_updated),
+            title: Text(S.of(context)!.Jump_to_the_link_updated),
             onTap: () async {
-              bool isSuccess = await RUpgrade.upgradeFromUrl(
+              bool? isSuccess = await RUpgrade.upgradeFromUrl(
                 'https://www.baidu.com',
               );
               print(isSuccess);
             },
           ),
           ListTile(
-            title: Text(S.of(context).Starting_to_all_updates),
+            title: Text(S.of(context)!.Starting_to_all_updates),
             onTap: () async {
               if (upgradeMethod != null) {
                 ScaffoldMessenger.of(context)
@@ -185,7 +185,7 @@ class _MyAppState extends State<MyApp> {
 //                  'http://dl-cdn.coolapkmarket.com/down/apk_file/2020/0308/Coolapk-v10.0.3-2003081-coolapk-app-release.apk?_upt=b210caeb1585012557',
                   'https://mydata-1252536312.cos.ap-guangzhou.myqcloud.com/r_upgrade.apk',
                   fileName: 'r_upgrade.apk',
-                  isAutoRequestInstall: isAutoRequestInstall,
+                  isAutoRequestInstall: isAutoRequestInstall!,
                   notificationStyle: NotificationStyle.speechAndPlanTime,
                   useDownloadManager: false);
               upgradeMethod = UpgradeMethod.all;
@@ -193,52 +193,52 @@ class _MyAppState extends State<MyApp> {
             },
           ),
           ListTile(
-            title: Text(S.of(context).Install_all_updates),
+            title: Text(S.of(context)!.Install_all_updates),
             onTap: () async {
               if (upgradeMethod != UpgradeMethod.all && upgradeMethod != null) {
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                     content: Text(S
-                        .of(context)
+                        .of(context)!
                         .Please_make_('${getUpgradeMethodName()}'))));
                 return;
               }
               if (id == null) {
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                     content: Text(S
-                        .of(context)
+                        .of(context)!
                         .Currently_there_is_no_ID_can_be_installed)));
                 return;
               }
-              final status = await RUpgrade.getDownloadStatus(id);
+              final status = await RUpgrade.getDownloadStatus(id!);
 
               if (status == DownloadStatus.STATUS_SUCCESSFUL) {
-                bool isSuccess = await RUpgrade.install(id);
-                if (isSuccess) {
+                bool? isSuccess = await RUpgrade.install(id!);
+                if (isSuccess != null && isSuccess) {
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      content: Text(S.of(context).The_request_is_successful)));
+                      content: Text(S.of(context)!.The_request_is_successful)));
                 }
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    content: Text(S.of(context).The_current_ID_not_download)));
+                    content: Text(S.of(context)!.The_current_ID_not_download)));
               }
             },
           ),
           CheckboxListTile(
             value: isAutoRequestInstall,
-            onChanged: (bool value) {
+            onChanged: (bool? value) {
               setState(() {
                 isAutoRequestInstall = value;
               });
             },
-            title: Text(S.of(context).After_download_to_install),
+            title: Text(S.of(context)!.After_download_to_install),
           ),
           ListTile(
-            title: Text(S.of(context).Continue_to_update),
+            title: Text(S.of(context)!.Continue_to_update),
             onTap: () async {
               if (id == null) {
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                     content: Text(S
-                        .of(context)
+                        .of(context)!
                         .Currently_there_is_no_ID_can_be_upgraded)));
                 return;
               }
@@ -247,29 +247,29 @@ class _MyAppState extends State<MyApp> {
                     .showSnackBar(SnackBar(content: Text(getUpgradeMethod())));
                 return;
               }
-              await RUpgrade.upgradeWithId(id);
+              await RUpgrade.upgradeWithId(id!);
               setState(() {});
             },
           ),
           ListTile(
-            title: Text(S.of(context).updated),
+            title: Text(S.of(context)!.updated),
             onTap: () async {
-              bool isSuccess = await RUpgrade.pause(id);
-              if (isSuccess) {
+              bool? isSuccess = await RUpgrade.pause(id!);
+              if (isSuccess != null && isSuccess) {
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    content: Text(S.of(context).Suspension_of_success)));
+                    content: Text(S.of(context)!.Suspension_of_success)));
                 setState(() {});
               }
               print('cancel');
             },
           ),
           ListTile(
-            title: Text(S.of(context).Cancel_the_update),
+            title: Text(S.of(context)!.Cancel_the_update),
             onTap: () async {
-              bool isSuccess = await RUpgrade.cancel(id);
-              if (isSuccess) {
+              bool? isSuccess = await RUpgrade.cancel(id!);
+              if (isSuccess != null && isSuccess) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(S.of(context).Cancel_the_success)));
+                    SnackBar(content: Text(S.of(context)!.Cancel_the_success)));
                 id = null;
                 upgradeMethod = null;
                 setState(() {});
@@ -280,14 +280,14 @@ class _MyAppState extends State<MyApp> {
           Divider(),
           ListTile(
             title: Text(
-              S.of(context).Hot_update_related,
-              style: Theme.of(context).textTheme.headline6.copyWith(
+              S.of(context)!.Hot_update_related,
+              style: Theme.of(context).textTheme.headline6!.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
             ),
           ),
           ListTile(
-            title: Text(S.of(context).Start_download_hot_update),
+            title: Text(S.of(context)!.Start_download_hot_update),
             onTap: () async {
               if (upgradeMethod != null) {
                 ScaffoldMessenger.of(context)
@@ -306,31 +306,31 @@ class _MyAppState extends State<MyApp> {
             },
           ),
           ListTile(
-            title: Text(S.of(context).For_hot_update),
+            title: Text(S.of(context)!.For_hot_update),
             onTap: () async {
 //              if (!await canReadStorage()) return;
               if (upgradeMethod != UpgradeMethod.hot && upgradeMethod != null) {
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                     content: Text(S
-                        .of(context)
+                        .of(context)!
                         .Please_make_('${getUpgradeMethodName()}'))));
                 return;
               }
               if (id == null) {
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                     content:
-                        Text(S.of(context).Please_click_on_start_hot_update)));
+                        Text(S.of(context)!.Please_click_on_start_hot_update)));
                 return;
               }
 //              bool isSuccess = await RUpgrade.hotUpgrade(id);
-              final status = await RUpgrade.getDownloadStatus(id);
+              final status = await RUpgrade.getDownloadStatus(id!);
 
               if (status == DownloadStatus.STATUS_SUCCESSFUL) {
-                bool isSuccess = await RUpgrade.install(id);
-                if (isSuccess) {
+                bool? isSuccess = await RUpgrade.install(id!);
+                if (isSuccess != null && isSuccess) {
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                       content: Text(S
-                          .of(context)
+                          .of(context)!
                           .Hot_update_is_successful_exit_the_application_after_3_s_please_re_enter)));
                   Future.delayed(Duration(seconds: 3)).then((_) {
                     SystemNavigator.pop(animated: true);
@@ -338,27 +338,27 @@ class _MyAppState extends State<MyApp> {
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                       content: Text(S
-                          .of(context)
+                          .of(context)!
                           .Hot_update_failed_please_wait_for_update_the_download_is_complete)));
                 }
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    content: Text(S.of(context).The_current_ID_not_download)));
+                    content: Text(S.of(context)!.The_current_ID_not_download)));
               }
             },
           ),
           Divider(),
           ListTile(
             title: Text(
-              S.of(context).Incremental_updating,
-              style: Theme.of(context).textTheme.headline6.copyWith(
+              S.of(context)!.Incremental_updating,
+              style: Theme.of(context).textTheme.headline6!.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
             ),
           ),
           ListTile(
             title:
-                Text(S.of(context).Began_to_download_the_incremental_updating),
+                Text(S.of(context)!.Began_to_download_the_incremental_updating),
             onTap: () async {
               if (upgradeMethod != null) {
                 ScaffoldMessenger.of(context)
@@ -378,54 +378,54 @@ class _MyAppState extends State<MyApp> {
             },
           ),
           ListTile(
-            title: Text(S.of(context).Incremental_updating),
+            title: Text(S.of(context)!.Incremental_updating),
             onTap: () async {
 //              if (!await canReadStorage()) return;
               if (upgradeMethod != UpgradeMethod.increment &&
                   upgradeMethod != null) {
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                     content: Text(S
-                        .of(context)
+                        .of(context)!
                         .Please_make_('${getUpgradeMethodName()}'))));
                 return;
               }
               if (id == null) {
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                     content: Text(S
-                        .of(context)
+                        .of(context)!
                         .Please_click_on_start_incremental_updates)));
                 return;
               }
               try {
-                final status = await RUpgrade.getDownloadStatus(id);
+                final status = await RUpgrade.getDownloadStatus(id!);
                 if (status == DownloadStatus.STATUS_SUCCESSFUL) {
-                  await RUpgrade.install(id);
+                  await RUpgrade.install(id!);
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                       content:
-                          Text(S.of(context).The_current_ID_not_download)));
+                          Text(S.of(context)!.The_current_ID_not_download)));
                 }
               } catch (e) {
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    content: Text(S.of(context).Incremental_updating_failed)));
+                    content: Text(S.of(context)!.Incremental_updating_failed)));
               }
             },
           ),
           Divider(),
           ListTile(
             title: Text(
-              S.of(context).History_related,
-              style: Theme.of(context).textTheme.headline6.copyWith(
+              S.of(context)!.History_related,
+              style: Theme.of(context).textTheme.headline6!.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
             ),
           ),
           ListTile(
-            title: Text(S.of(context).For_the_last_time_to_download_the_ID),
+            title: Text(S.of(context)!.For_the_last_time_to_download_the_ID),
             trailing: lastId != null
                 ? Text(
                     lastId.toString(),
-                    style: Theme.of(context).textTheme.subtitle2.copyWith(
+                    style: Theme.of(context).textTheme.subtitle2!.copyWith(
                           color: Colors.grey,
                         ),
                   )
@@ -434,7 +434,7 @@ class _MyAppState extends State<MyApp> {
               lastId = await RUpgrade.getLastUpgradedId();
               if (lastId == null) {
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    content: Text(S.of(context).No_ID_last_time_to_download)));
+                    content: Text(S.of(context)!.No_ID_last_time_to_download)));
                 return;
               }
               setState(() {});
@@ -442,37 +442,37 @@ class _MyAppState extends State<MyApp> {
           ),
           ListTile(
             title: Text(S
-                .of(context)
+                .of(context)!
                 .According_to_the_last_time_ID_escalation_applications),
             onTap: () async {
               if (lastId == null) {
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                     content: Text(S
-                        .of(context)
+                        .of(context)!
                         .Currently_there_is_no_ID_can_be_upgraded)));
                 return;
               }
-              await RUpgrade.upgradeWithId(lastId);
+              await RUpgrade.upgradeWithId(lastId!);
               setState(() {});
             },
           ),
           ListTile(
             title: Text(
-              S.of(context).Look_at_the_last_time_ID_download_status,
+              S.of(context)!.Look_at_the_last_time_ID_download_status,
             ),
             trailing: lastStatus != null
                 ? Text(getStatus(lastStatus),
-                    style: Theme.of(context).textTheme.subtitle2.copyWith(
+                    style: Theme.of(context).textTheme.subtitle2!.copyWith(
                           color: Colors.grey,
                         ))
                 : null,
             onTap: () async {
               if (lastId == null) {
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    content: Text(S.of(context).Currently_there_is_no_ID)));
+                    content: Text(S.of(context)!.Currently_there_is_no_ID)));
                 return;
               }
-              lastStatus = await RUpgrade.getDownloadStatus(lastId);
+              lastStatus = await RUpgrade.getDownloadStatus(lastId!);
               setState(() {});
             },
           ),
@@ -480,9 +480,9 @@ class _MyAppState extends State<MyApp> {
         ],
       );
 
-  int lastId;
+  int? lastId;
 
-  DownloadStatus lastStatus;
+  DownloadStatus? lastStatus;
 
   @override
   Widget build(BuildContext context) {
@@ -509,17 +509,17 @@ class _MyAppState extends State<MyApp> {
                           height: 150,
                           width: 150,
                           child: CircleDownloadWidget(
-                            backgroundColor: snapshot.data.status ==
+                            backgroundColor: snapshot.data!.status ==
                                     DownloadStatus.STATUS_SUCCESSFUL
                                 ? Colors.green
                                 : null,
-                            progress: snapshot.data.percent / 100,
+                            progress: snapshot.data!.percent! / 100,
                             child: Center(
                               child: Text(
-                                snapshot.data.status ==
+                                snapshot.data!.status ==
                                         DownloadStatus.STATUS_RUNNING
-                                    ? getSpeech(snapshot.data.speed)
-                                    : getStatus(snapshot.data.status),
+                                    ? getSpeech(snapshot.data!.speed!)
+                                    : getStatus(snapshot.data!.status),
                                 style: TextStyle(
                                   color: Colors.white,
                                 ),
@@ -530,8 +530,8 @@ class _MyAppState extends State<MyApp> {
                         SizedBox(
                           height: 30,
                         ),
-                        Text(
-                            S.of(context).The_s_after_finish('${snapshot.data.planTime.toStringAsFixed(0)}')),
+                        Text(S.of(context)!.The_s_after_finish(
+                            '${snapshot.data!.planTime!.toStringAsFixed(0)}')),
                       ],
                     );
                   } else {
@@ -545,43 +545,42 @@ class _MyAppState extends State<MyApp> {
                   }
                 },
               )
-            : Text(S.of(context).Waiting_for_download),
+            : Text(S.of(context)!.Waiting_for_download),
       );
 
-  String getStatus(DownloadStatus status) {
+  String getStatus(DownloadStatus? status) {
     if (status == DownloadStatus.STATUS_FAILED) {
       id = null;
       upgradeMethod = null;
-      return S.of(context).Download_failed;
+      return S.of(context)!.Download_failed;
     } else if (status == DownloadStatus.STATUS_PAUSED) {
-      return S.of(context).Download_the_suspended;
+      return S.of(context)!.Download_the_suspended;
     } else if (status == DownloadStatus.STATUS_PENDING) {
-      return S.of(context).Access_to_resources;
+      return S.of(context)!.Access_to_resources;
     } else if (status == DownloadStatus.STATUS_RUNNING) {
-      return S.of(context).In_the_download;
+      return S.of(context)!.In_the_download;
     } else if (status == DownloadStatus.STATUS_SUCCESSFUL) {
-      return S.of(context).Download_successful;
+      return S.of(context)!.Download_successful;
     } else if (status == DownloadStatus.STATUS_CANCEL) {
       id = null;
       upgradeMethod = null;
-      return S.of(context).Download_the_cancel;
+      return S.of(context)!.Download_the_cancel;
     } else {
       id = null;
       upgradeMethod = null;
-      return S.of(context).The_unknown;
+      return S.of(context)!.The_unknown;
     }
   }
 
   String getUpgradeMethod() {
     switch (upgradeMethod) {
       case UpgradeMethod.all:
-        return S.of(context).Are_already_starting_to_all_updates;
-        break;
+        return S.of(context)!.Are_already_starting_to_all_updates;
       case UpgradeMethod.hot:
-        return S.of(context).Have_begun_to_hot_update;
-        break;
+        return S.of(context)!.Have_begun_to_hot_update;
       case UpgradeMethod.increment:
-        return S.of(context).Has_already_started_to_incremental_updates;
+        return S.of(context)!.Has_already_started_to_incremental_updates;
+      default:
         break;
     }
     return '';
@@ -590,13 +589,12 @@ class _MyAppState extends State<MyApp> {
   String getUpgradeMethodName() {
     switch (upgradeMethod) {
       case UpgradeMethod.all:
-        return S.of(context).Full_quantity_update;
-        break;
+        return S.of(context)!.Full_quantity_update;
       case UpgradeMethod.hot:
-        return S.of(context).Hot_update;
-        break;
+        return S.of(context)!.Hot_update;
       case UpgradeMethod.increment:
-        return S.of(context).Incremental_updating;
+        return S.of(context)!.Incremental_updating;
+      default:
         break;
     }
     return '';
@@ -635,12 +633,12 @@ class _MyAppState extends State<MyApp> {
 }
 
 class CircleDownloadWidget extends StatelessWidget {
-  final double progress;
-  final Widget child;
-  final Color backgroundColor;
+  final double? progress;
+  final Widget? child;
+  final Color? backgroundColor;
 
   const CircleDownloadWidget(
-      {Key key, this.progress, this.child, this.backgroundColor})
+      {Key? key, this.progress, this.child, this.backgroundColor})
       : super(key: key);
 
   @override
@@ -659,11 +657,11 @@ class CircleDownloadWidget extends StatelessWidget {
 }
 
 class CircleDownloadCustomPainter extends CustomPainter {
-  final Color backgroundColor;
+  final Color? backgroundColor;
   final Color color;
-  final double progress;
+  final double? progress;
 
-  Paint mPaint;
+  Paint? mPaint;
 
   CircleDownloadCustomPainter(this.backgroundColor, this.color, this.progress);
 
@@ -674,12 +672,12 @@ class CircleDownloadCustomPainter extends CustomPainter {
     double height = size.height;
 
     Rect progressRect =
-        Rect.fromLTRB(0, height * (1 - progress), width, height);
+        Rect.fromLTRB(0, height * (1 - progress!), width, height);
     Rect widgetRect = Rect.fromLTWH(0, 0, width, height);
     canvas.clipPath(Path()..addOval(widgetRect));
 
-    canvas.drawRect(widgetRect, mPaint..color = backgroundColor);
-    canvas.drawRect(progressRect, mPaint..color = color);
+    canvas.drawRect(widgetRect, mPaint!..color = backgroundColor!);
+    canvas.drawRect(progressRect, mPaint!..color = color);
   }
 
   @override

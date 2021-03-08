@@ -23,53 +23,77 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static m1(h1) => "${h1}s后完成";
 
-  final messages = _notInlinedMessages(_notInlinedMessages);
-  static _notInlinedMessages(_) => <String, Function> {
-    "Access_to_resources" : MessageLookupByLibrary.simpleMessage("获取资源中"),
-    "According_to_the_last_time_ID_escalation_applications" : MessageLookupByLibrary.simpleMessage("根据最后一次ID升级应用"),
-    "After_download_to_install" : MessageLookupByLibrary.simpleMessage("下载完进行安装"),
-    "Are_already_starting_to_all_updates" : MessageLookupByLibrary.simpleMessage("已经开始全量更新"),
-    "Began_to_download_the_incremental_updating" : MessageLookupByLibrary.simpleMessage("开始下载增量更新"),
-    "Cancel_the_success" : MessageLookupByLibrary.simpleMessage("取消成功"),
-    "Cancel_the_update" : MessageLookupByLibrary.simpleMessage("取消更新"),
-    "Continue_to_update" : MessageLookupByLibrary.simpleMessage("继续更新"),
-    "Currently_there_is_no_ID" : MessageLookupByLibrary.simpleMessage("当前没有ID可查"),
-    "Currently_there_is_no_ID_can_be_installed" : MessageLookupByLibrary.simpleMessage("当前没有ID可安装"),
-    "Currently_there_is_no_ID_can_be_upgraded" : MessageLookupByLibrary.simpleMessage("当前没有ID可升级"),
-    "Download_failed" : MessageLookupByLibrary.simpleMessage("下载失败"),
-    "Download_successful" : MessageLookupByLibrary.simpleMessage("下载成功"),
-    "Download_the_cancel" : MessageLookupByLibrary.simpleMessage("下载取消"),
-    "Download_the_suspended" : MessageLookupByLibrary.simpleMessage("下载暂停"),
-    "For_hot_update" : MessageLookupByLibrary.simpleMessage("进行热更新"),
-    "For_the_last_time_to_download_the_ID" : MessageLookupByLibrary.simpleMessage("获取最后一次下载的ID"),
-    "Full_quantity_update" : MessageLookupByLibrary.simpleMessage("全量更新"),
-    "Has_already_started_to_incremental_updates" : MessageLookupByLibrary.simpleMessage("已经开始增量更新"),
-    "Have_begun_to_hot_update" : MessageLookupByLibrary.simpleMessage("已经开始热更新"),
-    "History_related" : MessageLookupByLibrary.simpleMessage("历史相关"),
-    "Hot_update" : MessageLookupByLibrary.simpleMessage("热更新"),
-    "Hot_update_failed_please_wait_for_update_the_download_is_complete" : MessageLookupByLibrary.simpleMessage("热更新失败，请等待更新包下载完成"),
-    "Hot_update_is_successful_exit_the_application_after_3_s_please_re_enter" : MessageLookupByLibrary.simpleMessage("热更新成功，3s后退出应用，请重新进入"),
-    "Hot_update_related" : MessageLookupByLibrary.simpleMessage("热更新相关"),
-    "In_the_download" : MessageLookupByLibrary.simpleMessage("下载中"),
-    "Incremental_updating" : MessageLookupByLibrary.simpleMessage("增量更新"),
-    "Incremental_updating_failed" : MessageLookupByLibrary.simpleMessage("增量更新失败!"),
-    "Install_all_updates" : MessageLookupByLibrary.simpleMessage("安装全量更新"),
-    "Jump_to_the_app_store" : MessageLookupByLibrary.simpleMessage("跳转到应用商店"),
-    "Jump_to_the_link_updated" : MessageLookupByLibrary.simpleMessage("跳转到链接更新"),
-    "Look_at_the_last_time_ID_download_status" : MessageLookupByLibrary.simpleMessage("查看最后一次ID的下载状态"),
-    "No_ID_last_time_to_download" : MessageLookupByLibrary.simpleMessage("没有最后一次下载的ID"),
-    "Please_click_on_start_hot_update" : MessageLookupByLibrary.simpleMessage("请点击开始热更新"),
-    "Please_click_on_start_incremental_updates" : MessageLookupByLibrary.simpleMessage("请点击开始增量更新"),
-    "Please_make_" : m0,
-    "Start_download_hot_update" : MessageLookupByLibrary.simpleMessage("开始下载热更新"),
-    "Starting_to_all_updates" : MessageLookupByLibrary.simpleMessage("开始全量更新"),
-    "Suspension_of_success" : MessageLookupByLibrary.simpleMessage("暂停成功"),
-    "The_current_ID_not_download" : MessageLookupByLibrary.simpleMessage("当前ID未完成下载"),
-    "The_request_is_successful" : MessageLookupByLibrary.simpleMessage("请求成功"),
-    "The_s_after_finish" : m1,
-    "The_unknown" : MessageLookupByLibrary.simpleMessage("未知"),
-    "Update_the_related" : MessageLookupByLibrary.simpleMessage("更新相关"),
-    "Waiting_for_download" : MessageLookupByLibrary.simpleMessage("等待下载"),
-    "updated" : MessageLookupByLibrary.simpleMessage("暂停更新")
-  };
+  final Map<String, dynamic> messages =
+      _notInlinedMessages(_notInlinedMessages);
+  static _notInlinedMessages(_) => <String, Function>{
+        "Access_to_resources": MessageLookupByLibrary.simpleMessage("获取资源中"),
+        "According_to_the_last_time_ID_escalation_applications":
+            MessageLookupByLibrary.simpleMessage("根据最后一次ID升级应用"),
+        "After_download_to_install":
+            MessageLookupByLibrary.simpleMessage("下载完进行安装"),
+        "Are_already_starting_to_all_updates":
+            MessageLookupByLibrary.simpleMessage("已经开始全量更新"),
+        "Began_to_download_the_incremental_updating":
+            MessageLookupByLibrary.simpleMessage("开始下载增量更新"),
+        "Cancel_the_success": MessageLookupByLibrary.simpleMessage("取消成功"),
+        "Cancel_the_update": MessageLookupByLibrary.simpleMessage("取消更新"),
+        "Continue_to_update": MessageLookupByLibrary.simpleMessage("继续更新"),
+        "Currently_there_is_no_ID":
+            MessageLookupByLibrary.simpleMessage("当前没有ID可查"),
+        "Currently_there_is_no_ID_can_be_installed":
+            MessageLookupByLibrary.simpleMessage("当前没有ID可安装"),
+        "Currently_there_is_no_ID_can_be_upgraded":
+            MessageLookupByLibrary.simpleMessage("当前没有ID可升级"),
+        "Download_failed": MessageLookupByLibrary.simpleMessage("下载失败"),
+        "Download_successful": MessageLookupByLibrary.simpleMessage("下载成功"),
+        "Download_the_cancel": MessageLookupByLibrary.simpleMessage("下载取消"),
+        "Download_the_suspended": MessageLookupByLibrary.simpleMessage("下载暂停"),
+        "For_hot_update": MessageLookupByLibrary.simpleMessage("进行热更新"),
+        "For_the_last_time_to_download_the_ID":
+            MessageLookupByLibrary.simpleMessage("获取最后一次下载的ID"),
+        "Full_quantity_update": MessageLookupByLibrary.simpleMessage("全量更新"),
+        "Has_already_started_to_incremental_updates":
+            MessageLookupByLibrary.simpleMessage("已经开始增量更新"),
+        "Have_begun_to_hot_update":
+            MessageLookupByLibrary.simpleMessage("已经开始热更新"),
+        "History_related": MessageLookupByLibrary.simpleMessage("历史相关"),
+        "Hot_update": MessageLookupByLibrary.simpleMessage("热更新"),
+        "Hot_update_failed_please_wait_for_update_the_download_is_complete":
+            MessageLookupByLibrary.simpleMessage("热更新失败，请等待更新包下载完成"),
+        "Hot_update_is_successful_exit_the_application_after_3_s_please_re_enter":
+            MessageLookupByLibrary.simpleMessage("热更新成功，3s后退出应用，请重新进入"),
+        "Hot_update_related": MessageLookupByLibrary.simpleMessage("热更新相关"),
+        "In_the_download": MessageLookupByLibrary.simpleMessage("下载中"),
+        "Incremental_updating": MessageLookupByLibrary.simpleMessage("增量更新"),
+        "Incremental_updating_failed":
+            MessageLookupByLibrary.simpleMessage("增量更新失败!"),
+        "Install_all_updates": MessageLookupByLibrary.simpleMessage("安装全量更新"),
+        "Jump_to_the_app_store":
+            MessageLookupByLibrary.simpleMessage("跳转到应用商店"),
+        "Jump_to_the_link_updated":
+            MessageLookupByLibrary.simpleMessage("跳转到链接更新"),
+        "Look_at_the_last_time_ID_download_status":
+            MessageLookupByLibrary.simpleMessage("查看最后一次ID的下载状态"),
+        "No_ID_last_time_to_download":
+            MessageLookupByLibrary.simpleMessage("没有最后一次下载的ID"),
+        "Please_click_on_start_hot_update":
+            MessageLookupByLibrary.simpleMessage("请点击开始热更新"),
+        "Please_click_on_start_incremental_updates":
+            MessageLookupByLibrary.simpleMessage("请点击开始增量更新"),
+        "Please_make_": m0,
+        "Start_download_hot_update":
+            MessageLookupByLibrary.simpleMessage("开始下载热更新"),
+        "Starting_to_all_updates":
+            MessageLookupByLibrary.simpleMessage("开始全量更新"),
+        "Suspension_of_success": MessageLookupByLibrary.simpleMessage("暂停成功"),
+        "The_current_ID_not_download":
+            MessageLookupByLibrary.simpleMessage("当前ID未完成下载"),
+        "The_request_is_successful":
+            MessageLookupByLibrary.simpleMessage("请求成功"),
+        "The_s_after_finish": m1,
+        "The_unknown": MessageLookupByLibrary.simpleMessage("未知"),
+        "Update_the_related": MessageLookupByLibrary.simpleMessage("更新相关"),
+        "Waiting_for_download": MessageLookupByLibrary.simpleMessage("等待下载"),
+        "updated": MessageLookupByLibrary.simpleMessage("暂停更新")
+      };
 }
