@@ -7,13 +7,13 @@ import 'dart:io';
 import 'package:flutter/services.dart';
 
 class RUpgrade {
-  static MethodChannel __methodChannel;
+  static MethodChannel? __methodChannel;
 
   /// single
-  static MethodChannel get _methodChannel {
+  static MethodChannel? get _methodChannel {
     if (__methodChannel == null) {
       __methodChannel = MethodChannel('com.rhyme/r_upgrade_method');
-      __methodChannel.setMethodCallHandler(_methodCallHandler);
+      __methodChannel!.setMethodCallHandler(_methodCallHandler);
     }
     return __methodChannel;
   }
@@ -28,7 +28,7 @@ class RUpgrade {
 
   /// [isDebug] is true will print log.
   static Future<void> setDebug(bool isDebug) async {
-    return _methodChannel.invokeMethod('setDebug', {
+    return _methodChannel!.invokeMethod('setDebug', {
       'isDebug': isDebug,
     });
   }
@@ -39,8 +39,8 @@ class RUpgrade {
   ///
   ///  [url] your website url
   ///
-  static Future<bool> upgradeFromUrl(String url) async {
-    return await _methodChannel.invokeMethod("upgradeFromUrl", {
+  static Future<bool?> upgradeFromUrl(String url) async {
+    return await _methodChannel!.invokeMethod("upgradeFromUrl", {
       'url': url,
     });
   }
@@ -51,10 +51,10 @@ class RUpgrade {
   ///
   ///  [stores] if null,show all store list
   ///
-  static Future<bool> upgradeFromAndroidStore(AndroidStore store) async {
+  static Future<bool?> upgradeFromAndroidStore(AndroidStore store) async {
     assert(Platform.isAndroid, 'This method only support android application');
-    return await _methodChannel.invokeMethod("upgradeFromAndroidStore", {
-      'stores': store?._packageName,
+    return await _methodChannel!.invokeMethod("upgradeFromAndroidStore", {
+      'stores': store._packageName,
     });
   }
 
@@ -87,10 +87,10 @@ class RUpgrade {
   /// * [useDownloadManager] if true will use DownloadManager,false will use my service ,
   /// *         if true will no use [pause] , [upgradeWithId] , [getDownloadStatus] , [getLastUpgradedId] methods.
   /// * [upgradeFlavor] you can use [RUpgradeFlavor.normal] , [RUpgradeFlavor.hotUpgrade] , [RUpgradeFlavor.incrementUpgrade] flavor
-  static Future<int> upgrade(
+  static Future<int?> upgrade(
     String url, {
-    Map<String, String> header,
-    String fileName,
+    Map<String, String>? header,
+    String? fileName,
     NotificationVisibility notificationVisibility =
         NotificationVisibility.VISIBILITY_VISIBLE,
     NotificationStyle notificationStyle = NotificationStyle.planTime,
@@ -99,15 +99,15 @@ class RUpgrade {
     RUpgradeFlavor upgradeFlavor = RUpgradeFlavor.normal,
   }) {
     assert(Platform.isAndroid, 'This method only support android application');
-    return _methodChannel.invokeMethod('upgrade', {
+    return _methodChannel!.invokeMethod('upgrade', {
       'url': url,
       "header": header,
       "fileName": fileName,
-      "notificationVisibility": notificationVisibility?.value,
-      "notificationStyle": notificationStyle?.index,
+      "notificationVisibility": notificationVisibility.value,
+      "notificationStyle": notificationStyle.index,
       "isAutoRequestInstall": isAutoRequestInstall,
       "useDownloadManager": useDownloadManager,
-      "upgradeFlavor": upgradeFlavor?.index,
+      "upgradeFlavor": upgradeFlavor.index,
     });
   }
 
@@ -115,9 +115,9 @@ class RUpgrade {
   ///
   /// Cancel by the [id] download task .
   ///
-  static Future<bool> cancel(int id) {
+  static Future<bool?> cancel(int id) {
     assert(Platform.isAndroid, 'This method only support android application');
-    return _methodChannel.invokeMethod('cancel', {
+    return _methodChannel!.invokeMethod('cancel', {
       'id': id,
     });
   }
@@ -126,9 +126,9 @@ class RUpgrade {
   ///
   /// Install your apk by [id].
   ///
-  static Future<bool> install(int id) async {
+  static Future<bool?> install(int id) async {
     assert(Platform.isAndroid, 'This method only support android application');
-    return await _methodChannel.invokeMethod("install", {
+    return await _methodChannel!.invokeMethod("install", {
       'id': id,
     });
   }
@@ -137,9 +137,9 @@ class RUpgrade {
   ///
   /// Pause by the [id] download task ,only use to [upgrade] params [useDownloadManager] is false.
   ///
-  static Future<bool> pause(int id) {
+  static Future<bool?> pause(int id) {
     assert(Platform.isAndroid, 'This method only support android application');
-    return _methodChannel.invokeMethod('pause', {
+    return _methodChannel!.invokeMethod('pause', {
       'id': id,
     });
   }
@@ -153,14 +153,14 @@ class RUpgrade {
   /// * if download status is [STATUS_SUCCESSFUL] , will install apk.
   ///
   /// * if not found the id , will return [false].
-  static Future<bool> upgradeWithId(
+  static Future<bool?> upgradeWithId(
     int id, {
     NotificationVisibility notificationVisibility =
         NotificationVisibility.VISIBILITY_VISIBLE,
     bool isAutoRequestInstall = true,
   }) async {
     assert(Platform.isAndroid, 'This method only support android application');
-    return await _methodChannel.invokeMethod("upgradeWithId", {
+    return await _methodChannel!.invokeMethod("upgradeWithId", {
       "id": id,
       "notificationVisibility": notificationVisibility.value,
       "isAutoRequestInstall": isAutoRequestInstall,
@@ -171,9 +171,9 @@ class RUpgrade {
   ///
   /// Get download status by ID , only use to [upgrade] params [useDownloadManager] is false.
   ///
-  static Future<DownloadStatus> getDownloadStatus(int id) async {
+  static Future<DownloadStatus?> getDownloadStatus(int id) async {
     assert(Platform.isAndroid, 'This method only support android application');
-    int result = await _methodChannel.invokeMethod("getDownloadStatus", {
+    int? result = await _methodChannel!.invokeMethod("getDownloadStatus", {
       "id": id,
     });
     return result == null ? null : DownloadStatus._internal(result);
@@ -183,18 +183,18 @@ class RUpgrade {
   ///
   /// Get the ID of the last upgrade by version name and version code , only use to [upgrade] params [useDownloadManager] is false.
   ///
-  static Future<int> getLastUpgradedId() async {
+  static Future<int?> getLastUpgradedId() async {
     assert(Platform.isAndroid, 'This method only support android application');
-    return await _methodChannel.invokeMethod('getLastUpgradedId');
+    return await _methodChannel!.invokeMethod('getLastUpgradedId');
   }
 
   /// IOS
   ///
   /// [appId] your appId in appStore
   ///
-  static Future<bool> upgradeFromAppStore(String appId) async {
+  static Future<bool?> upgradeFromAppStore(String appId) async {
     assert(Platform.isIOS, 'This method only support ios application');
-    return await _methodChannel.invokeMethod("upgradeFromAppStore", {
+    return await _methodChannel!.invokeMethod("upgradeFromAppStore", {
       'appId': appId,
     });
   }
@@ -203,9 +203,9 @@ class RUpgrade {
   ///
   /// [id] your appId in appStore
   ///
-  static Future<String> getVersionFromAppStore(String appId) async {
+  static Future<String?> getVersionFromAppStore(String appId) async {
     assert(Platform.isIOS, 'This method only support ios application');
-    return await _methodChannel.invokeMethod("getVersionFromAppStore", {
+    return await _methodChannel!.invokeMethod("getVersionFromAppStore", {
       'appId': appId,
     });
   }
@@ -224,14 +224,14 @@ class RUpgrade {
 /// * [speed] download speed kb/s
 ///
 class DownloadInfo {
-  final int maxLength;
-  final int currentLength;
-  final String path;
-  final double planTime;
-  final double percent;
-  final int id;
-  final double speed;
-  final DownloadStatus status;
+  final int? maxLength;
+  final int? currentLength;
+  final String? path;
+  final double? planTime;
+  final double? percent;
+  final int? id;
+  final double? speed;
+  final DownloadStatus? status;
 
   DownloadInfo(
       {this.maxLength,
@@ -271,9 +271,9 @@ class DownloadInfo {
 /// * [STATUS_CANCEL] download cancel
 ///
 class DownloadStatus {
-  final int _value;
+  final int? _value;
 
-  int get value => _value;
+  int? get value => _value;
 
   const DownloadStatus._internal(this._value);
 
@@ -286,9 +286,15 @@ class DownloadStatus {
   static const STATUS_FAILED = const DownloadStatus._internal(4);
   static const STATUS_CANCEL = const DownloadStatus._internal(5);
 
-  get hashCode => _value;
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is DownloadStatus &&
+          runtimeType == other.runtimeType &&
+          _value == other._value;
 
-  operator ==(status) => status._value == this._value;
+  @override
+  int get hashCode => _value.hashCode;
 
   toString() => 'DownloadStatus($_value)';
 }
@@ -308,9 +314,15 @@ class NotificationVisibility {
 
   int get value => _value;
 
-  get hashCode => _value;
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is NotificationVisibility &&
+          runtimeType == other.runtimeType &&
+          _value == other._value;
 
-  operator ==(status) => status._packageName == this._value;
+  @override
+  int get hashCode => _value.hashCode;
 
   toString() => 'NotificationVisibility($_value)';
 
