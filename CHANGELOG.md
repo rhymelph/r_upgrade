@@ -1,3 +1,5 @@
+## 0.3.4
+* fix 301/302 download error, larger then Android N network disconnect turn to connect download recovery.
 ## 0.3.3
 * adapter null safety.
 ## 0.3.2+3

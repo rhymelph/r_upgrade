@@ -21,6 +21,8 @@ Android and IOS upgrade plugin.
 - [✔] `IOS` Jump to Appstore upgrade according to appid
 - [✔] `IOS` Get the current online version of Appstore according to appid
 
+> For the development of this plug-in, I haven't had a good meal for a long time. I hope you can click on the sponsor and give a little bit of money. Thank you!
+
 ## Getting Started
 
 ### 1. Use Plugin:

@@ -266,6 +266,10 @@ public class UpgradeManager extends ContextWrapper {
                     break;
                 case DownloadManager.STATUS_SUCCESSFUL:
                     RUpgradeLogger.get().d(TAG, "queryTask: 下载成功");
+                    if (timer != null) {
+                        timer.cancel();
+                        timer = null;
+                    }
                     if (isAutoRequestInstall) {
                         installApkById((int) id);
                     }
@@ -322,8 +326,10 @@ public class UpgradeManager extends ContextWrapper {
                     return;
                 }
                 if (intent != null && intent.getAction() != null && intent.getAction().equals(DownloadManager.ACTION_DOWNLOAD_COMPLETE)) {
-                    timer.cancel();
-                    timer = null;
+                    if (timer != null) {
+                        timer.cancel();
+                        timer = null;
+                    }
                     long id = intent.getLongExtra("extra_download_id", 0);
                     queryTask(id);
                 } else if (intent != null && intent.getAction() != null && intent.getAction().equals(UpgradeManager.DOWNLOAD_STATUS)) {

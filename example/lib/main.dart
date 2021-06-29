@@ -178,7 +178,6 @@ class _MyAppState extends State<MyApp> {
                     .showSnackBar(SnackBar(content: Text(getUpgradeMethod())));
                 return;
               }
-
 //              if (!await canReadStorage()) return;
               id = await RUpgrade.upgrade(
 //                "http://192.168.1.105:8888/files/static/kuan.apk",
@@ -187,7 +186,7 @@ class _MyAppState extends State<MyApp> {
                   fileName: 'r_upgrade.apk',
                   isAutoRequestInstall: isAutoRequestInstall!,
                   notificationStyle: NotificationStyle.speechAndPlanTime,
-                  useDownloadManager: false);
+                  useDownloadManager: true);
               upgradeMethod = UpgradeMethod.all;
               setState(() {});
             },

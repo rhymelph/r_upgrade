@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
+import android.net.Network;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
@@ -25,6 +26,7 @@ import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.math.BigDecimal;
 import java.net.HttpURLConnection;
+import java.net.ProtocolException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -58,13 +60,13 @@ public class UpgradeService extends Service {
 
 
     private static final String TAG = "r_upgrade.Service";
-    private Executor mExecutor = Executors.newSingleThreadExecutor();
+    private final Executor mExecutor = Executors.newSingleThreadExecutor();
     private UpgradeSQLite sqLite;
     private UpgradeRunnable runnable;
     private UpgradeService service;
     private boolean isFirst = true;
 
-    private BroadcastReceiver actionReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver actionReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             String packageName = intent.getStringExtra(PARAMS_PACKAGE);
@@ -84,27 +86,12 @@ public class UpgradeService extends Service {
             } else if (intent != null && intent.getAction() != null && intent.getAction().equals(ConnectivityManager.CONNECTIVITY_ACTION)) {
                 ConnectivityManager conMgr = (ConnectivityManager) context.getSystemService(CONNECTIVITY_SERVICE);
                 NetworkInfo info = ConnectivityManagerCompat.getNetworkInfoFromBroadcast(conMgr, intent);
-                if (info != null && info.isConnected()) {
-                    RUpgradeLogger.get().d(TAG, "onReceive: 当前网络正在连接");
-                    if (isFirst) {
-                        isFirst = false;
-                        return;
-                    }
-                    long id = runnable.id;
-                    runnable = new UpgradeRunnable(true, (long) id, runnable.url, runnable.header, runnable.apkName, service, sqLite);
-                    mExecutor.execute(runnable);
-                } else {
-                    if (isFirst) {
-                        isFirst = false;
-                        return;
-                    }
-                    runnable.pause(-1);
-                    isFirst = false;
-                    RUpgradeLogger.get().d(TAG, "onReceive: 当前网络已断开");
-                }
+                handleNetworkChange(info != null && info.isConnected());
             }
         }
     };
+    private ConnectivityManager.NetworkCallback networkCallback;
+
     public static final String RECEIVER_CANCEL = "com.example.r_upgrade.RECEIVER_CANCEL";
     public static final String RECEIVER_PAUSE = "com.example.r_upgrade.RECEIVER_PAUSE";
     public static final String RECEIVER_RESTART = "com.example.r_upgrade.RECEIVER_RESTART";
@@ -123,9 +110,52 @@ public class UpgradeService extends Service {
         filter.addAction(RECEIVER_CANCEL);
         filter.addAction(RECEIVER_RESTART);
         filter.addAction(RECEIVER_PAUSE);
-        filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            ConnectivityManager conMgr = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+            networkCallback = new ConnectivityManager.NetworkCallback() {
+                @Override
+                public void onAvailable(Network network) {
+                    super.onAvailable(network);
+                    ConnectivityManager conMgr = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+                    NetworkInfo info = conMgr.getNetworkInfo(network);
+                    handleNetworkChange(info != null && info.isConnected());
+                }
+
+                @Override
+                public void onLost(Network network) {
+                    super.onLost(network);
+                    ConnectivityManager conMgr = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+                    NetworkInfo info = conMgr.getNetworkInfo(network);
+                    handleNetworkChange(info != null && info.isConnected());
+                }
+            };
+            conMgr.registerDefaultNetworkCallback(networkCallback);
+        } else {
+            filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+        }
         registerReceiver(actionReceiver, filter);
 
+    }
+
+    private void handleNetworkChange(boolean isConnected) {
+        if (isConnected) {
+            RUpgradeLogger.get().d(TAG, "onReceive: 当前网络正在连接");
+            if (isFirst) {
+                isFirst = false;
+                return;
+            }
+            long id = runnable.id;
+            runnable = new UpgradeRunnable(true, (long) id, runnable.url, runnable.header, runnable.apkName, service, sqLite);
+            mExecutor.execute(runnable);
+        } else {
+            if (isFirst) {
+                isFirst = false;
+                return;
+            }
+            runnable.pause(-1);
+            isFirst = false;
+            RUpgradeLogger.get().d(TAG, "onReceive: 当前网络已断开");
+        }
     }
 
     @Override
@@ -136,9 +166,9 @@ public class UpgradeService extends Service {
         String url = bundle.getString(DOWNLOAD_URL);
         int id = bundle.getInt(DOWNLOAD_ID);
 
-        Map<String, Object> header = null;
+        Map<String, Object> header;
         if (bundle.getString(DOWNLOAD_Header) != null) {
-            getMapForJson(bundle.getString(DOWNLOAD_Header));
+            header = getMapForJson(bundle.getString(DOWNLOAD_Header));
         } else {
             header = (Map<String, Object>) bundle.getSerializable(DOWNLOAD_Header);
         }
@@ -166,7 +196,7 @@ public class UpgradeService extends Service {
 
     private static class UpgradeRunnable implements Runnable {
         private String url;
-        private Long id = null;
+        private Long id;
         private Map<String, Object> header;
         private String apkName;
         private UpgradeService upgradeService;
@@ -208,7 +238,9 @@ public class UpgradeService extends Service {
                 }
                 isRunning = false;
                 handlerDownloadCancel();
-                downloadFile.delete();
+                boolean isSuccess = downloadFile.delete();
+                RUpgradeLogger.get().d(TAG, "cancel: delete download file " + isSuccess);
+
             }
         }
 
@@ -258,7 +290,8 @@ public class UpgradeService extends Service {
                     //下载的文件已被删除
                     if (!downloadFile.exists()) {
                         try {
-                            downloadFile.createNewFile();
+                            boolean isSuccess = downloadFile.createNewFile();
+                            RUpgradeLogger.get().d(TAG, "handlerDownloadPending: download file create " + isSuccess);
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -397,6 +430,69 @@ public class UpgradeService extends Service {
             upgradeService.sendBroadcast(intent);
         }
 
+        private InputStream getInputStreamFromUrl(String inputUrl) throws IOException {
+            InputStream is = null;
+            URL url = new URL(inputUrl);
+            int code;
+            if (inputUrl.startsWith("https")) {
+                HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
+                connection.setRequestMethod("GET");
+                connection.setReadTimeout(6 * 60 * 1000);
+                connection.setConnectTimeout(6 * 60 * 1000);
+                if (header != null && !header.isEmpty()) {
+                    for (Map.Entry<String, Object> entry : header.entrySet()) {
+                        connection.setRequestProperty(entry.getKey(), (String) entry.getValue());
+                    }
+                }
+                if (!isNewDownload) {
+                    connection.setRequestProperty("range", "bytes=" + currentLength + "-");
+                }
+                connection.setSSLSocketFactory((SSLSocketFactory) SSLSocketFactory.getDefault());
+                connection.setDoInput(true);
+                code = connection.getResponseCode();
+                RUpgradeLogger.get().d(TAG, "run: code=" + code);
+                if (code == 200 || code == 206) {
+                    connection.connect();
+                    is = connection.getInputStream();
+                    if (isNewDownload) {
+                        maxLength = connection.getContentLength();
+                    }
+                } else if (code == 301 || code == 302) {
+                    URL redirectUrl = connection.getURL();
+                    RUpgradeLogger.get().d(TAG, "redirect to: " + redirectUrl.toString());
+                    is = getInputStreamFromUrl(redirectUrl.toString());
+                }
+            } else {
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("GET");
+                connection.setConnectTimeout(6 * 60 * 1000);
+                connection.setReadTimeout(6 * 60 * 1000);
+                if (header != null && !header.isEmpty()) {
+                    for (Map.Entry<String, Object> entry : header.entrySet()) {
+                        connection.setRequestProperty(entry.getKey(), (String) entry.getValue());
+                    }
+                }
+                if (!isNewDownload) {
+                    connection.setRequestProperty("range", "bytes=" + currentLength + "-");
+                }
+                connection.setDoInput(true);
+                code = connection.getResponseCode();
+                RUpgradeLogger.get().d(TAG, "run: code=" + code);
+                if (code == 200 || code == 206) {
+                    connection.connect();
+                    is = connection.getInputStream();
+                    if (isNewDownload) {
+                        maxLength = connection.getContentLength();
+                    }
+                } else if (code == 301 || code == 302) {
+                    URL redirectUrl = connection.getURL();
+                    RUpgradeLogger.get().d(TAG, "redirect to: " + redirectUrl.toString());
+                    is = getInputStreamFromUrl(redirectUrl.toString());
+                }
+            }
+            return is;
+        }
+
         @Override
         public void run() {
             isNewDownload = handlerDownloadPending();
@@ -420,66 +516,17 @@ public class UpgradeService extends Service {
 
             try {
                 if (isNewDownload) {
-                    fos = new FileOutputStream(downloadFile);
-                    if (!downloadFile.exists()) {
-                        downloadFile.createNewFile();
+                    if (downloadFile.exists()) {
+                        downloadFile.delete();
                     }
+                    downloadFile.createNewFile();
+                    fos = new FileOutputStream(downloadFile);
                 } else {
                     raf = new RandomAccessFile(downloadFile, "rwd");
                     raf.seek(currentLength);
                 }
-
-                URL url = new URL(this.url);
-                int code;
-                if (this.url.startsWith("https")) {
-                    HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
-                    connection.setRequestMethod("GET");
-                    connection.setReadTimeout(6 * 60 * 1000);
-                    connection.setConnectTimeout(6 * 60 * 1000);
-                    if (header != null && !header.isEmpty()) {
-                        for (Map.Entry<String, Object> entry : header.entrySet()) {
-                            connection.setRequestProperty(entry.getKey(), (String) entry.getValue());
-                        }
-                    }
-                    if (!isNewDownload) {
-                        connection.setRequestProperty("range", "bytes=" + currentLength + "-");
-                    }
-                    connection.setSSLSocketFactory((SSLSocketFactory) SSLSocketFactory.getDefault());
-                    connection.setDoInput(true);
-                    code = connection.getResponseCode();
-                    RUpgradeLogger.get().d(TAG, "run: code=" + code);
-                    if (code == 200 || code == 206) {
-                        connection.connect();
-                        is = connection.getInputStream();
-                        if (isNewDownload) {
-                            maxLength = connection.getContentLength();
-                        }
-                    }
-                } else {
-                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                    connection.setRequestMethod("GET");
-                    connection.setConnectTimeout(6 * 60 * 1000);
-                    connection.setReadTimeout(6 * 60 * 1000);
-                    if (header != null && !header.isEmpty()) {
-                        for (Map.Entry<String, Object> entry : header.entrySet()) {
-                            connection.setRequestProperty(entry.getKey(), (String) entry.getValue());
-                        }
-                    }
-                    if (!isNewDownload) {
-                        connection.setRequestProperty("range", "bytes=" + currentLength + "-");
-                    }
-                    connection.setDoInput(true);
-                    code = connection.getResponseCode();
-                    RUpgradeLogger.get().d(TAG, "run: code=" + code);
-                    if (code == 200 || code == 206) {
-                        connection.connect();
-                        is = connection.getInputStream();
-                        if (isNewDownload) {
-                            maxLength = connection.getContentLength();
-                        }
-                    }
-                }
-                if (code != 200 && code != 206) {
+                is = getInputStreamFromUrl(this.url);
+                if (is == null) {
                     handlerDownloadFailure();
                     return;
                 }
@@ -538,9 +585,9 @@ public class UpgradeService extends Service {
                         ex.printStackTrace();
                     }
                 }
-                //防止断网的情况，出现下载失败，而不是下载暂停
+                //防止断网的情况，出现下载失败，而不是下载暂停的问题
                 try {
-                    Thread.sleep(500);
+                    Thread.sleep(1000);
                 } catch (InterruptedException ex) {
                     ex.printStackTrace();
                 }

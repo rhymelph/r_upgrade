@@ -61,6 +61,7 @@ public class RUpgradePlugin implements FlutterPlugin, ActivityAware {
 
     @Override
     public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
+        onDetachedFromActivity();
         flutterPluginBinding = null;
     }
 
