@@ -191,22 +191,28 @@ class RUpgrade {
   /// IOS
   ///
   /// [appId] your appId in appStore
+  /// [isChina] if true ,will check this link https://itunes.apple.com/cn/lookup.
   ///
-  static Future<bool?> upgradeFromAppStore(String appId) async {
+  static Future<bool?> upgradeFromAppStore(String appId,
+      [bool isChina = true]) async {
     assert(Platform.isIOS, 'This method only support ios application');
     return await _methodChannel!.invokeMethod("upgradeFromAppStore", {
       'appId': appId,
+      'isChina': isChina,
     });
   }
 
   /// IOS
   ///
   /// [id] your appId in appStore
+  /// [isChina] if true ,will check this link https://itunes.apple.com/cn/lookup.
   ///
-  static Future<String?> getVersionFromAppStore(String appId) async {
+  static Future<String?> getVersionFromAppStore(String appId,
+      [bool isChina = true]) async {
     assert(Platform.isIOS, 'This method only support ios application');
     return await _methodChannel!.invokeMethod("getVersionFromAppStore", {
       'appId': appId,
+      'isChina': isChina,
     });
   }
 }

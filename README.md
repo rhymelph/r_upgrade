@@ -265,6 +265,7 @@ enum NotificationStyle {
     void upgradeFromAppStore() async {
         bool isSuccess =await RUpgrade.upgradeFromAppStore(
                  'your AppId',//such as:WeChat AppId:414478124
+                 false
               );
         print(isSuccess);
     }
@@ -275,6 +276,7 @@ enum NotificationStyle {
     void getVersionFromAppStore() async {
         String versionName = await RUpgrade.getVersionFromAppStore(
                 'your AppId',//such as:WeChat AppId:414478124
+                false
                );
         print(versionName);
     }
