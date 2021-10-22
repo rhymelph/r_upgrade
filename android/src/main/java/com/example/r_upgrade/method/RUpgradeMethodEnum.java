@@ -36,12 +36,7 @@ public enum RUpgradeMethodEnum implements IRUpgradeMethodHandler {
             result.success(upgradeManager.upgradeFromUrl((String) call.argument("url")));
         }
     },
-    upgradeFromAndroidStore {
-        @Override
-        public void handler(UpgradeManager upgradeManager, MethodCall call, MethodChannel.Result result) {
-            result.success(upgradeManager.upgradeFromAndroidStore((String) call.argument("stores")));
-        }
-    },
+
     cancel {
         @Override
         public void handler(UpgradeManager upgradeManager, MethodCall call, MethodChannel.Result result) {
@@ -80,5 +75,23 @@ public enum RUpgradeMethodEnum implements IRUpgradeMethodHandler {
             result.success(upgradeManager.getLastUpgradedId());
         }
     },
+    upgradeFromAndroidStore {
+        @Override
+        public void handler(UpgradeManager upgradeManager, MethodCall call, MethodChannel.Result result) {
+            result.success(upgradeManager.upgradeFromAndroidStore((String) call.argument("store")));
+        }
+    },
+    androidStores{
+        @Override
+        public void handler(UpgradeManager upgradeManager, MethodCall call, MethodChannel.Result result) {
+            result.success(upgradeManager.getAndroidStores());
+        }
+    },
+    getVersionFromAndroidStore{
+        @Override
+        public void handler(UpgradeManager upgradeManager, MethodCall call, MethodChannel.Result result) {
+            upgradeManager.getVersionFromAndroidStore((String) call.argument("store"),result);
+        }
+    }
 
 }

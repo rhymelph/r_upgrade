@@ -375,7 +375,9 @@ public class UpgradeService extends Service {
 
         private void handlerDownloadCancel() {
             RUpgradeLogger.get().d(TAG, "handlerDownloadCancel: ");
-            timer.cancel();
+            if (timer != null) {
+                timer.cancel();
+            }
             Intent intent = new Intent();
             intent.setAction(DOWNLOAD_STATUS);
             intent.putExtra(PARAMS_ID, id);
@@ -396,16 +398,24 @@ public class UpgradeService extends Service {
             intent.setAction(DOWNLOAD_STATUS);
             intent.putExtra(PARAMS_ID, id);
             intent.putExtra(PARAMS_APK_NAME, apkName);
-            intent.putExtra(PARAMS_PATH, downloadFile.getPath());
+            if (downloadFile != null) {
+                intent.putExtra(PARAMS_PATH, downloadFile.getPath());
+            }
             intent.putExtra(PARAMS_STATUS, DownloadStatus.STATUS_PAUSED.getValue());
-            intent.putExtra(PARAMS_PACKAGE, upgradeService.getPackageName());
-            upgradeService.sendBroadcast(intent);
-            sqLite.update(id, currentLength, maxLength, DownloadStatus.STATUS_PAUSED.getValue());
+            if (upgradeService != null) {
+                intent.putExtra(PARAMS_PACKAGE, upgradeService.getPackageName());
+                upgradeService.sendBroadcast(intent);
+            }
+            if (sqLite != null) {
+                sqLite.update(id, currentLength, maxLength, DownloadStatus.STATUS_PAUSED.getValue());
+            }
         }
 
         private void handlerDownloadFinish() {
             RUpgradeLogger.get().d(TAG, "handlerDownloadFinish: finish");
-            timer.cancel();
+            if (timer != null) {
+                timer.cancel();
+            }
             Intent intent = new Intent();
             intent.setAction(DOWNLOAD_STATUS);
             intent.putExtra(PARAMS_ID, id);

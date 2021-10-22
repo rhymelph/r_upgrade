@@ -7,7 +7,7 @@
 // ignore_for_file:unnecessary_brace_in_string_interps, unnecessary_new
 // ignore_for_file:prefer_single_quotes,comment_references, directives_ordering
 // ignore_for_file:annotate_overrides,prefer_generic_function_type_aliases
-// ignore_for_file:unused_import, file_names
+// ignore_for_file:unused_import, file_names, avoid_escaping_inner_quotes
 
 import 'package:intl/intl.dart';
 import 'package:intl/message_lookup_by_library.dart';
@@ -19,13 +19,12 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'en';
 
-  static m0(h1) => "Please ${h1}";
+  static String m0(h1) => "Please ${h1}";
 
-  static m1(h1) => "${h1} s after finish";
+  static String m1(h1) => "${h1} s after finish";
 
-  final Map<String, dynamic> messages =
-      _notInlinedMessages(_notInlinedMessages);
-  static _notInlinedMessages(_) => <String, Function>{
+  final messages = _notInlinedMessages(_notInlinedMessages);
+  static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
         "Access_to_resources":
             MessageLookupByLibrary.simpleMessage("Access to resources,"),
         "According_to_the_last_time_ID_escalation_applications":
@@ -124,6 +123,10 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Update the related"),
         "Waiting_for_download":
             MessageLookupByLibrary.simpleMessage("Waiting for download"),
+        "getAndroidStore":
+            MessageLookupByLibrary.simpleMessage("Get Android Store"),
+        "getVersionFromAndroidStore": MessageLookupByLibrary.simpleMessage(
+            "Get Version From Android Store"),
         "updated": MessageLookupByLibrary.simpleMessage("updated")
       };
 }

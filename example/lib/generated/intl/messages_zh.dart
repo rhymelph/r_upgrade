@@ -7,7 +7,7 @@
 // ignore_for_file:unnecessary_brace_in_string_interps, unnecessary_new
 // ignore_for_file:prefer_single_quotes,comment_references, directives_ordering
 // ignore_for_file:annotate_overrides,prefer_generic_function_type_aliases
-// ignore_for_file:unused_import, file_names
+// ignore_for_file:unused_import, file_names, avoid_escaping_inner_quotes
 
 import 'package:intl/intl.dart';
 import 'package:intl/message_lookup_by_library.dart';
@@ -19,13 +19,12 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'zh';
 
-  static m0(h1) => "请进行${h1}";
+  static String m0(h1) => "请进行${h1}";
 
-  static m1(h1) => "${h1}s后完成";
+  static String m1(h1) => "${h1}s后完成";
 
-  final Map<String, dynamic> messages =
-      _notInlinedMessages(_notInlinedMessages);
-  static _notInlinedMessages(_) => <String, Function>{
+  final messages = _notInlinedMessages(_notInlinedMessages);
+  static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
         "Access_to_resources": MessageLookupByLibrary.simpleMessage("获取资源中"),
         "According_to_the_last_time_ID_escalation_applications":
             MessageLookupByLibrary.simpleMessage("根据最后一次ID升级应用"),
@@ -94,6 +93,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "The_unknown": MessageLookupByLibrary.simpleMessage("未知"),
         "Update_the_related": MessageLookupByLibrary.simpleMessage("更新相关"),
         "Waiting_for_download": MessageLookupByLibrary.simpleMessage("等待下载"),
+        "getAndroidStore": MessageLookupByLibrary.simpleMessage("获取应用市场列表"),
+        "getVersionFromAndroidStore":
+            MessageLookupByLibrary.simpleMessage("获取版本号（应用宝）"),
         "updated": MessageLookupByLibrary.simpleMessage("暂停更新")
       };
 }

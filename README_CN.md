@@ -6,7 +6,9 @@
 Android和IOS的升级应用插件==Flutter应用升级插件
 
 - [✔] 跳转链接方式升级
-- [✔] 跳转到应用商店升级
+- [✔] `Android`跳转到应用商店升级
+- [✔] `Android`获取应用商店列表
+- [✔] `Android`获取应用商店版本号（目前仅支持GoolePlay、小米、应用宝）
 - [✔] `Android`使用下载链接下载APK
     - [✔] 监听下载信息
     - [✔] 取消/暂停/继续下载
@@ -46,14 +48,29 @@ dependencies:
 
 ## Android平台
 
-### 1.跳转到应用商店升级
+### 1.获取应用商店列表
+```dart
+    void getAndroidStores() async {
+       final stores = await RUpgrade.androidStores;
+    }
+```
+
+### 2.获取对应的应用商店上架版本号
+```dart
+    void getVersionName() async {
+       final versionName = await RUpgrade.getVersionFromAndroidStore(AndroidStore.TENCENT);
+    }
+```
+
+### 3.跳转到应用商店升级
 ```dart
     void upgradeFromAndroidStore(){
        bool isSuccess = await RUpgrade.upgradeFromAndroidStore(AndroidStore.BAIDU);
        print('${isSuccess?'跳转成功':'跳转失败'}');
     }
 ```
-### 2.通过下载链接进行apk下载
+
+### 4.通过下载链接进行apk下载
 
 > 注意，在Android应用中，请确保`AndroidManifest.xml`中声明以下权限，并在6.0系统上进行动态授权，不然会调用升级方法将抛出权限异常
 ```xml

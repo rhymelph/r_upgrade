@@ -45,5 +45,7 @@
   "Has_already_started_to_incremental_updates": "已经开始增量更新",
   "Full_quantity_update": "全量更新",
   "Hot_update": "热更新",
-  "Incremental_updating":"增量更新"
+  "Incremental_updating": "增量更新",
+  "getAndroidStore": "获取应用市场列表",
+  "getVersionFromAndroidStore": "获取版本号（应用宝）"
 }

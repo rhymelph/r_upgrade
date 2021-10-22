@@ -7,22 +7,33 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.text.TextUtils;
 import android.util.Log;
 
+import androidx.annotation.Nullable;
+
 import com.example.r_upgrade.RUpgradeFileProvider;
+import com.example.r_upgrade.common.tasks.CheckGooglePlayVersionTask;
+import com.example.r_upgrade.common.tasks.CheckTencentStoreVersionTask;
+import com.example.r_upgrade.common.tasks.CheckXiaoMiStoreVersionTask;
+import com.example.r_upgrade.common.tasks.VersionCallBack;
 
 import org.json.JSONObject;
 
 import java.io.File;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Timer;
@@ -469,6 +480,60 @@ public class UpgradeManager extends ContextWrapper {
             return true;
         } catch (Exception e) {
             return false;
+        }
+    }
+
+    public List<String> getAndroidStores() {
+        List<String> pkgs = new ArrayList<>();
+        Intent intent = new Intent();
+        intent.setAction("android.intent.action.VIEW");
+        intent.addCategory(Intent.CATEGORY_DEFAULT);
+        intent.setData(Uri.parse("market://details?id="));
+        PackageManager pm = this.getPackageManager();
+        // 通过queryIntentActivities获取ResolveInfo对象
+        List<ResolveInfo> infoList = pm.queryIntentActivities(intent,
+                0);
+        if (infoList == null || infoList.size() == 0)
+            return pkgs;
+        int size = infoList.size();
+        for (int i = 0; i < size; i++) {
+            String pkgName = "";
+            try {
+                ActivityInfo activityInfo = infoList.get(i).activityInfo;
+                pkgName = activityInfo.packageName;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            if (!TextUtils.isEmpty(pkgName))
+                pkgs.add(pkgName);
+        }
+        return pkgs;
+    }
+
+    public void getVersionFromAndroidStore(@Nullable String store, final MethodChannel.Result result) {
+        if (store == null) {
+            result.error("-1", "Please enter the package name.", null);
+            return;
+        }
+        VersionCallBack callBack = new VersionCallBack() {
+            @Override
+            public void versionName(String version) {
+                result.success(version);
+            }
+        };
+        switch (store) {
+            case "com.android.vending":
+                new CheckGooglePlayVersionTask(getPackageName(), callBack).execute();
+                break;
+            case "com.xiaomi.market":
+                new CheckXiaoMiStoreVersionTask(getPackageName(), callBack).execute();
+                break;
+            case "com.tencent.android.qqdownloader":
+                new CheckTencentStoreVersionTask(getPackageName(), callBack).execute();
+                break;
+            default:
+                result.error("-2", "Not Found AndroidStore.", null);
+                break;
         }
     }
 }

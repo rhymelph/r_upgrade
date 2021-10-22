@@ -54,7 +54,27 @@ class RUpgrade {
   static Future<bool?> upgradeFromAndroidStore(AndroidStore store) async {
     assert(Platform.isAndroid, 'This method only support android application');
     return await _methodChannel!.invokeMethod("upgradeFromAndroidStore", {
-      'stores': store._packageName,
+      'store': store._packageName,
+    });
+  }
+
+  /// Android
+  ///
+  /// get android store list.
+  static Future<List<AndroidStore>?> get androidStores async {
+    assert(Platform.isAndroid, 'This method only support android application');
+    return (await _methodChannel!.invokeListMethod<String>('androidStores'))
+        ?.map((e) => AndroidStore.internal(e))
+        .toList();
+  }
+
+  /// Android
+  ///
+  /// get version from android store.
+  static Future<String?> getVersionFromAndroidStore(AndroidStore store) async {
+    assert(Platform.isAndroid, 'This method only support android application');
+    return await _methodChannel!.invokeMethod('getVersionFromAndroidStore', {
+      'store': store._packageName,
     });
   }
 
@@ -414,4 +434,9 @@ class AndroidStore {
 
   //酷安
   static const COOLAPK = const AndroidStore.internal('com.coolapk.market');
+
+  @override
+  String toString() {
+    return 'AndroidStore{_packageName: $_packageName}';
+  }
 }
