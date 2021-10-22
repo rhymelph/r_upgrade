@@ -7,8 +7,8 @@ Android和IOS的升级应用插件==Flutter应用升级插件
 
 - [✔] 跳转链接方式升级
 - [✔] `Android`跳转到应用商店升级
-- [✔] `Android`获取应用商店列表
-- [✔] `Android`获取应用商店版本号（目前仅支持GoolePlay、小米、应用宝）
+- [✔] `Android`获取已安装的应用商店列表
+- [✔] `Android`获取应用商店版本号（目前仅支持GooglePlay、小米、应用宝）
 - [✔] `Android`使用下载链接下载APK
     - [✔] 监听下载信息
     - [✔] 取消/暂停/继续下载
