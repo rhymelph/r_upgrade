@@ -45,7 +45,21 @@ dependencies:
 
 ## Android Platform
 
-### 1. App upgrade from store.
+### 1.Get android store list.
+```dart
+    void getAndroidStores() async {
+       final stores = await RUpgrade.androidStores;
+    }
+```
+
+### 2.Get version from android store.
+```dart
+    void getVersionName() async {
+       final versionName = await RUpgrade.getVersionFromAndroidStore(AndroidStore.GOOGLE_PLAY);
+    }
+```
+
+### 3. App upgrade from store.
 ```dart
     void upgradeFromAndroidStore(){
        bool isSuccess = await RUpgrade.upgradeFromAndroidStore(AndroidStore.GOOGLE_PLAY);
@@ -53,7 +67,7 @@ dependencies:
     }
 ```
 
-### 2. App upgrade from download link.
+### 4. App upgrade from download link.
 
 > make sure your application had this permission and request dynamic permission.
 

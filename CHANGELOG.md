@@ -1,3 +1,5 @@
+## 0.3.6
+* add android platform [androidStores]、[getVersionFromAndroidStore] methods.
 ## 0.3.5
 * fix ios if not exist appId will crash error,add isChina params to [getVersionFrom]、[upgradeFromAppStore] method.
 ## 0.3.4
