@@ -8,7 +8,9 @@
 Android and IOS upgrade plugin.
 
 - [✔] Jump link mode upgrade
-- [✔] Jump to store mode upgrade
+- [✔] `Android` get android store
+- [✔] `Android` get version from android stores（only support GoolePlay、XiaoMi、Tencent）
+- [✔] `Android` Jump to store mode upgrade
 - [✔] `Android` Download APK using download link
     - [✔] Monitor download information
     - [✔] cancel/pause/continue download
