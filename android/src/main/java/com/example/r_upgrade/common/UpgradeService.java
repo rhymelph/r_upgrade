@@ -160,7 +160,7 @@ public class UpgradeService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-
+        if (intent == null) return super.onStartCommand(null, flags, startId);
         Bundle bundle = intent.getExtras();
         assert (bundle != null);
         String url = bundle.getString(DOWNLOAD_URL);
@@ -190,7 +190,9 @@ public class UpgradeService extends Service {
     @Override
     public void onDestroy() {
         unregisterReceiver(actionReceiver);
-        runnable.handlerDownloadPause();
+        if (runnable != null) {
+            runnable.handlerDownloadPause();
+        }
         super.onDestroy();
     }
 

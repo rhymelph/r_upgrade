@@ -38,8 +38,11 @@ public class UpgradeNotification {
             pauseIntent.setAction(UpgradeService.RECEIVER_PAUSE);
             pauseIntent.putExtra(UpgradeManager.PARAMS_ID, id);
             pauseIntent.putExtra(UpgradeManager.PARAMS_PACKAGE, context.getPackageName());
+
+
             PendingIntent pausePendingIntent =
-                    PendingIntent.getBroadcast(context, 0, pauseIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                    PendingIntent.getBroadcast(context, 0, pauseIntent, getPendingIntentFlag());
+//            PendingIntent.getBroadcast(context, 0, pauseIntent, PendingIntent.FLAG_IMMUTABLE);
             boolean indeterminate = max_length == -1;
 
             notification = new NotificationCompat.Builder(context, CHANNEL_NAME)
@@ -56,7 +59,8 @@ public class UpgradeNotification {
             installIntent.putExtra(UpgradeManager.PARAMS_PACKAGE, context.getPackageName());
 
             PendingIntent installPendingIntent =
-                    PendingIntent.getBroadcast(context, 0, installIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                    PendingIntent.getBroadcast(context, 0, installIntent,getPendingIntentFlag());
+//                    PendingIntent.getBroadcast(context, 0, installIntent, PendingIntent.FLAG_IMMUTABLE);
 
             notification = new NotificationCompat.Builder(context, CHANNEL_NAME)
                     .setSmallIcon(context.getApplicationInfo().icon)
@@ -71,7 +75,9 @@ public class UpgradeNotification {
             reStartIntent.putExtra(UpgradeManager.PARAMS_PACKAGE, context.getPackageName());
 
             PendingIntent reStartPendingIntent =
-                    PendingIntent.getBroadcast(context, 0, reStartIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                    PendingIntent.getBroadcast(context, 0, reStartIntent, getPendingIntentFlag());
+//                    PendingIntent.getBroadcast(context, 0, reStartIntent, PendingIntent.FLAG_IMMUTABLE);
+
             notification = new NotificationCompat.Builder(context, CHANNEL_NAME)
                     .setSmallIcon(context.getApplicationInfo().icon)
                     .setContentTitle(title)
@@ -85,7 +91,8 @@ public class UpgradeNotification {
             failedIntent.putExtra(UpgradeManager.PARAMS_PACKAGE, context.getPackageName());
 
             PendingIntent reStartPendingIntent =
-                    PendingIntent.getBroadcast(context, 0, failedIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                    PendingIntent.getBroadcast(context, 0, failedIntent, getPendingIntentFlag());
+//            PendingIntent.getBroadcast(context, 0, failedIntent, PendingIntent.FLAG_IMMUTABLE);
             notification = new NotificationCompat.Builder(context, CHANNEL_NAME)
                     .setSmallIcon(context.getApplicationInfo().icon)
                     .setContentTitle(title)
@@ -107,6 +114,14 @@ public class UpgradeNotification {
         compat.notify(id, notification);
 
 //        notificationManager.notify(id, notification);
+    }
+
+    private static int getPendingIntentFlag() {
+        int pendingFlag = PendingIntent.FLAG_UPDATE_CURRENT;
+        if (Build.VERSION.SDK_INT >= 31) {
+            pendingFlag = PendingIntent.FLAG_IMMUTABLE;
+        }
+        return pendingFlag;
     }
 
     static void removeNotification(Context context, long id) {

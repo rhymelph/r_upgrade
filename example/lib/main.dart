@@ -225,7 +225,7 @@ class _MyAppState extends State<MyApp> {
                   fileName: 'r_upgrade.apk',
                   isAutoRequestInstall: isAutoRequestInstall!,
                   notificationStyle: NotificationStyle.speechAndPlanTime,
-                  useDownloadManager: true);
+                  useDownloadManager: false);
               upgradeMethod = UpgradeMethod.all;
               setState(() {});
             },

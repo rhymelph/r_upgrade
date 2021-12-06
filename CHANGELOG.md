@@ -1,3 +1,5 @@
+## 0.3.7
+* fixed android compile SDK version = 31 crash error,upgrade version click cancel crash error、
 ## 0.3.6
 * add android platform [androidStores]、[getVersionFromAndroidStore] methods.
 ## 0.3.5
