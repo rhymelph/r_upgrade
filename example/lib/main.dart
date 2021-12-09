@@ -5,7 +5,6 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:r_upgrade/r_upgrade.dart';
-
 import 'generated/l10n.dart';
 
 const version = 1;
@@ -556,7 +555,7 @@ class _MyAppState extends State<MyApp> {
                               child: Text(
                                 snapshot.data!.status ==
                                         DownloadStatus.STATUS_RUNNING
-                                    ? getSpeech(snapshot.data!.speed!)
+                                    ? snapshot.data!.getSpeedString()
                                     : getStatus(snapshot.data!.status),
                                 style: TextStyle(
                                   color: Colors.white,
@@ -636,37 +635,6 @@ class _MyAppState extends State<MyApp> {
         break;
     }
     return '';
-  }
-
-//  Future<bool> canReadStorage() async {
-//    if (Platform.isIOS) return true;
-//    var status = await PermissionHandler()
-//        .checkPermissionStatus(PermissionGroup.storage);
-//    if (status != PermissionStatus.granted) {
-//      var future = await PermissionHandler()
-//          .requestPermissions([PermissionGroup.storage]);
-//      for (final item in future.entries) {
-//        if (item.value != PermissionStatus.granted) {
-//          return false;
-//        }
-//      }
-//    } else {
-//      return true;
-//    }
-//    return true;
-//  }
-
-  String getSpeech(double speech) {
-    String unit = 'kb/s';
-    String result = speech.toStringAsFixed(2);
-    if (speech > 1024 * 1024) {
-      unit = 'gb/s';
-      result = (speech / (1024 * 1024)).toStringAsFixed(2);
-    } else if (speech > 1024) {
-      unit = 'mb/s';
-      result = (speech / 1024).toStringAsFixed(2);
-    }
-    return '$result$unit';
   }
 }
 

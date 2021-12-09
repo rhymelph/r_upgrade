@@ -284,6 +284,20 @@ class DownloadInfo {
   String toString() {
     return 'DownloadInfo{total: $maxLength, address: $path, planTime: $planTime, progress: $currentLength, percent: $percent, id: $id, speed: $speed, status: $status}';
   }
+
+  String getSpeedString() {
+    double _speed = speed ?? 0;
+    String unit = 'kb/s';
+    String result = _speed.toStringAsFixed(2);
+    if (_speed > 1024 * 1024) {
+      unit = 'gb/s';
+      result = (_speed / (1024 * 1024)).toStringAsFixed(2);
+    } else if (_speed > 1024) {
+      unit = 'mb/s';
+      result = (_speed / 1024).toStringAsFixed(2);
+    }
+    return '$result$unit';
+  }
 }
 
 ///
