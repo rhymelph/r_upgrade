@@ -1,3 +1,5 @@
+## 0.3.7+1
+* Class [DownloadInfo] add [getSpeedString] method , change [LICENSE] to Apache License 2.0.
 ## 0.3.7
 * fixed android compile SDK version = 31 crash error,upgrade version click cancel crash error、
 ## 0.3.6
