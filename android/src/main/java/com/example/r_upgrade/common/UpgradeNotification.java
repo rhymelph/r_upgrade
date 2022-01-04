@@ -59,7 +59,7 @@ public class UpgradeNotification {
             installIntent.putExtra(UpgradeManager.PARAMS_PACKAGE, context.getPackageName());
 
             PendingIntent installPendingIntent =
-                    PendingIntent.getBroadcast(context, 0, installIntent,getPendingIntentFlag());
+                    PendingIntent.getBroadcast(context, 0, installIntent, getPendingIntentFlag());
 //                    PendingIntent.getBroadcast(context, 0, installIntent, PendingIntent.FLAG_IMMUTABLE);
 
             notification = new NotificationCompat.Builder(context, CHANNEL_NAME)
@@ -119,7 +119,7 @@ public class UpgradeNotification {
     private static int getPendingIntentFlag() {
         int pendingFlag = PendingIntent.FLAG_UPDATE_CURRENT;
         if (Build.VERSION.SDK_INT >= 31) {
-            pendingFlag = PendingIntent.FLAG_IMMUTABLE;
+            pendingFlag = PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT;
         }
         return pendingFlag;
     }

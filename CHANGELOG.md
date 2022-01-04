@@ -1,3 +1,5 @@
+## 0.3.7+2
+* fixed android 31 notification problem.
 ## 0.3.7+1
 * Class [DownloadInfo] add [getSpeedString] method , change [LICENSE] to Apache License 2.0.
 ## 0.3.7
