@@ -25,6 +25,35 @@ Android and IOS upgrade plugin.
 
 > For the development of this plug-in, I haven't had a good meal for a long time. I hope you can click on the sponsor and give a little bit of money. Thank you!
 
+## List
+- [r_upgrade](#r_upgrade)
+  - [中文点此](#中文点此)
+  - [List](#list)
+  - [Getting Started](#getting-started)
+    - [1. Use Plugin:](#1-use-plugin)
+    - [2. Upgrade from your website ( Android or IOS )](#2-upgrade-from-your-website--android-or-ios-)
+  - [Android Platform](#android-platform)
+    - [1.Get android store list.](#1get-android-store-list)
+    - [2.Get version from android store.](#2get-version-from-android-store)
+    - [3. App upgrade from store.](#3-app-upgrade-from-store)
+    - [4. App upgrade from download link.](#4-app-upgrade-from-download-link)
+      - [1. Add Upgrade Download Listener](#1-add-upgrade-download-listener)
+      - [2. Upgrade your application](#2-upgrade-your-application)
+      - [3. Cancel Download](#3-cancel-download)
+      - [4. Install Apk](#4-install-apk)
+      - [5. Pause Download](#5-pause-download)
+      - [6. Continue Download](#6-continue-download)
+      - [7. Get the last upgrade id](#7-get-the-last-upgrade-id)
+      - [8. Get the download status from id](#8-get-the-download-status-from-id)
+      - [9. Increment Upgrade](#9-increment-upgrade)
+      - [10. Hot Upgrade](#10-hot-upgrade)
+  - [Android Platform Notification Bar](#android-platform-notification-bar)
+  - [IOS Platform](#ios-platform)
+    - [1.Go to the AppStore Upgrade](#1go-to-the-appstore-upgrade)
+    - [2.Get the last version form AppStore](#2get-the-last-version-form-appstore)
+  - [LICENSE](#license)
+
+
 ## Getting Started
 
 ### 1. Use Plugin:
