@@ -265,7 +265,7 @@ The code is as follows：
 - download complete you can use download `id` to hot upgrade
 
 ```dart
-           bool isSuccess = await RUpgrade.hotUpgrade(id);
+          bool isSuccess = await RUpgrade.install(id);
            if (isSuccess) {
               _state.currentState
                     .showSnackBar(SnackBar(content: Text('Hot update succeeded, exit the application after 3S, please enter again')));
