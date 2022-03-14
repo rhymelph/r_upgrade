@@ -35,8 +35,12 @@ public class RUpgradePlugin implements FlutterPlugin, ActivityAware {
     }
 
     private RUpgradePlugin(Activity activity, BinaryMessenger messenger, StoragePermissions.PermissionsRegistry permissionsRegistry) {
+        initPlugin(activity, messenger, permissionsRegistry);
+    }
+
+    private void initPlugin(Activity activity, BinaryMessenger messenger, StoragePermissions.PermissionsRegistry permissionsRegistry) {
         _channel = new MethodChannel(messenger, PLUGIN_METHOD_NAME);
-        upgradeManager = new UpgradeManager(activity, _channel,new StoragePermissions(),permissionsRegistry);
+        upgradeManager = new UpgradeManager(activity, _channel, new StoragePermissions(), permissionsRegistry);
         _channel.setMethodCallHandler(new RUpgradeMethodCallHandler(upgradeManager));
     }
 
@@ -44,6 +48,7 @@ public class RUpgradePlugin implements FlutterPlugin, ActivityAware {
      * Plugin registration.
      */
     public static void registerWith(final Registrar registrar) {
+
         new RUpgradePlugin(registrar.activity(), registrar.messenger(), new StoragePermissions.PermissionsRegistry() {
             @Override
             public void addListener(PluginRegistry.RequestPermissionsResultListener handler) {
@@ -68,13 +73,12 @@ public class RUpgradePlugin implements FlutterPlugin, ActivityAware {
 
     @Override
     public void onAttachedToActivity(@NonNull final ActivityPluginBinding binding) {
-        new RUpgradePlugin(binding.getActivity(), flutterPluginBinding.getBinaryMessenger(), new StoragePermissions.PermissionsRegistry() {
+        initPlugin(binding.getActivity(), flutterPluginBinding.getBinaryMessenger(), new StoragePermissions.PermissionsRegistry() {
             @Override
             public void addListener(PluginRegistry.RequestPermissionsResultListener handler) {
                 binding.addRequestPermissionsResultListener(handler);
             }
         });
-
     }
 
     @Override
@@ -93,6 +97,7 @@ public class RUpgradePlugin implements FlutterPlugin, ActivityAware {
         flutterPluginBinding.getApplicationContext().stopService(intent);
         if (upgradeManager != null) {
             upgradeManager.dispose();
+            upgradeManager = null;
         }
         if (_channel != null) {
             _channel.setMethodCallHandler(null);

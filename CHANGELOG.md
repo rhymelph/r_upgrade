@@ -1,3 +1,5 @@
+## 0.3.7+3
+* fixed Are you missing a call to unregisterReceiver().
 ## 0.3.7+2
 * fixed android 31 notification problem.
 ## 0.3.7+1
