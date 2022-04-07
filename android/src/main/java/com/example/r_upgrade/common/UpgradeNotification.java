@@ -19,7 +19,7 @@ public class UpgradeNotification {
 
     private static String CHANNEL_NAME;
 
-    static void createNotification(Context context, int id, String title, int current_length, int max_length, String contentText, int status) {
+    static void createNotification(Context context, int id, String title,boolean indeterminate, Double percent, String contentText, int status) {
         if (CHANNEL_NAME == null) {
             try {
                 CHANNEL_NAME = context.getPackageName() + "_notification";
@@ -43,14 +43,14 @@ public class UpgradeNotification {
             PendingIntent pausePendingIntent =
                     PendingIntent.getBroadcast(context, 0, pauseIntent, getPendingIntentFlag());
 //            PendingIntent.getBroadcast(context, 0, pauseIntent, PendingIntent.FLAG_IMMUTABLE);
-            boolean indeterminate = max_length == -1;
+            int current_length = percent.intValue();
 
             notification = new NotificationCompat.Builder(context, CHANNEL_NAME)
                     .setSmallIcon(context.getApplicationInfo().icon)
                     .setContentTitle(title)
                     .setContentText(indeterminate ? "" : contentText)
                     .setContentIntent(pausePendingIntent)
-                    .setProgress(indeterminate ? 0 : max_length, indeterminate ? 0 : current_length, indeterminate)
+                    .setProgress(indeterminate ? 0 : 100, indeterminate ? 0 : current_length, indeterminate)
                     .build();
         } else if (status == DownloadStatus.STATUS_SUCCESSFUL.getValue()) {
             Intent installIntent = new Intent();

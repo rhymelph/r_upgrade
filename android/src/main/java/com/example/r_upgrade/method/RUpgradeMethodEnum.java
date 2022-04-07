@@ -50,6 +50,12 @@ public enum RUpgradeMethodEnum implements IRUpgradeMethodHandler {
             upgradeManager.installApkById((Integer) call.argument("id"), result);
         }
     },
+    installBuPath {
+        @Override
+        public void handler(UpgradeManager upgradeManager, MethodCall call, MethodChannel.Result result) {
+            upgradeManager.installApkByPath((String) call.argument("path"), (Integer) call.argument("flavor"), result);
+        }
+    },
     pause {
         @Override
         public void handler(UpgradeManager upgradeManager, MethodCall call, MethodChannel.Result result) {
@@ -60,7 +66,7 @@ public enum RUpgradeMethodEnum implements IRUpgradeMethodHandler {
         @Override
         public void handler(UpgradeManager upgradeManager, MethodCall call, MethodChannel.Result result) {
             upgradeManager.upgradeWithId((Integer) call.argument("id"), (Integer) call.argument("notificationVisibility"),
-                    (Boolean) call.argument("isAutoRequestInstall"),result);
+                    (Boolean) call.argument("isAutoRequestInstall"), result);
         }
     },
     getDownloadStatus {
@@ -81,16 +87,16 @@ public enum RUpgradeMethodEnum implements IRUpgradeMethodHandler {
             result.success(upgradeManager.upgradeFromAndroidStore((String) call.argument("store")));
         }
     },
-    androidStores{
+    androidStores {
         @Override
         public void handler(UpgradeManager upgradeManager, MethodCall call, MethodChannel.Result result) {
             result.success(upgradeManager.getAndroidStores());
         }
     },
-    getVersionFromAndroidStore{
+    getVersionFromAndroidStore {
         @Override
         public void handler(UpgradeManager upgradeManager, MethodCall call, MethodChannel.Result result) {
-            upgradeManager.getVersionFromAndroidStore((String) call.argument("store"),result);
+            upgradeManager.getVersionFromAndroidStore((String) call.argument("store"), result);
         }
     }
 

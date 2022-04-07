@@ -1,4 +1,4 @@
-package com.example.r_upgrade.common;
+package com.example.r_upgrade.common.tasks;
 
 import android.app.DownloadManager;
 import android.content.Context;
@@ -10,6 +10,10 @@ import android.os.Build;
 import android.util.Log;
 
 import com.example.r_upgrade.RUpgradeFileProvider;
+import com.example.r_upgrade.common.HotUpgradeManager;
+import com.example.r_upgrade.common.IncrementUpgradeManager;
+import com.example.r_upgrade.common.RUpgradeLogger;
+import com.example.r_upgrade.common.UpgradeSQLite;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
@@ -19,13 +23,13 @@ import io.flutter.plugin.common.MethodChannel;
 
 import static android.content.Context.DOWNLOAD_SERVICE;
 
-class GenerateAndInstallAsyncTask extends AsyncTask<Integer, Integer, Uri> {
+public class GenerateAndInstallAsyncTask extends AsyncTask<Integer, Integer, Uri> {
     private static final String TAG = "r_upgrade.AsyncTask";
     final WeakReference<Context> contextWrapper;
     boolean isUserDownloadManager;
     MethodChannel.Result result;
 
-    GenerateAndInstallAsyncTask(Context context, boolean isUserDownloadManager, MethodChannel.Result result) {
+    public GenerateAndInstallAsyncTask(Context context, boolean isUserDownloadManager, MethodChannel.Result result) {
         this.contextWrapper = new WeakReference<Context>(context);
         this.isUserDownloadManager = isUserDownloadManager;
         this.result = result;
@@ -61,7 +65,7 @@ class GenerateAndInstallAsyncTask extends AsyncTask<Integer, Integer, Uri> {
                 }
                 if (upgradeFlavor == UpgradeSQLite.UPGRADE_FLAVOR_INCREMENT) {
                     String newPath = new IncrementUpgradeManager(contextWrapper.get()).mixinAndGetNewApk(path);
-                    RUpgradeLogger.get().d(TAG,"合成成功，新的安装包路径："+newPath);
+                    RUpgradeLogger.get().d(TAG, "合成成功，新的安装包路径：" + newPath);
                     if (newPath == null) return null;
                     file = new File(newPath);
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {

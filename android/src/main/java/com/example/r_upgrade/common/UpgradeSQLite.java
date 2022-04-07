@@ -166,7 +166,7 @@ public class UpgradeSQLite extends SQLiteOpenHelper {
         return writableDatabase.insert(VERSION_MANAGER, null, values);
     }
 
-    void update(long id, String url, String path, String apkName, String header, Integer current_length, Integer max_length, int status) {
+    void update(long id, String url, String path, String apkName, String header, Long current_length, Long max_length, int status) {
         SQLiteDatabase writableDatabase = getWritableDatabase();
         ContentValues values = new ContentValues();
         if (current_length != null) {
@@ -193,7 +193,7 @@ public class UpgradeSQLite extends SQLiteOpenHelper {
         writableDatabase.update(VERSION_MANAGER, values, ID + "=?", new String[]{String.valueOf(id)});
     }
 
-    void update(long id, Integer current_length, Integer max_length, int status) {
+    void update(long id, Long current_length, Long max_length, int status) {
         SQLiteDatabase writableDatabase = getWritableDatabase();
         ContentValues values = new ContentValues();
         if (current_length != null) {

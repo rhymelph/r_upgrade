@@ -155,6 +155,19 @@ class RUpgrade {
 
   /// Android
   ///
+  /// Install your apk by [path].
+  ///
+  static Future<bool?> installByPath(String path,
+      {RUpgradeFlavor flavor = RUpgradeFlavor.normal}) async {
+    assert(Platform.isAndroid, 'This method only support android application');
+    return await _methodChannel!.invokeMethod("installByPath", {
+      'path': path,
+      'flavor': flavor.index,
+    });
+  }
+
+  /// Android
+  ///
   /// Pause by the [id] download task ,only use to [upgrade] params [useDownloadManager] is false.
   ///
   static Future<bool?> pause(int id) {

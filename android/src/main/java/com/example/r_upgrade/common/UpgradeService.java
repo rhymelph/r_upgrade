@@ -30,6 +30,7 @@ import java.net.ProtocolException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -167,7 +168,7 @@ public class UpgradeService extends Service {
         int id = bundle.getInt(DOWNLOAD_ID);
 
         Map<String, Object> header;
-        if (bundle.getString(DOWNLOAD_Header) != null) {
+        if (bundle.get(DOWNLOAD_Header) != null && bundle.get(DOWNLOAD_Header) instanceof String) {
             header = getMapForJson(bundle.getString(DOWNLOAD_Header));
         } else {
             header = (Map<String, Object>) bundle.getSerializable(DOWNLOAD_Header);
@@ -203,9 +204,9 @@ public class UpgradeService extends Service {
         private String apkName;
         private UpgradeService upgradeService;
 
-        private int maxLength = 0;
-        private int currentLength = 0;
-        private int lastCurrentLength = 0;
+        private long maxLength = 0;
+        private long currentLength = 0;
+        private long lastCurrentLength = 0;
         private long lastTime = System.currentTimeMillis();
         private File downloadFile = null;
         private UpgradeSQLite sqLite;
@@ -301,9 +302,9 @@ public class UpgradeService extends Service {
                         lastCurrentLength = currentLength;
                         isNewDownload = true;
                     } else {
-                        currentLength = cursor.getInt(cursor.getColumnIndex(UpgradeSQLite.CURRENT_LENGTH));
+                        currentLength = cursor.getLong(cursor.getColumnIndex(UpgradeSQLite.CURRENT_LENGTH));
                         lastCurrentLength = currentLength;
-                        maxLength = cursor.getInt(cursor.getColumnIndex(UpgradeSQLite.MAX_LENGTH));
+                        maxLength = cursor.getLong(cursor.getColumnIndex(UpgradeSQLite.MAX_LENGTH));
                     }
                     apkName = cursor.getString(cursor.getColumnIndex(UpgradeSQLite.APK_NAME));
                     url = cursor.getString(cursor.getColumnIndex(UpgradeSQLite.URL));
@@ -442,6 +443,20 @@ public class UpgradeService extends Service {
             upgradeService.sendBroadcast(intent);
         }
 
+        private long getMaxLength(HttpURLConnection connection){
+            long maxLength = connection.getContentLength();
+            if(maxLength < 0){
+                List<String> values = connection.getHeaderFields().get("content-Length");
+                if(values!= null && !values.isEmpty()){
+                    String sLength = values.get(0);
+                    if(sLength!= null){
+                        maxLength = Long.parseLong(sLength,10);
+                    }
+                }
+            }
+            return maxLength;
+        }
+
         private InputStream getInputStreamFromUrl(String inputUrl) throws IOException {
             InputStream is = null;
             URL url = new URL(inputUrl);
@@ -467,7 +482,7 @@ public class UpgradeService extends Service {
                     connection.connect();
                     is = connection.getInputStream();
                     if (isNewDownload) {
-                        maxLength = connection.getContentLength();
+                        maxLength = getMaxLength(connection);
                     }
                 } else if (code == 301 || code == 302) {
                     URL redirectUrl = connection.getURL();
@@ -479,6 +494,7 @@ public class UpgradeService extends Service {
                 connection.setRequestMethod("GET");
                 connection.setConnectTimeout(6 * 60 * 1000);
                 connection.setReadTimeout(6 * 60 * 1000);
+                connection.setRequestProperty("Accept-Encoding","identity");
                 if (header != null && !header.isEmpty()) {
                     for (Map.Entry<String, Object> entry : header.entrySet()) {
                         connection.setRequestProperty(entry.getKey(), (String) entry.getValue());
@@ -494,7 +510,7 @@ public class UpgradeService extends Service {
                     connection.connect();
                     is = connection.getInputStream();
                     if (isNewDownload) {
-                        maxLength = connection.getContentLength();
+                        maxLength = getMaxLength(connection);
                     }
                 } else if (code == 301 || code == 302) {
                     URL redirectUrl = connection.getURL();

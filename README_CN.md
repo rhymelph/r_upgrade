@@ -170,9 +170,17 @@ enum RUpgradeFlavor {
 ```
 
 #### 4. 安装应用
+
+- 使用下载的id进行安装应用
 ```dart
     void install() async {
       bool isSuccess=await RUpgrade.install(id);
+    }
+```
+- 使用文件路径进行安装应用
+```dart
+    void installByPath(String path) async {
+      bool isSuccess=await RUpgrade.installByPath(path);
     }
 ```
 

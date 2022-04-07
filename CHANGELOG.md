@@ -1,3 +1,5 @@
+## 0.3.8
+* fixed get download header error,big file adapter,add [installByPath] method
 ## 0.3.7+3
 * fixed Are you missing a call to unregisterReceiver().
 ## 0.3.7+2

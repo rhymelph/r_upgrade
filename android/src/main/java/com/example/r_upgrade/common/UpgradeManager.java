@@ -13,18 +13,17 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.text.TextUtils;
-import android.util.Log;
 
 import androidx.annotation.Nullable;
 
-import com.example.r_upgrade.RUpgradeFileProvider;
 import com.example.r_upgrade.common.tasks.CheckGooglePlayVersionTask;
 import com.example.r_upgrade.common.tasks.CheckTencentStoreVersionTask;
 import com.example.r_upgrade.common.tasks.CheckXiaoMiStoreVersionTask;
+import com.example.r_upgrade.common.tasks.GenerateAndInstallAsyncTask;
+import com.example.r_upgrade.common.tasks.GenerateAndInstallByPathAsyncTask;
 import com.example.r_upgrade.common.tasks.VersionCallBack;
 
 import org.json.JSONObject;
@@ -67,7 +66,7 @@ public class UpgradeManager extends ContextWrapper {
 
     private boolean isAutoRequestInstall;
 
-    private boolean isUseDownloadManager;
+    private boolean isUseDownloadManager = false;
 
     private Integer notificationVisibility = 0;
     private UpgradeNotificationStyle notificationStyle = UpgradeNotificationStyle.none;
@@ -318,6 +317,28 @@ public class UpgradeManager extends ContextWrapper {
             public void onResult(String errorCode, String errorDescription) {
                 if (errorCode == null) {
                     new GenerateAndInstallAsyncTask(activity, isUseDownloadManager, result).execute(id);
+
+                } else {
+                    if (result != null) {
+                        result.error(errorCode, errorDescription, null);
+                    }
+                }
+            }
+        });
+    }
+
+    public void installApkByPath(final String path, final int upgradeFlavor, final MethodChannel.Result result) {
+        storagePermissions.requestPermissions(activity, permissionsRegistry, new StoragePermissions.ResultCallback() {
+            @Override
+            public void onResult(String errorCode, String errorDescription) {
+                if (errorCode == null) {
+                    File installPath = new File(path);
+                    if (installPath.exists()) {
+                        new GenerateAndInstallByPathAsyncTask(activity, path, upgradeFlavor, result).execute();
+
+                    } else {
+                        result.error("file not exists", "file path:" + path + " is not exists", null);
+                    }
                 } else {
                     if (result != null) {
                         result.error(errorCode, errorDescription, null);
@@ -345,8 +366,8 @@ public class UpgradeManager extends ContextWrapper {
                     queryTask(id);
                 } else if (intent != null && intent.getAction() != null && intent.getAction().equals(UpgradeManager.DOWNLOAD_STATUS)) {
 
-                    final int current_length = intent.getIntExtra(PARAMS_CURRENT_LENGTH, 0);
-                    final int max_length = intent.getIntExtra(PARAMS_MAX_LENGTH, 0);
+                    final long current_length = intent.getLongExtra(PARAMS_CURRENT_LENGTH, 0);
+                    final long max_length = intent.getLongExtra(PARAMS_MAX_LENGTH, 0);
 
                     double percent = intent.getDoubleExtra(PARAMS_PERCENT, 0);
 
@@ -365,11 +386,11 @@ public class UpgradeManager extends ContextWrapper {
                     if (!isUseDownloadManager) {
                         String contentText = notificationStyle == null ? "" : notificationStyle.getNotificationStyleString(context, speed, planTime);
                         if ((status == DownloadStatus.STATUS_RUNNING.getValue() || status == DownloadStatus.STATUS_SUCCESSFUL.getValue()) && notificationVisibility == 1) {
-                            UpgradeNotification.createNotification(context, (int) id, apkName, current_length, max_length, contentText, status);
+                            UpgradeNotification.createNotification(context, (int) id, apkName, max_length == -1, percent, contentText, status);
                         } else if (notificationVisibility == 0) {
-                            UpgradeNotification.createNotification(context, (int) id, apkName, current_length, max_length, contentText, status);
+                            UpgradeNotification.createNotification(context, (int) id, apkName, max_length == -1, percent, contentText, status);
                         } else if (status == DownloadStatus.STATUS_SUCCESSFUL.getValue() && notificationVisibility == 3) {
-                            UpgradeNotification.createNotification(context, (int) id, apkName, current_length, max_length, contentText, status);
+                            UpgradeNotification.createNotification(context, (int) id, apkName, max_length == -1, percent, contentText, status);
                         }
                         if (isAutoRequestInstall && status == DownloadStatus.STATUS_SUCCESSFUL.getValue()) {
                             installApkById((int) id);
