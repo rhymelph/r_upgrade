@@ -169,10 +169,18 @@ enum RUpgradeFlavor {
 ```
 
 #### 4. Install Apk
+
+- use download id install
 ```dart
     void install() async {
       bool isSuccess=await RUpgrade.install(id);
     }
+```
+- use file path install
+```dart
+    void installByPath(String path) async {
+  bool isSuccess=await RUpgrade.installByPath(path);
+}
 ```
 
 #### 5. Pause Download
