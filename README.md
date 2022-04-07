@@ -179,8 +179,8 @@ enum RUpgradeFlavor {
 - use file path install
 ```dart
     void installByPath(String path) async {
-  bool isSuccess=await RUpgrade.installByPath(path);
-}
+      bool isSuccess=await RUpgrade.installByPath(path);
+     }
 ```
 
 #### 5. Pause Download
