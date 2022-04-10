@@ -50,7 +50,7 @@ public enum RUpgradeMethodEnum implements IRUpgradeMethodHandler {
             upgradeManager.installApkById((Integer) call.argument("id"), result);
         }
     },
-    installBuPath {
+    installByPath {
         @Override
         public void handler(UpgradeManager upgradeManager, MethodCall call, MethodChannel.Result result) {
             upgradeManager.installApkByPath((String) call.argument("path"), (Integer) call.argument("flavor"), result);

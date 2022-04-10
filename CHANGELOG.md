@@ -1,3 +1,5 @@
+## 0.3.8+1
+* fixed [installByPath] error.
 ## 0.3.8
 * fixed get download header error,big file adapter,add [installByPath] method
 ## 0.3.7+3
