@@ -1,3 +1,5 @@
+## 0.3.8+2
+* fixed download file not exist error.
 ## 0.3.8+1
 * fixed [installByPath] error.
 ## 0.3.8

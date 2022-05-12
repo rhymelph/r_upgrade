@@ -275,6 +275,9 @@ public class UpgradeService extends Service {
                 if (!canMove) {
                     // 重新下载
                     File parentFile = getDownloadDirectory();
+                    if (!parentFile.exists()) {
+                        parentFile.mkdir();
+                    }
                     downloadFile = new File(parentFile.getPath(), apkName);
                     JSONObject object = null;
                     if (header != null) {
@@ -443,14 +446,14 @@ public class UpgradeService extends Service {
             upgradeService.sendBroadcast(intent);
         }
 
-        private long getMaxLength(HttpURLConnection connection){
+        private long getMaxLength(HttpURLConnection connection) {
             long maxLength = connection.getContentLength();
-            if(maxLength < 0){
+            if (maxLength < 0) {
                 List<String> values = connection.getHeaderFields().get("content-Length");
-                if(values!= null && !values.isEmpty()){
+                if (values != null && !values.isEmpty()) {
                     String sLength = values.get(0);
-                    if(sLength!= null){
-                        maxLength = Long.parseLong(sLength,10);
+                    if (sLength != null) {
+                        maxLength = Long.parseLong(sLength, 10);
                     }
                 }
             }
@@ -494,7 +497,7 @@ public class UpgradeService extends Service {
                 connection.setRequestMethod("GET");
                 connection.setConnectTimeout(6 * 60 * 1000);
                 connection.setReadTimeout(6 * 60 * 1000);
-                connection.setRequestProperty("Accept-Encoding","identity");
+                connection.setRequestProperty("Accept-Encoding", "identity");
                 if (header != null && !header.isEmpty()) {
                     for (Map.Entry<String, Object> entry : header.entrySet()) {
                         connection.setRequestProperty(entry.getKey(), (String) entry.getValue());
