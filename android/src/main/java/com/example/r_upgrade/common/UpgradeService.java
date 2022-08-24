@@ -139,6 +139,12 @@ public class UpgradeService extends Service {
     }
 
     private void handleNetworkChange(boolean isConnected) {
+        // 崩溃收集平台监测到 runnable.id 有空指针崩溃，崩溃机型为 OPPO 和 VIVO。
+        // 排查 handleNetworkChange 如果在 onStartCommand 前回调两次会引起空指针异常
+        if (runnable == null) {
+            return;
+        }
+        
         if (isConnected) {
             RUpgradeLogger.get().d(TAG, "onReceive: 当前网络正在连接");
             if (isFirst) {
