@@ -18,6 +18,7 @@ Android和IOS的升级应用插件==Flutter应用升级插件
     - [✔] 修改通知栏显示的信息
 - [✔] `Android`热更新
 - [✔] `Android`增量升级
+- [✔] `Android`普通安装，静默安装
 - [✔] `IOS`根据APPID跳转AppStore升级
 - [✔] `IOS`根据APPID获取AppStore当前上架版本
 
@@ -104,9 +105,14 @@ dependencies:
 
 > 注意，在Android应用中，请确保`AndroidManifest.xml`中声明以下权限，并在6.0系统上进行动态授权，不然会调用升级方法将抛出权限异常
 ```xml
+    <!--(如果需要上架到google store ,不能添加这个权限 , 也无法使用应用内更新功能)-->
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <!--(静默安装需要添加这个权限，并且需要系统应用-->
+    <uses-permission android:name="android.permission.INSTALL_PACKAGES" tools:ignore="ProtectedPermissions"/>
+
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
 ```
 
 #### 1.添加升级下载进度监听
@@ -182,6 +188,15 @@ enum RUpgradeFlavor {
     void installByPath(String path) async {
       bool isSuccess=await RUpgrade.installByPath(path);
     }
+```
+- 新增安装类型
+```dart
+/// [RUpgrade.upgradeWithId]、[RUpgrade.upgrade]、[RUpgrade.install]、[RUpgrade.installByPath]
+enum RUpgradeInstallType {
+  normal,//普通安装
+  silent,//静默安装
+  none,// 不进行安装
+}
 ```
 
 #### 5. 暂停下载

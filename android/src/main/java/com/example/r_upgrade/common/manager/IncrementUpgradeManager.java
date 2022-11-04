@@ -1,4 +1,4 @@
-package com.example.r_upgrade.common;
+package com.example.r_upgrade.common.manager;
 
 import android.content.Context;
 import android.content.ContextWrapper;
@@ -6,6 +6,7 @@ import android.os.Environment;
 import android.util.Log;
 
 
+import com.example.r_upgrade.common.RUpgradeLogger;
 import com.example.r_upgrade_lib.RUpgradeLib;
 
 import java.io.File;

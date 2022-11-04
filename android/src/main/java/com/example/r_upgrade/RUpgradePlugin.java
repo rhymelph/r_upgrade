@@ -1,14 +1,12 @@
 package com.example.r_upgrade;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 
 import androidx.annotation.NonNull;
 
-import com.example.r_upgrade.common.HotUpgradeManager;
 import com.example.r_upgrade.common.StoragePermissions;
-import com.example.r_upgrade.common.UpgradeManager;
+import com.example.r_upgrade.common.manager.UpgradeManager;
 import com.example.r_upgrade.common.UpgradeService;
 import com.example.r_upgrade.method.RUpgradeMethodCallHandler;
 

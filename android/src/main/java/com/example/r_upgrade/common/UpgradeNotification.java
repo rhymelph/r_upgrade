@@ -13,13 +13,14 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
 import com.example.r_upgrade.R;
+import com.example.r_upgrade.common.manager.UpgradeManager;
 
 public class UpgradeNotification {
     public static final String TAG = "r_upgrade.Notification";
 
     private static String CHANNEL_NAME;
 
-    static void createNotification(Context context, int id, String title,boolean indeterminate, Double percent, String contentText, int status) {
+    public static void createNotification(Context context, int id, String title,boolean indeterminate, Double percent, String contentText, int status) {
         if (CHANNEL_NAME == null) {
             try {
                 CHANNEL_NAME = context.getPackageName() + "_notification";
@@ -112,8 +113,6 @@ public class UpgradeNotification {
             notificationManager.createNotificationChannel(createNotificationChannel());
         }
         compat.notify(id, notification);
-
-//        notificationManager.notify(id, notification);
     }
 
     private static int getPendingIntentFlag() {
@@ -124,7 +123,7 @@ public class UpgradeNotification {
         return pendingFlag;
     }
 
-    static void removeNotification(Context context, long id) {
+    public static void removeNotification(Context context, long id) {
         NotificationManagerCompat compat = NotificationManagerCompat.from(context);
         compat.cancel((int) id);
     }

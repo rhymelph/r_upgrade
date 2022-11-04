@@ -90,6 +90,16 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Incremental updating"),
         "Incremental_updating_failed": MessageLookupByLibrary.simpleMessage(
             "Incremental updating failed!"),
+        "Install_Related":
+            MessageLookupByLibrary.simpleMessage("Install Related"),
+        "Install_Type": MessageLookupByLibrary.simpleMessage("Install Type"),
+        "Install_Type_None": MessageLookupByLibrary.simpleMessage("None"),
+        "Install_Type_Normal":
+            MessageLookupByLibrary.simpleMessage("Normal Install"),
+        "Install_Type_Silent":
+            MessageLookupByLibrary.simpleMessage("Silent Install"),
+        "Install_Type_Silent_Tip": MessageLookupByLibrary.simpleMessage(
+            "Please note that this installation type requires system permissions!"),
         "Install_all_updates":
             MessageLookupByLibrary.simpleMessage("Install all updates"),
         "Jump_to_the_app_store":

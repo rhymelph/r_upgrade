@@ -46,5 +46,11 @@
   "Full_quantity_update": "Full quantity update",
   "Hot_update": "Hot update",
   "getAndroidStore": "Get Android Store",
-  "getVersionFromAndroidStore": "Get Version From Android Store"
+  "getVersionFromAndroidStore": "Get Version From Android Store",
+  "Install_Related": "Install Related",
+  "Install_Type": "Install Type",
+  "Install_Type_Normal": "Normal Install",
+  "Install_Type_Silent": "Silent Install",
+  "Install_Type_None": "None",
+  "Install_Type_Silent_Tip": "Please note that this installation type requires system permissions!"
 }

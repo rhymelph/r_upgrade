@@ -57,7 +57,7 @@ Android and IOS upgrade plugin.
 ## Getting Started
 
 ### 1. Use Plugin:
-add this code in `pubspec.yaml`
+- add this code in `pubspec.yaml`
 
 ```yaml
 dependencies:
@@ -103,7 +103,11 @@ dependencies:
 > make sure your application had this permission and request dynamic permission.
 
 ```xml
+    <!--(if you want to upload google store,can not add this permission)-->
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+     <!--(if you want to use silent install，need to add this permission,and app is system app-->
+    <uses-permission android:name="android.permission.INSTALL_PACKAGES" tools:ignore="ProtectedPermissions"/>
+
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 ```
@@ -181,6 +185,15 @@ enum RUpgradeFlavor {
     void installByPath(String path) async {
       bool isSuccess=await RUpgrade.installByPath(path);
      }
+```
+- install type
+```dart
+/// [RUpgrade.upgradeWithId]、[RUpgrade.upgrade]、[RUpgrade.install]、[RUpgrade.installByPath]
+enum RUpgradeInstallType {
+  normal,//normal install
+  silent,//silent install
+  none,// not install
+}
 ```
 
 #### 5. Pause Download

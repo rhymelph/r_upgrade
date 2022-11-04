@@ -1,4 +1,4 @@
-package com.example.r_upgrade.common;
+package com.example.r_upgrade.common.manager;
 
 import android.app.Activity;
 import android.app.DownloadManager;
@@ -19,6 +19,17 @@ import android.text.TextUtils;
 
 import androidx.annotation.Nullable;
 
+import com.example.r_upgrade.common.DownloadStatus;
+import com.example.r_upgrade.common.RUpgradeLogger;
+import com.example.r_upgrade.common.ResultMap;
+import com.example.r_upgrade.common.StoragePermissions;
+import com.example.r_upgrade.common.UpgradeNotification;
+import com.example.r_upgrade.common.UpgradeNotificationStyle;
+import com.example.r_upgrade.common.UpgradeSQLite;
+import com.example.r_upgrade.common.UpgradeService;
+import com.example.r_upgrade.common.install.BaseInstallFactory;
+import com.example.r_upgrade.common.install.NormalInstallFactory;
+import com.example.r_upgrade.common.install.SilentInstallFactory;
 import com.example.r_upgrade.common.tasks.CheckGooglePlayVersionTask;
 import com.example.r_upgrade.common.tasks.CheckTencentStoreVersionTask;
 import com.example.r_upgrade.common.tasks.CheckXiaoMiStoreVersionTask;
@@ -64,7 +75,7 @@ public class UpgradeManager extends ContextWrapper {
 
     private Timer timer;
 
-    private boolean isAutoRequestInstall;
+    private BaseInstallFactory installFactory;
 
     private boolean isUseDownloadManager = false;
 
@@ -101,8 +112,8 @@ public class UpgradeManager extends ContextWrapper {
     }
 
 
-    public void upgrade(final String url, final Map<String, String> header, final String apkName, final Integer notificationVisibility, Integer notificationStyle, Boolean isAutoRequestInstall, Boolean useDownloadManager, final Integer upgradeFlavor, final MethodChannel.Result result) {
-        this.isAutoRequestInstall = Boolean.TRUE == isAutoRequestInstall;
+    public void upgrade(final String url, final Map<String, String> header, final String apkName, final Integer notificationVisibility, Integer notificationStyle, Integer installType, Boolean useDownloadManager, final Integer upgradeFlavor, final MethodChannel.Result result) {
+        installFactory = installTypeToFactory(installType);
         this.isUseDownloadManager = Boolean.TRUE == useDownloadManager;
         if (notificationStyle != null) {
             this.notificationStyle = UpgradeNotificationStyle.values()[notificationStyle];
@@ -280,9 +291,7 @@ public class UpgradeManager extends ContextWrapper {
                         timer.cancel();
                         timer = null;
                     }
-                    if (isAutoRequestInstall) {
-                        installApkById((int) id);
-                    }
+                    installApkById((int) id);
                     intent.setAction(DOWNLOAD_STATUS);
                     intent.putExtra(PARAMS_STATUS, DownloadStatus.STATUS_SUCCESSFUL.getValue());
                     intent.putExtra(PARAMS_ID, id);
@@ -308,16 +317,19 @@ public class UpgradeManager extends ContextWrapper {
 
 
     public void installApkById(int id) {
-        installApkById(id, null);
+        installApkById(id, -1, null);
     }
 
-    public void installApkById(final int id, final MethodChannel.Result result) {
+    public void installApkById(final int id, int installType, final MethodChannel.Result result) {
+        if (installType != -1) {
+            installFactory = installTypeToFactory(installType);
+        }
+        if (installFactory == null) return;
         storagePermissions.requestPermissions(activity, permissionsRegistry, new StoragePermissions.ResultCallback() {
             @Override
             public void onResult(String errorCode, String errorDescription) {
                 if (errorCode == null) {
-                    new GenerateAndInstallAsyncTask(activity, isUseDownloadManager, result).execute(id);
-
+                    new GenerateAndInstallAsyncTask(activity, isUseDownloadManager, result, installFactory).execute(id);
                 } else {
                     if (result != null) {
                         result.error(errorCode, errorDescription, null);
@@ -327,14 +339,29 @@ public class UpgradeManager extends ContextWrapper {
         });
     }
 
-    public void installApkByPath(final String path, final int upgradeFlavor, final MethodChannel.Result result) {
+    private BaseInstallFactory installTypeToFactory(int installType) {
+        BaseInstallFactory installFactory;
+        if (installType == 0) {
+            installFactory = new NormalInstallFactory(this);
+        } else if (installType == 1) {
+            installFactory = new SilentInstallFactory(this);
+        } else {
+            installFactory = null;
+        }
+        return installFactory;
+    }
+
+
+    public void installApkByPath(final String path, final int upgradeFlavor, int installType, final MethodChannel.Result result) {
+        installFactory = installTypeToFactory(installType);
+
         storagePermissions.requestPermissions(activity, permissionsRegistry, new StoragePermissions.ResultCallback() {
             @Override
             public void onResult(String errorCode, String errorDescription) {
                 if (errorCode == null) {
                     File installPath = new File(path);
                     if (installPath.exists()) {
-                        new GenerateAndInstallByPathAsyncTask(activity, path, upgradeFlavor, result).execute();
+                        new GenerateAndInstallByPathAsyncTask(activity, path, upgradeFlavor, result, installFactory).execute();
 
                     } else {
                         result.error("file not exists", "file path:" + path + " is not exists", null);
@@ -392,7 +419,7 @@ public class UpgradeManager extends ContextWrapper {
                         } else if (status == DownloadStatus.STATUS_SUCCESSFUL.getValue() && notificationVisibility == 3) {
                             UpgradeNotification.createNotification(context, (int) id, apkName, max_length == -1, percent, contentText, status);
                         }
-                        if (isAutoRequestInstall && status == DownloadStatus.STATUS_SUCCESSFUL.getValue()) {
+                        if (status == DownloadStatus.STATUS_SUCCESSFUL.getValue()) {
                             installApkById((int) id);
                         }
                     }
@@ -431,9 +458,10 @@ public class UpgradeManager extends ContextWrapper {
         return UpgradeSQLite.getInstance(this).queryIdByVersionNameAndVersionCode(versionName, versionCode);
     }
 
-    public void upgradeWithId(final Integer id, Integer notificationVisibility, Boolean isAutoRequestInstall, final MethodChannel.Result methodResult) {
+    public void upgradeWithId(final Integer id, Integer notificationVisibility, int installType, final MethodChannel.Result methodResult) {
         this.notificationVisibility = notificationVisibility;
-        this.isAutoRequestInstall = isAutoRequestInstall;
+        installFactory = installTypeToFactory(installType);
+
         final Map<String, Object> result = UpgradeSQLite.getInstance(this).queryById(id);
         if (result == null) {
             methodResult.success(false);
@@ -465,7 +493,7 @@ public class UpgradeManager extends ContextWrapper {
                 }
             });
         } else if (status == DownloadStatus.STATUS_SUCCESSFUL.getValue()) {
-            installApkById(id, methodResult);
+            installApkById(id, -1, methodResult);
         } else {
             // not known
             methodResult.success(false);

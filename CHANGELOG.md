@@ -1,3 +1,7 @@
+## 0.4.0
+* add silent install, fix google play release issues.
+## 0.3.9
+* fixed download file not exist error.
 ## 0.3.8+2
 * fixed download file not exist error.
 ## 0.3.8+1

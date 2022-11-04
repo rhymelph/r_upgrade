@@ -2,7 +2,7 @@ package com.example.r_upgrade.method;
 
 
 import com.example.r_upgrade.common.RUpgradeLogger;
-import com.example.r_upgrade.common.UpgradeManager;
+import com.example.r_upgrade.common.manager.UpgradeManager;
 
 import java.util.Map;
 
@@ -26,7 +26,7 @@ public enum RUpgradeMethodEnum implements IRUpgradeMethodHandler {
                     (String) call.argument("fileName"),
                     (Integer) call.argument("notificationVisibility"),
                     (Integer) call.argument("notificationStyle"),
-                    (Boolean) call.argument("isAutoRequestInstall"),
+                    (Integer) call.argument("installType"),
                     (Boolean) call.argument("useDownloadManager"), (Integer) call.argument("upgradeFlavor"), result);
         }
     },
@@ -47,13 +47,13 @@ public enum RUpgradeMethodEnum implements IRUpgradeMethodHandler {
     install {
         @Override
         public void handler(UpgradeManager upgradeManager, MethodCall call, MethodChannel.Result result) {
-            upgradeManager.installApkById((Integer) call.argument("id"), result);
+            upgradeManager.installApkById((Integer) call.argument("id"),(Integer) call.argument("installType"), result);
         }
     },
     installByPath {
         @Override
         public void handler(UpgradeManager upgradeManager, MethodCall call, MethodChannel.Result result) {
-            upgradeManager.installApkByPath((String) call.argument("path"), (Integer) call.argument("flavor"), result);
+            upgradeManager.installApkByPath((String) call.argument("path"), (Integer) call.argument("flavor"), (Integer) call.argument("installType"), result);
         }
     },
     pause {
@@ -66,7 +66,7 @@ public enum RUpgradeMethodEnum implements IRUpgradeMethodHandler {
         @Override
         public void handler(UpgradeManager upgradeManager, MethodCall call, MethodChannel.Result result) {
             upgradeManager.upgradeWithId((Integer) call.argument("id"), (Integer) call.argument("notificationVisibility"),
-                    (Boolean) call.argument("isAutoRequestInstall"), result);
+                    (Integer) call.argument("installType"), result);
         }
     },
     getDownloadStatus {

@@ -123,7 +123,7 @@ public class UpgradeSQLite extends SQLiteOpenHelper {
     }
 
 
-    Integer queryStatusById(int id) {
+    public Integer queryStatusById(int id) {
         SQLiteDatabase readableDatabase = getReadableDatabase();
         Cursor cursor = readableDatabase.rawQuery("select * from " + VERSION_MANAGER + " where " + ID + "=?", new String[]{String.valueOf(id)});
         boolean canMoveNext = cursor.moveToNext();
@@ -139,7 +139,7 @@ public class UpgradeSQLite extends SQLiteOpenHelper {
 
 
     //创建记录
-    long createRecord(Context context, String url, String apk_name, String header, int status, int upgradeFlavor) {
+    public long createRecord(Context context, String url, String apk_name, String header, int status, int upgradeFlavor) {
         String versionName = "";
         int versionCode = 0;
         try {

@@ -67,6 +67,13 @@ class MessageLookup extends MessageLookupByLibrary {
         "Incremental_updating": MessageLookupByLibrary.simpleMessage("增量更新"),
         "Incremental_updating_failed":
             MessageLookupByLibrary.simpleMessage("增量更新失败!"),
+        "Install_Related": MessageLookupByLibrary.simpleMessage("安装相关"),
+        "Install_Type": MessageLookupByLibrary.simpleMessage("安装类型"),
+        "Install_Type_None": MessageLookupByLibrary.simpleMessage("无"),
+        "Install_Type_Normal": MessageLookupByLibrary.simpleMessage("普通安装"),
+        "Install_Type_Silent": MessageLookupByLibrary.simpleMessage("静默安装"),
+        "Install_Type_Silent_Tip":
+            MessageLookupByLibrary.simpleMessage("请注意，该安装类型需要系统权限!"),
         "Install_all_updates": MessageLookupByLibrary.simpleMessage("安装全量更新"),
         "Jump_to_the_app_store":
             MessageLookupByLibrary.simpleMessage("跳转到应用商店"),

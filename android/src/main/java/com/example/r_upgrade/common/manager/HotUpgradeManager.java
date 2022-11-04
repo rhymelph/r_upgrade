@@ -1,4 +1,4 @@
-package com.example.r_upgrade.common;
+package com.example.r_upgrade.common.manager;
 
 import android.content.Context;
 import android.content.ContextWrapper;

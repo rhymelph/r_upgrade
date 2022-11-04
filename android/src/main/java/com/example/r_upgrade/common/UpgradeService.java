@@ -26,7 +26,6 @@ import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.math.BigDecimal;
 import java.net.HttpURLConnection;
-import java.net.ProtocolException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -40,17 +39,17 @@ import java.util.concurrent.Executors;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSocketFactory;
 
-import static com.example.r_upgrade.common.UpgradeManager.DOWNLOAD_STATUS;
-import static com.example.r_upgrade.common.UpgradeManager.PARAMS_APK_NAME;
-import static com.example.r_upgrade.common.UpgradeManager.PARAMS_CURRENT_LENGTH;
-import static com.example.r_upgrade.common.UpgradeManager.PARAMS_ID;
-import static com.example.r_upgrade.common.UpgradeManager.PARAMS_MAX_LENGTH;
-import static com.example.r_upgrade.common.UpgradeManager.PARAMS_PACKAGE;
-import static com.example.r_upgrade.common.UpgradeManager.PARAMS_PATH;
-import static com.example.r_upgrade.common.UpgradeManager.PARAMS_PERCENT;
-import static com.example.r_upgrade.common.UpgradeManager.PARAMS_PLAN_TIME;
-import static com.example.r_upgrade.common.UpgradeManager.PARAMS_SPEED;
-import static com.example.r_upgrade.common.UpgradeManager.PARAMS_STATUS;
+import static com.example.r_upgrade.common.manager.UpgradeManager.DOWNLOAD_STATUS;
+import static com.example.r_upgrade.common.manager.UpgradeManager.PARAMS_APK_NAME;
+import static com.example.r_upgrade.common.manager.UpgradeManager.PARAMS_CURRENT_LENGTH;
+import static com.example.r_upgrade.common.manager.UpgradeManager.PARAMS_ID;
+import static com.example.r_upgrade.common.manager.UpgradeManager.PARAMS_MAX_LENGTH;
+import static com.example.r_upgrade.common.manager.UpgradeManager.PARAMS_PACKAGE;
+import static com.example.r_upgrade.common.manager.UpgradeManager.PARAMS_PATH;
+import static com.example.r_upgrade.common.manager.UpgradeManager.PARAMS_PERCENT;
+import static com.example.r_upgrade.common.manager.UpgradeManager.PARAMS_PLAN_TIME;
+import static com.example.r_upgrade.common.manager.UpgradeManager.PARAMS_SPEED;
+import static com.example.r_upgrade.common.manager.UpgradeManager.PARAMS_STATUS;
 
 public class UpgradeService extends Service {
     public static final String DOWNLOAD_ID = "download_id";
@@ -139,6 +138,9 @@ public class UpgradeService extends Service {
     }
 
     private void handleNetworkChange(boolean isConnected) {
+        if (runnable == null || runnable.isFinish) {
+            return;
+        }
         if (isConnected) {
             RUpgradeLogger.get().d(TAG, "onReceive: 当前网络正在连接");
             if (isFirst) {
@@ -153,6 +155,7 @@ public class UpgradeService extends Service {
                 isFirst = false;
                 return;
             }
+            runnable.handlerDownloadFinish();
             runnable.pause(-1);
             isFirst = false;
             RUpgradeLogger.get().d(TAG, "onReceive: 当前网络已断开");
@@ -219,6 +222,8 @@ public class UpgradeService extends Service {
 
         private boolean isNewDownload;
 
+        private boolean isFinish;
+
         UpgradeRunnable(boolean isReStart, Long id, String url, Map<String, Object> header, String apkName, UpgradeService upgradeService, UpgradeSQLite sqLite) {
             this.id = id;
             this.url = url;
@@ -227,12 +232,22 @@ public class UpgradeService extends Service {
             this.upgradeService = upgradeService;
             this.sqLite = sqLite;
             this.isReStart = isReStart;
+            this.isFinish = false;
         }
 
+        /**
+         * cancel timer
+         */
+        private void cancelTimer() {
+            if (timer != null) {
+                timer.cancel();
+            }
+        }
 
         private void cancel(int id) {
+            if (isFinish) return;
             if (this.id == id) {
-                timer.cancel();
+                cancelTimer();
                 if (httpsURLConnection != null) {
                     httpsURLConnection.disconnect();
                 }
@@ -248,6 +263,8 @@ public class UpgradeService extends Service {
         }
 
         private void pause(int id) {
+            if (isFinish) return;
+
             if (id == -1 || this.id == id) {
                 if (httpsURLConnection != null) {
                     httpsURLConnection.disconnect();
@@ -381,9 +398,7 @@ public class UpgradeService extends Service {
 
         private void handlerDownloadCancel() {
             RUpgradeLogger.get().d(TAG, "handlerDownloadCancel: ");
-            if (timer != null) {
-                timer.cancel();
-            }
+            cancelTimer();
             Intent intent = new Intent();
             intent.setAction(DOWNLOAD_STATUS);
             intent.putExtra(PARAMS_ID, id);
@@ -397,9 +412,7 @@ public class UpgradeService extends Service {
 
         private void handlerDownloadPause() {
             RUpgradeLogger.get().d(TAG, "handlerDownloadPause: downloadFile:" + downloadFile);
-            if (timer != null) {
-                timer.cancel();
-            }
+            cancelTimer();
             Intent intent = new Intent();
             intent.setAction(DOWNLOAD_STATUS);
             intent.putExtra(PARAMS_ID, id);
@@ -419,9 +432,7 @@ public class UpgradeService extends Service {
 
         private void handlerDownloadFinish() {
             RUpgradeLogger.get().d(TAG, "handlerDownloadFinish: finish");
-            if (timer != null) {
-                timer.cancel();
-            }
+            cancelTimer();
             Intent intent = new Intent();
             intent.setAction(DOWNLOAD_STATUS);
             intent.putExtra(PARAMS_ID, id);
@@ -432,6 +443,7 @@ public class UpgradeService extends Service {
             upgradeService.sendBroadcast(intent);
             sqLite.update(id, null, null, DownloadStatus.STATUS_SUCCESSFUL.getValue());
             lastCurrentLength = 0;
+            isFinish = true;
         }
 
         private void handlerDownloadFailure() {

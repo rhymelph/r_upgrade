@@ -15,14 +15,14 @@ public class StoragePermissions {
         void addListener(PluginRegistry.RequestPermissionsResultListener handler);
     }
 
-    interface ResultCallback {
+    public interface ResultCallback {
         void onResult(String errorCode, String errorDescription);
     }
 
     private static final int STORAGE_REQUEST_ID = 9790;
     private boolean ongoing = false;
 
-    void requestPermissions(
+    public void requestPermissions(
             Activity activity,
             PermissionsRegistry permissionsRegistry,
             final ResultCallback callback) {
@@ -60,7 +60,7 @@ public class StoragePermissions {
     }
 
     @VisibleForTesting
-    static final class StorageRequestPermissionsListener
+    public static final class StorageRequestPermissionsListener
             implements PluginRegistry.RequestPermissionsResultListener {
 
         // There's no way to unregister permission listeners in the v1 embedding, so we'll be called

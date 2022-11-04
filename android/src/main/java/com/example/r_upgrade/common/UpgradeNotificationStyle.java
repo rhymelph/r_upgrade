@@ -12,7 +12,7 @@ public enum UpgradeNotificationStyle {
     none;
 
 
-    String getNotificationStyleString(Context context, double speech, double planTime) {
+    public String getNotificationStyleString(Context context, double speech, double planTime) {
         String speechString = context.getResources().getString(R.string.r_upgrade_download_speech, speech);
         String planTimeString = context.getResources().getString(R.string.r_upgrade_download_planTime, planTime);
         switch (this) {

@@ -21,7 +21,6 @@
   "Please_click_on_start_hot_update": "请点击开始热更新",
   "Hot_update_is_successful_exit_the_application_after_3_s_please_re_enter": "热更新成功，3s后退出应用，请重新进入",
   "Hot_update_failed_please_wait_for_update_the_download_is_complete": "热更新失败，请等待更新包下载完成",
-  "Incremental_updating": "增量更新",
   "Began_to_download_the_incremental_updating": "开始下载增量更新",
   "Please_click_on_start_incremental_updates": "请点击开始增量更新",
   "Incremental_updating_failed": "增量更新失败!",
@@ -47,5 +46,11 @@
   "Hot_update": "热更新",
   "Incremental_updating": "增量更新",
   "getAndroidStore": "获取应用市场列表",
-  "getVersionFromAndroidStore": "获取版本号（应用宝）"
+  "getVersionFromAndroidStore": "获取版本号（应用宝）",
+  "Install_Related": "安装相关",
+  "Install_Type": "安装类型",
+  "Install_Type_Normal": "普通安装",
+  "Install_Type_Silent": "静默安装",
+  "Install_Type_None": "无",
+  "Install_Type_Silent_Tip": "请注意，该安装类型需要系统权限!"
 }

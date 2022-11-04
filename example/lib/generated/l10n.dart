@@ -531,6 +531,66 @@ class S {
       args: [],
     );
   }
+
+  /// `Install Related`
+  String get Install_Related {
+    return Intl.message(
+      'Install Related',
+      name: 'Install_Related',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Install Type`
+  String get Install_Type {
+    return Intl.message(
+      'Install Type',
+      name: 'Install_Type',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Normal Install`
+  String get Install_Type_Normal {
+    return Intl.message(
+      'Normal Install',
+      name: 'Install_Type_Normal',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Silent Install`
+  String get Install_Type_Silent {
+    return Intl.message(
+      'Silent Install',
+      name: 'Install_Type_Silent',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `None`
+  String get Install_Type_None {
+    return Intl.message(
+      'None',
+      name: 'Install_Type_None',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please note that this installation type requires system permissions!`
+  String get Install_Type_Silent_Tip {
+    return Intl.message(
+      'Please note that this installation type requires system permissions!',
+      name: 'Install_Type_Silent_Tip',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

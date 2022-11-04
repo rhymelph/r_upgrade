@@ -103,7 +103,7 @@ class RUpgrade {
   /// * [fileName] download  filename and notification title name.
   /// * [notificationVisibility] download running notification visibility mode.
   /// * [notificationStyle] download notification show style about content text, only support [useDownloadManager]==false.
-  /// * [isAutoRequestInstall] download completed will install apk.
+  /// * [installType] download completed will install apk, use [RUpgradeInstallType.none] can not install.
   /// * [useDownloadManager] if true will use DownloadManager,false will use my service ,
   /// *         if true will no use [pause] , [upgradeWithId] , [getDownloadStatus] , [getLastUpgradedId] methods.
   /// * [upgradeFlavor] you can use [RUpgradeFlavor.normal] , [RUpgradeFlavor.hotUpgrade] , [RUpgradeFlavor.incrementUpgrade] flavor
@@ -114,7 +114,7 @@ class RUpgrade {
     NotificationVisibility notificationVisibility =
         NotificationVisibility.VISIBILITY_VISIBLE,
     NotificationStyle notificationStyle = NotificationStyle.planTime,
-    bool isAutoRequestInstall = true,
+    RUpgradeInstallType installType = RUpgradeInstallType.normal,
     bool useDownloadManager = false,
     RUpgradeFlavor upgradeFlavor = RUpgradeFlavor.normal,
   }) {
@@ -125,7 +125,7 @@ class RUpgrade {
       "fileName": fileName,
       "notificationVisibility": notificationVisibility.value,
       "notificationStyle": notificationStyle.index,
-      "isAutoRequestInstall": isAutoRequestInstall,
+      "installType": installType.index,
       "useDownloadManager": useDownloadManager,
       "upgradeFlavor": upgradeFlavor.index,
     });
@@ -146,10 +146,14 @@ class RUpgrade {
   ///
   /// Install your apk by [id].
   ///
-  static Future<bool?> install(int id) async {
+  static Future<bool?> install(
+    int id, {
+    RUpgradeInstallType installType = RUpgradeInstallType.normal,
+  }) async {
     assert(Platform.isAndroid, 'This method only support android application');
     return await _methodChannel!.invokeMethod("install", {
       'id': id,
+      'installType': installType.index,
     });
   }
 
@@ -157,12 +161,16 @@ class RUpgrade {
   ///
   /// Install your apk by [path].
   ///
-  static Future<bool?> installByPath(String path,
-      {RUpgradeFlavor flavor = RUpgradeFlavor.normal}) async {
+  static Future<bool?> installByPath(
+    String path, {
+    RUpgradeFlavor flavor = RUpgradeFlavor.normal,
+    RUpgradeInstallType installType = RUpgradeInstallType.normal,
+  }) async {
     assert(Platform.isAndroid, 'This method only support android application');
     return await _methodChannel!.invokeMethod("installByPath", {
       'path': path,
       'flavor': flavor.index,
+      'installType': installType,
     });
   }
 
@@ -190,13 +198,13 @@ class RUpgrade {
     int id, {
     NotificationVisibility notificationVisibility =
         NotificationVisibility.VISIBILITY_VISIBLE,
-    bool isAutoRequestInstall = true,
+    RUpgradeInstallType installType = RUpgradeInstallType.normal,
   }) async {
     assert(Platform.isAndroid, 'This method only support android application');
     return await _methodChannel!.invokeMethod("upgradeWithId", {
       "id": id,
       "notificationVisibility": notificationVisibility.value,
-      "isAutoRequestInstall": isAutoRequestInstall,
+      "installType": installType.index,
     });
   }
 
@@ -415,6 +423,13 @@ enum RUpgradeFlavor {
   normal,
   hotUpgrade,
   incrementUpgrade,
+}
+
+/// Install Type
+enum RUpgradeInstallType {
+  normal,
+  silent,
+  none,
 }
 
 ///
