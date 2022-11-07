@@ -143,7 +143,7 @@ This upgrade have two part.
     - Inferiority：No bugs found yet. If you find a bug, you are welcome to issue
     - support: `RUpgrade.stream`、`install`、`cancel`
 ```dart
-    // [isAutoRequestInstall] downloaded finish will auto request install apk.
+    // [installType] downloaded finish will use install type to install apk.
     // [apkName] apk name (such as `release.apk`)
     // [notificationVisibility] notification visibility.
     // [notificationStyle] download notification show style about content text, only support [useDownloadManager]==false.
@@ -153,7 +153,7 @@ This upgrade have two part.
     void upgrade() async {
       int id = await RUpgrade.upgrade(
                  'https://raw.githubusercontent.com/rhymelph/r_upgrade/master/apk/app-release.apk',
-                 apkName: 'app-release.apk',isAutoRequestInstall: true);
+                 apkName: 'app-release.apk', installType: RUpgradeInstallType.normal,);
     }
 ```
 New upgraded flavor：(no support use DownloadManager)
@@ -246,7 +246,7 @@ The code is as follows：
                 'https://mydata-1252536312.cos.ap-guangzhou.myqcloud.com/r_upgrade.patch',
                 fileName: 'r_upgrade.patch',
                 useDownloadManager: false,
-                isAutoRequestInstall: false,
+                installType: RUpgradeInstallType.none,
                 upgradeFlavor: RUpgradeFlavor.incrementUpgrade,
               );
     }

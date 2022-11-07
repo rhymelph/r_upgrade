@@ -148,7 +148,7 @@ info 里包含的信息如下:
     - 劣势：暂无发现，如果发现bug欢迎提issue.
     - 支持的方法：默认全部
 ```dart
-    // [isAutoRequestInstall] 下载完成后自动弹出安装
+    // [installType] 下载完成后的安装类型，详情可以看[RUpgradeInstallType]
     // [apkName] 安装包的名字（需要包含.apk）
     // [notificationVisibility] 通知栏显示方式
     // [useDownloadManager] 是否使用DownloadManager，默认不使用（DownloadManager不支持http下载，下载手动暂停，断点续传等，不建议使用）
@@ -156,7 +156,7 @@ info 里包含的信息如下:
     void upgrade() async {
       int id = await RUpgrade.upgrade(
                  'https://raw.githubusercontent.com/rhymelph/r_upgrade/master/apk/app-release.apk',
-                 apkName: 'app-release.apk',isAutoRequestInstall: true);
+                 apkName: 'app-release.apk',installType: RUpgradeInstallType.normal,);
     }
 ```
 新增升级的口味：(不支持使用DownloadManager下载)
@@ -250,7 +250,7 @@ enum RUpgradeInstallType {
                 'https://mydata-1252536312.cos.ap-guangzhou.myqcloud.com/r_upgrade.patch',
                 fileName: 'r_upgrade.patch',
                 useDownloadManager: false,
-                isAutoRequestInstall: false,
+                installType: RUpgradeInstallType.none,
                 upgradeFlavor: RUpgradeFlavor.incrementUpgrade,
               );
     }
