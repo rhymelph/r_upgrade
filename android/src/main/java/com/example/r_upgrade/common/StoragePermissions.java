@@ -3,6 +3,7 @@ package com.example.r_upgrade.common;
 import android.Manifest;
 import android.app.Activity;
 import android.content.pm.PackageManager;
+import android.os.Build;
 
 import androidx.annotation.VisibleForTesting;
 import androidx.core.app.ActivityCompat;
@@ -29,7 +30,7 @@ public class StoragePermissions {
         if (ongoing) {
             callback.onResult("storagePermission", "Read/Write External Storage permission request ongoing");
         }
-        if (!hasReadStoragePermission(activity) || !hasWritePermission(activity)) {
+        if (Build.VERSION.SDK_INT < 30 && (!hasReadStoragePermission(activity) || !hasWritePermission(activity))) {
             permissionsRegistry.addListener(
                     new StorageRequestPermissionsListener(new ResultCallback() {
                         @Override
