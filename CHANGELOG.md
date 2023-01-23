@@ -1,3 +1,5 @@
+## 0.4.1
+* fix issues(#71)
 ## 0.4.0
 * add silent install, fix google play release issues.
 ## 0.3.9

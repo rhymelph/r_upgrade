@@ -170,7 +170,7 @@ class RUpgrade {
     return await _methodChannel!.invokeMethod("installByPath", {
       'path': path,
       'flavor': flavor.index,
-      'installType': installType,
+      'installType': installType.index,
     });
   }
 
