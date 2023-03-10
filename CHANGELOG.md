@@ -1,3 +1,5 @@
+## 0.4.2
+* fix issues(#76) support android 13.
 ## 0.4.1
 * fix issues(#71)
 ## 0.4.0

@@ -52,5 +52,17 @@
   "Install_Type_Normal": "Normal Install",
   "Install_Type_Silent": "Silent Install",
   "Install_Type_None": "None",
-  "Install_Type_Silent_Tip": "Please note that this installation type requires system permissions!"
+  "Install_Type_Silent_Tip": "Please note that this installation type requires system permissions!",
+  "Notification_Related": "Notification Related",
+  "Notification_Visibility":"Notification Visibility",
+  "Notification_Visibility_Visible":"Visible",
+  "Notification_Visibility_Visible_Notify_Completed":"Visible Notify Completed",
+  "Notification_Visibility_Visible_Notify_Only_Completion":"Visible Notify Only Completion",
+  "Notification_Visibility_Hidden":"Hidden",
+  "Notification_Style":"Notification Style",
+  "Notification_Style_None":"None",
+  "Notification_Style_Speech_PlanTime":"Speech/PlanTime",
+  "Notification_Style_PlanTime_Speech":"PlanTime/Speech",
+  "Notification_Style_Speech":"Speech",
+  "Notification_Style_PlanTime":"PlanTime"
 }

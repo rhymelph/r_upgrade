@@ -80,6 +80,9 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   int? id;
   RUpgradeInstallType installType = RUpgradeInstallType.normal;
+  NotificationVisibility notificationVisibility =
+      NotificationVisibility.VISIBILITY_VISIBLE;
+  NotificationStyle notificationStyle = NotificationStyle.planTime;
   UpgradeMethod? upgradeMethod;
 
   String? iosVersion = "";
@@ -144,6 +147,88 @@ class _MyAppState extends State<MyApp> {
         children: <Widget>[
           _buildDownloadWindow(),
           Divider(),
+          ListTile(
+            title: Text(
+              S.of(context).Notification_Related,
+              style: Theme.of(context).textTheme.headline6!.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
+          ),
+          ListTile(
+            title: Text(
+              S.of(context).Notification_Visibility,
+            ),
+            trailing: DropdownButton<NotificationVisibility>(
+              items: [
+                DropdownMenuItem(
+                  child: Text(S.of(context).Notification_Visibility_Visible),
+                  value: NotificationVisibility.VISIBILITY_VISIBLE,
+                ),
+                DropdownMenuItem(
+                  child: Text(S
+                      .of(context)
+                      .Notification_Visibility_Visible_Notify_Completed),
+                  value: NotificationVisibility
+                      .VISIBILITY_VISIBLE_NOTIFY_COMPLETED,
+                ),
+                DropdownMenuItem(
+                  child: Text(S.of(context).Notification_Visibility_Hidden),
+                  value: NotificationVisibility.VISIBILITY_HIDDEN,
+                ),
+                DropdownMenuItem(
+                  child: Text(S
+                      .of(context)
+                      .Notification_Visibility_Visible_Notify_Only_Completion),
+                  value: NotificationVisibility
+                      .VISIBILITY_VISIBLE_NOTIFY_ONLY_COMPLETION,
+                ),
+              ],
+              value: notificationVisibility,
+              onChanged: (value) {
+                if (value == null) return;
+                setState(() {
+                  notificationVisibility = value;
+                });
+              },
+            ),
+          ),
+          ListTile(
+            title: Text(
+              S.of(context).Notification_Style,
+            ),
+            trailing: DropdownButton<NotificationStyle>(
+              items: [
+                DropdownMenuItem(
+                  child: Text(S.of(context).Notification_Style_PlanTime),
+                  value: NotificationStyle.planTime,
+                ),
+                DropdownMenuItem(
+                  child: Text(S.of(context).Notification_Style_PlanTime_Speech),
+                  value: NotificationStyle.planTimeAndSpeech,
+                ),
+                DropdownMenuItem(
+                  child: Text(S.of(context).Notification_Style_Speech_PlanTime),
+                  value: NotificationStyle.speechAndPlanTime,
+                ),
+                DropdownMenuItem(
+                  child: Text(S.of(context).Notification_Style_Speech),
+                  value: NotificationStyle.speech,
+                ),
+                DropdownMenuItem(
+                  child: Text(S.of(context).Notification_Style_None),
+                  value: NotificationStyle.none,
+                ),
+              ],
+              value: notificationStyle,
+              onChanged: (value) {
+                if (value == null) return;
+                setState(() {
+                  notificationStyle = value;
+                });
+              },
+            ),
+          ),
           ListTile(
             title: Text(
               S.of(context).Install_Related,
@@ -264,10 +349,11 @@ class _MyAppState extends State<MyApp> {
               id = await RUpgrade.upgrade(
 //                "http://192.168.1.105:8888/files/static/kuan.apk",
 //                  'http://dl-cdn.coolapkmarket.com/down/apk_file/2020/0308/Coolapk-v10.0.3-2003081-coolapk-app-release.apk?_upt=b210caeb1585012557',
-                  'https://dl-tc.coolapkmarket.com/down/apk_file/2022/1031/Coolapk-12.5.1-2210311-coolapk-app-sign.apk?t=1675873958&sign=c2eed2272fe3ac07435a555dbbd5bfe4',
+                  'https://dl.coolapk.com/down?pn=com.coolapk.market&id=NDU5OQ&h=46bb9d98&from=from-web',
                   fileName: 'r_upgrade.apk',
-                  installType: installType!,
-                  notificationStyle: NotificationStyle.speechAndPlanTime,
+                  installType: installType,
+                  notificationStyle: notificationStyle,
+                  notificationVisibility: notificationVisibility,
                   useDownloadManager: false);
               upgradeMethod = UpgradeMethod.all;
               setState(() {});
@@ -373,7 +459,9 @@ class _MyAppState extends State<MyApp> {
                   fileName: 'r_upgrade.zip',
                   useDownloadManager: false,
                   installType: installType,
-                  upgradeFlavor: RUpgradeFlavor.hotUpgrade);
+                  upgradeFlavor: RUpgradeFlavor.hotUpgrade,
+                  notificationStyle: notificationStyle,
+                  notificationVisibility: notificationVisibility);
               upgradeMethod = UpgradeMethod.hot;
               setState(() {});
             },
@@ -445,6 +533,8 @@ class _MyAppState extends State<MyApp> {
                 fileName: 'r_upgrade.patch',
                 useDownloadManager: false,
                 installType: installType,
+                notificationVisibility: notificationVisibility,
+                notificationStyle: notificationStyle,
                 upgradeFlavor: RUpgradeFlavor.incrementUpgrade,
               );
               upgradeMethod = UpgradeMethod.increment;

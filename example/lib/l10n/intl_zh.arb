@@ -52,5 +52,17 @@
   "Install_Type_Normal": "普通安装",
   "Install_Type_Silent": "静默安装",
   "Install_Type_None": "无",
-  "Install_Type_Silent_Tip": "请注意，该安装类型需要系统权限!"
+  "Install_Type_Silent_Tip": "请注意，该安装类型需要系统权限!",
+  "Notification_Related": "通知相关",
+  "Notification_Visibility":"通知栏可见",
+  "Notification_Visibility_Visible":"总是显示",
+  "Notification_Visibility_Visible_Notify_Completed":"显示直到下载完成",
+  "Notification_Visibility_Hidden":"隐藏显示",
+  "Notification_Visibility_Visible_Notify_Only_Completion":"下载完成才显示",
+  "Notification_Style":"通知样式",
+  "Notification_Style_None":"无",
+  "Notification_Style_Speech_PlanTime":"下载速度/预计时间",
+  "Notification_Style_PlanTime_Speech":"预计时间/下载速度",
+  "Notification_Style_Speech":"下载速度",
+  "Notification_Style_PlanTime":"预计时间"
 }

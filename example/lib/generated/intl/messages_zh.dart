@@ -83,6 +83,27 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("查看最后一次ID的下载状态"),
         "No_ID_last_time_to_download":
             MessageLookupByLibrary.simpleMessage("没有最后一次下载的ID"),
+        "Notification_Related": MessageLookupByLibrary.simpleMessage("通知相关"),
+        "Notification_Style": MessageLookupByLibrary.simpleMessage("通知样式"),
+        "Notification_Style_None": MessageLookupByLibrary.simpleMessage("无"),
+        "Notification_Style_PlanTime":
+            MessageLookupByLibrary.simpleMessage("预计时间"),
+        "Notification_Style_PlanTime_Speech":
+            MessageLookupByLibrary.simpleMessage("预计时间/下载速度"),
+        "Notification_Style_Speech":
+            MessageLookupByLibrary.simpleMessage("下载速度"),
+        "Notification_Style_Speech_PlanTime":
+            MessageLookupByLibrary.simpleMessage("下载速度/预计时间"),
+        "Notification_Visibility":
+            MessageLookupByLibrary.simpleMessage("通知栏可见"),
+        "Notification_Visibility_Hidden":
+            MessageLookupByLibrary.simpleMessage("隐藏显示"),
+        "Notification_Visibility_Visible":
+            MessageLookupByLibrary.simpleMessage("总是显示"),
+        "Notification_Visibility_Visible_Notify_Completed":
+            MessageLookupByLibrary.simpleMessage("显示直到下载完成"),
+        "Notification_Visibility_Visible_Notify_Only_Completion":
+            MessageLookupByLibrary.simpleMessage("下载完成才显示"),
         "Please_click_on_start_hot_update":
             MessageLookupByLibrary.simpleMessage("请点击开始热更新"),
         "Please_click_on_start_incremental_updates":

@@ -111,6 +111,30 @@ class MessageLookup extends MessageLookupByLibrary {
                 "Look at the last time ID download status"),
         "No_ID_last_time_to_download":
             MessageLookupByLibrary.simpleMessage("No ID last time to download"),
+        "Notification_Related":
+            MessageLookupByLibrary.simpleMessage("Notification Related"),
+        "Notification_Style":
+            MessageLookupByLibrary.simpleMessage("Notification Style"),
+        "Notification_Style_None": MessageLookupByLibrary.simpleMessage("None"),
+        "Notification_Style_PlanTime":
+            MessageLookupByLibrary.simpleMessage("PlanTime"),
+        "Notification_Style_PlanTime_Speech":
+            MessageLookupByLibrary.simpleMessage("PlanTime/Speech"),
+        "Notification_Style_Speech":
+            MessageLookupByLibrary.simpleMessage("Speech"),
+        "Notification_Style_Speech_PlanTime":
+            MessageLookupByLibrary.simpleMessage("Speech/PlanTime"),
+        "Notification_Visibility":
+            MessageLookupByLibrary.simpleMessage("Notification Visibility"),
+        "Notification_Visibility_Hidden":
+            MessageLookupByLibrary.simpleMessage("Hidden"),
+        "Notification_Visibility_Visible":
+            MessageLookupByLibrary.simpleMessage("Visible"),
+        "Notification_Visibility_Visible_Notify_Completed":
+            MessageLookupByLibrary.simpleMessage("Visible Notify Completed"),
+        "Notification_Visibility_Visible_Notify_Only_Completion":
+            MessageLookupByLibrary.simpleMessage(
+                "Visible Notify Only Completion"),
         "Please_click_on_start_hot_update":
             MessageLookupByLibrary.simpleMessage(
                 "Please click on start hot update"),

@@ -5,7 +5,7 @@ import android.content.Intent;
 
 import androidx.annotation.NonNull;
 
-import com.example.r_upgrade.common.StoragePermissions;
+import com.example.r_upgrade.common.DownloadPermissions;
 import com.example.r_upgrade.common.manager.UpgradeManager;
 import com.example.r_upgrade.common.UpgradeService;
 import com.example.r_upgrade.method.RUpgradeMethodCallHandler;
@@ -32,13 +32,13 @@ public class RUpgradePlugin implements FlutterPlugin, ActivityAware {
 
     }
 
-    private RUpgradePlugin(Activity activity, BinaryMessenger messenger, StoragePermissions.PermissionsRegistry permissionsRegistry) {
+    private RUpgradePlugin(Activity activity, BinaryMessenger messenger, DownloadPermissions.PermissionsRegistry permissionsRegistry) {
         initPlugin(activity, messenger, permissionsRegistry);
     }
 
-    private void initPlugin(Activity activity, BinaryMessenger messenger, StoragePermissions.PermissionsRegistry permissionsRegistry) {
+    private void initPlugin(Activity activity, BinaryMessenger messenger, DownloadPermissions.PermissionsRegistry permissionsRegistry) {
         _channel = new MethodChannel(messenger, PLUGIN_METHOD_NAME);
-        upgradeManager = new UpgradeManager(activity, _channel, new StoragePermissions(), permissionsRegistry);
+        upgradeManager = new UpgradeManager(activity, _channel, new DownloadPermissions(), permissionsRegistry);
         _channel.setMethodCallHandler(new RUpgradeMethodCallHandler(upgradeManager));
     }
 
@@ -47,7 +47,7 @@ public class RUpgradePlugin implements FlutterPlugin, ActivityAware {
      */
     public static void registerWith(final Registrar registrar) {
 
-        new RUpgradePlugin(registrar.activity(), registrar.messenger(), new StoragePermissions.PermissionsRegistry() {
+        new RUpgradePlugin(registrar.activity(), registrar.messenger(), new DownloadPermissions.PermissionsRegistry() {
             @Override
             public void addListener(PluginRegistry.RequestPermissionsResultListener handler) {
                 registrar.addRequestPermissionsResultListener(handler);
@@ -71,7 +71,7 @@ public class RUpgradePlugin implements FlutterPlugin, ActivityAware {
 
     @Override
     public void onAttachedToActivity(@NonNull final ActivityPluginBinding binding) {
-        initPlugin(binding.getActivity(), flutterPluginBinding.getBinaryMessenger(), new StoragePermissions.PermissionsRegistry() {
+        initPlugin(binding.getActivity(), flutterPluginBinding.getBinaryMessenger(), new DownloadPermissions.PermissionsRegistry() {
             @Override
             public void addListener(PluginRegistry.RequestPermissionsResultListener handler) {
                 binding.addRequestPermissionsResultListener(handler);

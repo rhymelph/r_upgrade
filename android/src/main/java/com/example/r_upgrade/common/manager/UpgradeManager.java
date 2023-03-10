@@ -22,7 +22,7 @@ import androidx.annotation.Nullable;
 import com.example.r_upgrade.common.DownloadStatus;
 import com.example.r_upgrade.common.RUpgradeLogger;
 import com.example.r_upgrade.common.ResultMap;
-import com.example.r_upgrade.common.StoragePermissions;
+import com.example.r_upgrade.common.DownloadPermissions;
 import com.example.r_upgrade.common.UpgradeNotification;
 import com.example.r_upgrade.common.UpgradeNotificationStyle;
 import com.example.r_upgrade.common.UpgradeSQLite;
@@ -87,8 +87,8 @@ public class UpgradeManager extends ContextWrapper {
 
     private MethodChannel channel;
 
-    private StoragePermissions.PermissionsRegistry permissionsRegistry;
-    private StoragePermissions storagePermissions;
+    private DownloadPermissions.PermissionsRegistry permissionsRegistry;
+    private DownloadPermissions downloadPermissions;
     private Activity activity;
 
 
@@ -96,10 +96,10 @@ public class UpgradeManager extends ContextWrapper {
         unregisterReceiver(downloadReceiver);
     }
 
-    public UpgradeManager(Activity base, MethodChannel channel, StoragePermissions storagePermissions, StoragePermissions.PermissionsRegistry permissionsRegistry) {
+    public UpgradeManager(Activity base, MethodChannel channel, DownloadPermissions storagePermissions, DownloadPermissions.PermissionsRegistry permissionsRegistry) {
         super(base);
         this.activity = base;
-        this.storagePermissions = storagePermissions;
+        this.downloadPermissions = storagePermissions;
         this.permissionsRegistry = permissionsRegistry;
         this.channel = channel;
         UpgradeSQLite.getInstance(this).pauseDownloading();
@@ -122,7 +122,7 @@ public class UpgradeManager extends ContextWrapper {
         }
         this.notificationVisibility = notificationVisibility;
 
-        storagePermissions.requestPermissions(activity, permissionsRegistry, new StoragePermissions.ResultCallback() {
+        downloadPermissions.requestPermissions(activity, permissionsRegistry, notificationVisibility,new DownloadPermissions.ResultCallback() {
             @Override
             public void onResult(String errorCode, String errorDescription) {
                 if (errorCode == null) {
@@ -325,7 +325,7 @@ public class UpgradeManager extends ContextWrapper {
             installFactory = installTypeToFactory(installType);
         }
         if (installFactory == null) return;
-        storagePermissions.requestPermissions(activity, permissionsRegistry, new StoragePermissions.ResultCallback() {
+        downloadPermissions.requestPermissions(activity, permissionsRegistry,notificationVisibility, new DownloadPermissions.ResultCallback() {
             @Override
             public void onResult(String errorCode, String errorDescription) {
                 if (errorCode == null) {
@@ -355,7 +355,7 @@ public class UpgradeManager extends ContextWrapper {
     public void installApkByPath(final String path, final int upgradeFlavor, int installType, final MethodChannel.Result result) {
         installFactory = installTypeToFactory(installType);
 
-        storagePermissions.requestPermissions(activity, permissionsRegistry, new StoragePermissions.ResultCallback() {
+        downloadPermissions.requestPermissions(activity, permissionsRegistry,notificationVisibility, new DownloadPermissions.ResultCallback() {
             @Override
             public void onResult(String errorCode, String errorDescription) {
                 if (errorCode == null) {
@@ -473,7 +473,7 @@ public class UpgradeManager extends ContextWrapper {
         int status = (int) result.get(UpgradeSQLite.STATUS);
         if (status == DownloadStatus.STATUS_PAUSED.getValue() || status == DownloadStatus.STATUS_FAILED.getValue()
                 || status == DownloadStatus.STATUS_CANCEL.getValue() || !downloadFile.exists()) {
-            storagePermissions.requestPermissions(activity, permissionsRegistry, new StoragePermissions.ResultCallback() {
+            downloadPermissions.requestPermissions(activity, permissionsRegistry, notificationVisibility,new DownloadPermissions.ResultCallback() {
                 @Override
                 public void onResult(String errorCode, String errorDescription) {
                     if (errorCode == null) {
