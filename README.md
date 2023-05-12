@@ -77,7 +77,9 @@ dependencies:
 ## Android Platform
 
 ### 1.Get android store list.
-This returns the stores the device has installed on the phone
+This returns the stores the device has installed on the phone. E.g:
+![image](https://github.com/loonix/r_upgrade/assets/3384277/48c47be4-42e3-43f0-91d5-e783bf3728fc)
+
 ```dart
     void getAndroidStores() async {
        final stores = await RUpgrade.androidStores;
