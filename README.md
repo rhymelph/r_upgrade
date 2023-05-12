@@ -77,6 +77,7 @@ dependencies:
 ## Android Platform
 
 ### 1.Get android store list.
+This returns the stores the device has installed on the phone
 ```dart
     void getAndroidStores() async {
        final stores = await RUpgrade.androidStores;
