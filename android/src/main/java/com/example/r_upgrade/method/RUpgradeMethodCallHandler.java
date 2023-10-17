@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 
 import com.example.r_upgrade.common.manager.UpgradeManager;
 
+import io.flutter.Log;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 

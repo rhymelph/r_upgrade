@@ -9,7 +9,10 @@ import 'generated/l10n.dart';
 
 const version = 1;
 
-void main() => runApp(Application());
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(Application());
+}
 
 enum UpgradeMethod {
   all,
