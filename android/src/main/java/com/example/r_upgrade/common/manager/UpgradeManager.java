@@ -116,13 +116,11 @@ public class UpgradeManager extends ContextWrapper {
         filter.addAction(UpgradeManager.DOWNLOAD_INSTALL);
         downloadReceiver = createBroadcastReceiver();
         final int sdkInt = Build.VERSION.SDK_INT;
-        if (sdkInt >= Build.VERSION_CODES.O) {
-            if (sdkInt >= Build.VERSION_CODES.TIRAMISU) {
-                registerReceiver(downloadReceiver, filter, Context.RECEIVER_EXPORTED);
-                return;
-            }
+        if (sdkInt >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(downloadReceiver, filter, Context.RECEIVER_EXPORTED);
+        } else {
+            registerReceiver(downloadReceiver, filter);
         }
-        registerReceiver(downloadReceiver, filter);
     }
 
     public void upgrade(final String url, final Map<String, String> header, final String apkName, final Integer notificationVisibility, Integer notificationStyle, Integer installType, Boolean useDownloadManager, final Integer upgradeFlavor, final MethodChannel.Result result) {
