@@ -155,7 +155,6 @@ public class UpgradeService extends Service {
                 isFirst = false;
                 return;
             }
-            runnable.handlerDownloadFinish();
             runnable.pause(-1);
             isFirst = false;
             RUpgradeLogger.get().d(TAG, "onReceive: 当前网络已断开");
