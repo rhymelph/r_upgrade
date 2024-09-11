@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.os.Build;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.app.ActivityCompat;
@@ -33,8 +34,9 @@ public class DownloadPermissions {
         if (Build.VERSION.SDK_INT >= 33) {
             if (ongoing) {
                 callback.onResult("downloadPermission", "Notification permission request ongoing");
+                return;
             }
-            if (notificationVisibility != 2&&!hasNotificationPermission(activity)) {
+            if (notificationVisibility != 2 && !hasNotificationPermission(activity)) {
                 permissionsRegistry.addListener(
                         new StorageRequestPermissionsListener(new ResultCallback() {
                             @Override
@@ -52,9 +54,13 @@ public class DownloadPermissions {
                 // Permissions already exist. Call the callback with success.
                 callback.onResult(null, null);
             }
-        } else if (Build.VERSION.SDK_INT < 30 && (!hasReadStoragePermission(activity) || !hasWritePermission(activity))) {
+        } else if (Build.VERSION.SDK_INT >= 29 && Build.VERSION.SDK_INT < 33) {
+            // For Android 10 and Android 11, we don't request storage permissions
+            callback.onResult(null, null);
+        } else {
             if (ongoing) {
                 callback.onResult("downloadPermission", "Read/Write External Storage permission request ongoing");
+                return;
             }
             permissionsRegistry.addListener(
                     new StorageRequestPermissionsListener(new ResultCallback() {
@@ -69,25 +75,12 @@ public class DownloadPermissions {
                     activity,
                     new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
                     STORAGE_REQUEST_ID);
-        } else {
-            // Permissions already exist. Call the callback with success.
-            callback.onResult(null, null);
         }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
     private boolean hasNotificationPermission(Activity activity) {
         return ContextCompat.checkSelfPermission(activity, Manifest.permission.POST_NOTIFICATIONS)
-                == PackageManager.PERMISSION_GRANTED;
-    }
-
-    private boolean hasReadStoragePermission(Activity activity) {
-        return ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE)
-                == PackageManager.PERMISSION_GRANTED;
-    }
-
-    private boolean hasWritePermission(Activity activity) {
-        return ContextCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 == PackageManager.PERMISSION_GRANTED;
     }
 
@@ -100,7 +93,6 @@ public class DownloadPermissions {
         // we've responded before and bail out of handling the callback manually if this is a repeat
         // call.
         boolean alreadyCalled = false;
-
         final ResultCallback callback;
 
         @VisibleForTesting

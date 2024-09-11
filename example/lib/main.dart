@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:r_upgrade/r_upgrade.dart';
@@ -128,7 +127,7 @@ class _MyAppState extends State<MyApp> {
             title: Text('get version from app store(WeChat)'),
             trailing: iosVersion != null
                 ? Text(iosVersion!,
-                    style: Theme.of(context).textTheme.subtitle2!.copyWith(
+                    style: Theme.of(context).textTheme.titleSmall!.copyWith(
                           color: Colors.grey,
                         ))
                 : null,
@@ -150,7 +149,7 @@ class _MyAppState extends State<MyApp> {
           ListTile(
             title: Text(
               S.of(context).Notification_Related,
-              style: Theme.of(context).textTheme.headline6!.copyWith(
+              style: Theme.of(context).textTheme.titleLarge!.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
             ),
@@ -232,7 +231,7 @@ class _MyAppState extends State<MyApp> {
           ListTile(
             title: Text(
               S.of(context).Install_Related,
-              style: Theme.of(context).textTheme.headline6!.copyWith(
+              style: Theme.of(context).textTheme.titleLarge!.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
             ),
@@ -269,15 +268,15 @@ class _MyAppState extends State<MyApp> {
             ListTile(
               title: Text(
                 S.of(context).Install_Type_Silent_Tip,
-                style: Theme.of(context).textTheme.subtitle2?.copyWith(
-                      color: Theme.of(context).errorColor,
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      color: Theme.of(context).colorScheme.error,
                     ),
               ),
             ),
           ListTile(
             title: Text(
               S.of(context).Update_the_related,
-              style: Theme.of(context).textTheme.headline6!.copyWith(
+              style: Theme.of(context).textTheme.titleLarge!.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
             ),
@@ -323,7 +322,7 @@ class _MyAppState extends State<MyApp> {
             },
             trailing: androidVersion != null
                 ? Text(androidVersion!,
-                    style: Theme.of(context).textTheme.subtitle2!.copyWith(
+                    style: Theme.of(context).textTheme.titleSmall!.copyWith(
                           color: Colors.grey,
                         ))
                 : null,
@@ -440,7 +439,7 @@ class _MyAppState extends State<MyApp> {
           ListTile(
             title: Text(
               S.of(context).Hot_update_related,
-              style: Theme.of(context).textTheme.headline6!.copyWith(
+              style: Theme.of(context).textTheme.titleLarge!.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
             ),
@@ -513,7 +512,7 @@ class _MyAppState extends State<MyApp> {
           ListTile(
             title: Text(
               S.of(context).Incremental_updating,
-              style: Theme.of(context).textTheme.headline6!.copyWith(
+              style: Theme.of(context).textTheme.titleLarge!.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
             ),
@@ -579,7 +578,7 @@ class _MyAppState extends State<MyApp> {
           ListTile(
             title: Text(
               S.of(context).History_related,
-              style: Theme.of(context).textTheme.headline6!.copyWith(
+              style: Theme.of(context).textTheme.titleLarge!.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
             ),
@@ -589,7 +588,7 @@ class _MyAppState extends State<MyApp> {
             trailing: lastId != null
                 ? Text(
                     lastId.toString(),
-                    style: Theme.of(context).textTheme.subtitle2!.copyWith(
+                    style: Theme.of(context).textTheme.titleSmall!.copyWith(
                           color: Colors.grey,
                         ),
                   )
@@ -626,7 +625,7 @@ class _MyAppState extends State<MyApp> {
             ),
             trailing: lastStatus != null
                 ? Text(getStatus(lastStatus),
-                    style: Theme.of(context).textTheme.subtitle2!.copyWith(
+                    style: Theme.of(context).textTheme.titleSmall!.copyWith(
                           color: Colors.grey,
                         ))
                 : null,

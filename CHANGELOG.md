@@ -1,3 +1,7 @@
+## 0.4.3
+* 移除对 READ_EXTERNAL_STORAGE 和 WRITE_EXTERNAL_STORAGE 权限的请求（ Android 10 和 Android 11，不再请求这些权限）
+* Android 12 及以上版本，请求 POST_NOTIFICATIONS 权限
+* 支持“升级到gradle到8.7”
 ## 0.4.2
 * fix issues(#76) support android 13.
 ## 0.4.1
