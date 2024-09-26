@@ -25,6 +25,7 @@ rootProject.allprojects {
 apply plugin: 'com.android.library'
 
 android {
+    namespace "com.example.r_upgrade"
     compileSdkVersion 33
 
     defaultConfig {
